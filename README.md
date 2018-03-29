@@ -1,4 +1,2 @@
 # SkateTracker
-Hello, World.
-# Branch Test
-
+Parker's ReadME
