@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">SkateTracker</string>
+    <string name="title_activity_current_session">CurrentSession</string>
 </resources>
