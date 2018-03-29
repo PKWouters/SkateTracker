@@ -14,17 +14,19 @@ import static org.junit.Assert.*;
  */
 public class TrickCreateTest {
     ArrayList<Trick> trickList = new ArrayList<Trick>();
+
     @Test
     public void DidCreateTrick() {
         trickList.add(new Trick("Kickflip"));
         assertEquals(1, trickList.size());
     }
+
     @Test
     public void DidStartTracking(){
         trickList.add(new Trick("Kickflip"));
         Trick trick = trickList.get(0);
         trick.StartTracking();
-        assertEquals(true, trick);
+        assertEquals(true, trick.IsTracking());
     }
     @Test
     public void DidEndTracking(){

@@ -46,7 +46,10 @@ public class Trackable {
     }
 
     public int EllapsedTime(){
-        int now = (int)(System.currentTimeMillis());
-        return (now - _trackerStarted) / 1000;
+        if(_isTracking) {
+            int now = (int) (System.currentTimeMillis());
+            return (now - _trackerStarted) / 1000;
+        }
+        return _trackerStarted;
     }
 }
