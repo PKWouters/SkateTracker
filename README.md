@@ -1,5 +1,2 @@
 # SkateTracker
-Hello, World.
-# Branch Test
-
-Fuck you
+An app that lets to track your skill level/progress in skateboarding...
