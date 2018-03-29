@@ -5,9 +5,16 @@ import android.os.Bundle;
 
 public class defaultActivity extends AppCompatActivity {
 
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_default);
+
+        Trick testTrick = new Trick("Kickflip");
+        System.out.println("Starting Tracking");
+
     }
 }
