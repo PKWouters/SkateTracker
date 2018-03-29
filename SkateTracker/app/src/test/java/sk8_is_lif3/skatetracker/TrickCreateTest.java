@@ -16,24 +16,42 @@ public class TrickCreateTest {
     ArrayList<Trick> trickList = new ArrayList<Trick>();
 
     @Test
-    public void DidCreateTrick() {
-        trickList.add(new Trick("Kickflip"));
-        assertEquals(1, trickList.size());
+    public void Didaddtrick(){
+        Session whatever = new Session();
+        whatever.addtrick(new Trick("kickflip"));
+        assertEquals(1,whatever.getTricksadded());
     }
 
     @Test
-    public void DidStartTracking(){
-        trickList.add(new Trick("Kickflip"));
-        Trick trick = trickList.get(0);
+    public void IsAccuratelyTracking(){
+        Session whatever = new Session();
+        whatever.addtrick(new Trick("Kickflip"));
+        Trick trick = whatever.getTricksadded().get(0);
+        whatever.StartTracking();
         trick.StartTracking();
         assertEquals(true, trick.IsTracking());
     }
     @Test
     public void DidEndTracking(){
+        Session whatever = new Session();
         trickList.add(new Trick("Kickflip"));
         Trick trick = trickList.get(0);
         trick.StartTracking();
         trick.PauseTracking();
         assertEquals(false, trick.IsTracking());
+        double timeEllapsed = whatever.EllapsedTime();
+        double trickEllapsedTime = trick.EllapsedTime();
+        do {
+            timeEllapsed = whatever.EllapsedTime();
+            trickEllapsedTime = trick.EllapsedTime();
+            if(trickEllapsedTime >= 1.0){
+                trick.PauseTracking();
+            }
+            if(timeEllapsed >= 2.0){
+                whatever.PauseTracking();
+            }
+        }while (whatever.IsTracking());
+        assertEquals(1.0,trick.GetSecondsTracked(), 0.0);
+        //assertEquals(2.0,whatever.GetSecondsTracked(), 0.0);
     }
 }

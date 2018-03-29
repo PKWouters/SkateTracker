@@ -1,4 +1,2 @@
 # SkateTracker
-Hello, World.
-# Branch Test
-
+An app that lets to track your skill level/progress in skateboarding...
