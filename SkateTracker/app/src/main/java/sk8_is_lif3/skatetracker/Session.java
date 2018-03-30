@@ -1,6 +1,9 @@
 package sk8_is_lif3.skatetracker;
 
+import android.arch.persistence.room.Entity;
+
 import java.util.ArrayList;
+
 
 public class Session extends Trackable
 {

@@ -1,8 +1,10 @@
 package sk8_is_lif3.skatetracker;
 
 import android.app.AlertDialog;
+import android.arch.persistence.room.Room;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -16,6 +18,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.List;
+
+import sk8_is_lif3.skatetracker.database.AppDatabase;
 
 public class CurrentSession extends AppCompatActivity{
 
@@ -23,8 +28,8 @@ public class CurrentSession extends AppCompatActivity{
     private RecyclerView trickRecyclerView;
     private RecyclerView.Adapter trickAdapter;
     private RecyclerView.LayoutManager trickLayoutManager;
-
-    ArrayList<Trick> tempTrickList;
+    private AppDatabase database;
+    List<Trick> tempTrickList;
 
 
     @Override
@@ -35,7 +40,15 @@ public class CurrentSession extends AppCompatActivity{
         toolbar.setTitle("Current Session");
         setSupportActionBar(toolbar);
 
+        database = AppDatabase.getDatabase(getApplicationContext());
         tempTrickList = new ArrayList<Trick>();
+
+        if(database.trickDAO().getTricks().size() > 0) {
+            for (Trick t:database.trickDAO().getTricks()) {
+                if(!tempTrickList.contains(t))
+                    tempTrickList.add(t);
+            }
+        }
 
         trickRecyclerView = (RecyclerView) findViewById(R.id.trickRecyclerView);
         trickRecyclerView.setHasFixedSize(true);
@@ -43,7 +56,6 @@ public class CurrentSession extends AppCompatActivity{
         trickRecyclerView.setLayoutManager(trickLayoutManager);
         trickAdapter = new TrickAdapter(tempTrickList);
         trickRecyclerView.setAdapter(trickAdapter);
-
 
 
         //ADD NEW TRICK BUTTON
@@ -63,7 +75,6 @@ public class CurrentSession extends AppCompatActivity{
                             public void onClick(DialogInterface dialog, int id) {
                                 //Save to Trick List
                                 tempTrickList.add(new Trick(trickName.getText().toString()));
-                                tempTrickList.get(tempTrickList.size()-1).StartTracking();
                                 trickAdapter.notifyDataSetChanged();
                             }
                         })
@@ -78,12 +89,17 @@ public class CurrentSession extends AppCompatActivity{
                 builder.show();
             }
         });
+    }
 
-       runOnUiThread(new Runnable() {
-           public void run() {
-               trickAdapter.notifyDataSetChanged();
-           }
-       });
+    @Override
+    protected void onPause() {
+        super.onPause();
+        for (Trick trick:database.trickDAO().getTricks()) {
+            database.trickDAO().deleteTrick(trick);
+        }
+        for (Trick trick:tempTrickList) {
+            database.trickDAO().insertTrick(trick);
+        }
     }
 
 }

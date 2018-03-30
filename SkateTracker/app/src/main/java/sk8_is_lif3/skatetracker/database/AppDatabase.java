@@ -8,7 +8,7 @@ import android.content.Context;
 import sk8_is_lif3.skatetracker.Session;
 import sk8_is_lif3.skatetracker.Trick;
 
-@Database(entities = {Trick.class}, version = 1, exportSchema = false)
+@Database(entities = {Trick.class}, version = 2, exportSchema = false)
 public abstract class AppDatabase extends RoomDatabase{
     private static AppDatabase INSTANCE;
 
