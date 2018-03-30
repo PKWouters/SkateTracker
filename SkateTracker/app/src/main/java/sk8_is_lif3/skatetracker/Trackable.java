@@ -1,11 +1,16 @@
 package sk8_is_lif3.skatetracker;
 
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.Ignore;
+
+@Entity
 public class Trackable {
 
+    @Ignore
     private boolean _isTracking = false;
-
+    @Ignore
     private int _trackerStarted, _trackerEnded;
-
+    @Ignore
     private int _trackedHours, _trackedMinutes, _trackedSeconds;
 
     public Trackable(){
