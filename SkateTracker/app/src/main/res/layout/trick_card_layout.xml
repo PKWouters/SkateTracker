@@ -12,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        card_view:cardBackgroundColor="@android:color/darker_gray"
+        card_view:cardBackgroundColor="@color/colorPrimaryDark"
         card_view:cardCornerRadius="4dp"
         card_view:cardElevation="0dp"
         card_view:cardUseCompatPadding="true"
@@ -31,14 +31,24 @@
                 android:layout_alignParentTop="true"
                 android:layout_marginEnd="16dp"
                 android:layout_marginTop="20dp"
-                app:srcCompat="@android:drawable/btn_dialog" />
+                card_view:srcCompat="@drawable/ic_remove_circle" />
+
+            <ImageView
+                android:id="@+id/incrementButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentTop="true"
+                android:layout_marginEnd="16dp"
+                android:layout_marginTop="21dp"
+                card_view:srcCompat="@drawable/ic_plus_1" />
 
             <LinearLayout
                 android:id="@+id/buttonLayout"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
-                android:layout_marginTop="48dp"
+                android:layout_marginTop="70dp"
                 android:orientation="horizontal">
 
                 <Button
@@ -82,6 +92,7 @@
                 android:layout_marginTop="18dp"
                 android:text="TrickName"
                 android:textAppearance="@style/TextAppearance.AppCompat.Large"
+                android:textColor="@android:color/white"
                 android:textSize="24sp"
                 card_view:layout_constraintStart_toStartOf="parent"
                 card_view:layout_constraintTop_toTopOf="parent" />
@@ -93,10 +104,20 @@
                 android:layout_height="wrap_content"
                 android:layout_alignStart="@+id/trickName"
                 android:layout_alignTop="@+id/buttonLayout"
-                android:layout_marginTop="10dp"
-                android:text="TextView"
+                android:layout_marginTop="13dp"
+                android:text="A very long string of text "
+                android:textColor="@android:color/white"
                 card_view:layout_constraintBaseline_toBaselineOf="@+id/trickName"
                 card_view:layout_constraintEnd_toEndOf="parent" />
+
+            <TextView
+                android:id="@+id/timesLandedView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignStart="@+id/trickName"
+                android:layout_centerVertical="true"
+                android:text="TextView"
+                android:textColor="@color/cardview_light_background" />
         </RelativeLayout>
 
     </android.support.v7.widget.CardView>

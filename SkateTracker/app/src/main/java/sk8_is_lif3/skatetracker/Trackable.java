@@ -83,6 +83,6 @@ public class Trackable {
             _trackedMinutes = _trackedMinutes % 60;
             _trackedSeconds = _trackedSeconds % 60;
         }
-        return String.format("%d::%d::%d", _trackedHours, _trackedMinutes, _trackedSeconds);
+        return String.format("%d hr, %d mins, %d sec", _trackedHours, _trackedMinutes, _trackedSeconds);
     }
 }

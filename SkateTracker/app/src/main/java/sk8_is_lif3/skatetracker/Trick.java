@@ -41,7 +41,10 @@ public class Trick extends Trackable {
     }
     public int GetTimesLanded(){ return _timesLanded; }
 
-
+    public void IncrementTimesLanded(){
+        if(IsTracking())
+            _timesLanded++;
+    }
     private String GenerateID() {
         //CREATE STATIC ID
         String ret = "";

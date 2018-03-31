@@ -1,5 +1,6 @@
 package sk8_is_lif3.skatetracker;
 
+import android.content.Context;
 import android.graphics.Color;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -7,16 +8,21 @@ import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.transition.Transition;
 import android.transition.TransitionManager;
+import android.transition.TransitionValues;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
+import android.view.animation.TranslateAnimation;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,11 +41,11 @@ public class TrickAdapter extends RecyclerView.Adapter<TrickAdapter.ViewHolder> 
     //VIEW HOLDER STUFF
     public static class ViewHolder extends RecyclerView.ViewHolder {
         // each data item is just a string in this case
-        public TextView trickNameView, ellapsedTimeView;
+        public TextView trickNameView, ellapsedTimeView, timesLandedView;
         public View itemView;
         public Button startBtn, stopBtn;
         public LinearLayout btnLayout;
-        public ImageView arrowView;
+        public ImageView removeButton, incrementButton;
         public ViewHolder(View v) {
             super(v);
             itemView = v;
@@ -48,7 +54,9 @@ public class TrickAdapter extends RecyclerView.Adapter<TrickAdapter.ViewHolder> 
             startBtn = v.findViewById(R.id.startTrackingButton);
             stopBtn = v.findViewById(R.id.stopTrackingButton);
             btnLayout = v.findViewById(R.id.buttonLayout);
-            arrowView = v.findViewById(R.id.arrowView);
+            removeButton = v.findViewById(R.id.arrowView);
+            incrementButton = v.findViewById(R.id.incrementButton);
+            timesLandedView = v.findViewById(R.id.timesLandedView);
         }
     }
 
@@ -68,15 +76,33 @@ public class TrickAdapter extends RecyclerView.Adapter<TrickAdapter.ViewHolder> 
         CardView cardView = holder.itemView.findViewById(R.id.card_view);
         final boolean isExpanded = position == _expandedPosition;
         holder.trickNameView.setText(trickSet.get(position).GetName());
-        holder.ellapsedTimeView.setText(trickSet.get(position).EllapsedTime());
-        holder.ellapsedTimeView.setVisibility(isExpanded&&trickSet.get(position).IsTracking()?View.VISIBLE:View.GONE);
-        holder.btnLayout.setVisibility(isExpanded?View.VISIBLE:View.GONE);
+        holder.trickNameView.setTextColor(Color.rgb(255,255,255));
+        holder.timesLandedView.setTextColor(Color.rgb(255,255,255));
+        holder.timesLandedView.setText("Landed: " + trickSet.get(position).GetTimesLanded() + " times");
 
+        final Handler handler = new Handler();
+        final Runnable rn = new Runnable() {
+            @Override
+            public void run() {
+                if(position < trickSet.size())
+                    if(isExpanded && trickSet.get(position).IsTracking()){
+                        holder.ellapsedTimeView.setText(trickSet.get(position).EllapsedTime());
+                        handler.postDelayed(this, 1000);
+                    }
+            }
+        };
+
+        holder.ellapsedTimeView.setText(trickSet.get(position).EllapsedTime());
+        holder.ellapsedTimeView.setTextColor(Color.rgb(255,255,255));
+        holder.ellapsedTimeView.setVisibility(isExpanded&&trickSet.get(position).IsTracking()?View.VISIBLE:View.GONE);
+        holder.timesLandedView.setVisibility(isExpanded?View.VISIBLE:View.GONE);
+        holder.btnLayout.setVisibility(isExpanded?View.VISIBLE:View.GONE);
+        holder.removeButton.setVisibility(isExpanded?View.VISIBLE:View.GONE);
 
         //Is Tracking
         cardView.setCardBackgroundColor(trickSet.get(position).IsTracking()?
                                         holder.itemView.getResources().getColor(R.color.colorAccent):
-                                        holder.itemView.getResources().getColor(R.color.cardview_dark_background));
+                                        holder.itemView.getResources().getColor(R.color.colorPrimaryDark));
         holder.startBtn.setTextColor(trickSet.get(position).IsTracking()?
                                     Color.rgb(255,255,255):
                                     holder.itemView.getResources().getColor(R.color.colorAccent));
@@ -85,29 +111,31 @@ public class TrickAdapter extends RecyclerView.Adapter<TrickAdapter.ViewHolder> 
                 holder.itemView.getResources().getColor(R.color.colorAccent));
 
         cardView.setCardElevation(isExpanded?6:0);
-        cardView.setCardElevation(trickSet.get(position).IsTracking()?3:0);
-        holder.itemView.setActivated(isExpanded);
+        holder.incrementButton.animate().translationX(isExpanded?-125:0);
+        cardView.setActivated(isExpanded);
 
-        final Handler handler = new Handler();
-        final Runnable rn = new Runnable() {
-            @Override
-            public void run() {
-                if(isExpanded && trickSet.get(position).IsTracking()){
-                    holder.ellapsedTimeView.setText(trickSet.get(position).EllapsedTime());
-                    handler.postDelayed(this, 1000);
-                }
-            }
-        };
-
-        holder.arrowView.setOnClickListener(new View.OnClickListener() {
+        //Button Handlers
+        holder.removeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                TransitionManager.beginDelayedTransition(recyclerView);
                 trickSet.remove(trickSet.get(position));
+                _expandedPosition = isExpanded ? -1:position;
                 notifyDataSetChanged();
             }
         });
-
-        //Button Handlers
+        holder.incrementButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                TransitionManager.beginDelayedTransition(recyclerView);
+                trickSet.get(position).IncrementTimesLanded();
+                if(trickSet.get(position).IsTracking())
+                    Toast.makeText(holder.itemView.getContext(), "Landed: " + trickSet.get(position).GetTimesLanded(), Toast.LENGTH_SHORT).show();
+                else
+                    Toast.makeText(holder.itemView.getContext(), "You must be tracking this trick in order to land it...", Toast.LENGTH_SHORT).show();
+                notifyDataSetChanged();
+            }
+        });
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -120,7 +148,6 @@ public class TrickAdapter extends RecyclerView.Adapter<TrickAdapter.ViewHolder> 
         holder.stopBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 TransitionManager.beginDelayedTransition(recyclerView);
                 trickSet.get(position).PauseTracking();
                 notifyDataSetChanged();
@@ -130,15 +157,22 @@ public class TrickAdapter extends RecyclerView.Adapter<TrickAdapter.ViewHolder> 
             @Override
             public void onClick(View v) {
                 TransitionManager.beginDelayedTransition(recyclerView);
+                for (Trick t:trickSet) {
+                    if(t.IsTracking())
+                        t.PauseTracking();
+                }
                 trickSet.get(position).StartTracking();
                 notifyDataSetChanged();
             }
         });
+
     }
 
     @Override
     public int getItemCount() {
         return trickSet.size();
     }
+
+
 
 }
