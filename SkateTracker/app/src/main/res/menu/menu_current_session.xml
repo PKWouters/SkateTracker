@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+
+    <!-- Settings, should always be in the overflow -->
+    <item
+        android:id="@+id/end_session_item"
+        android:icon="@drawable/ic_stop_black_24dp"
+        android:title="End Session"
+        app:showAsAction="always" />
+
+
+</menu>

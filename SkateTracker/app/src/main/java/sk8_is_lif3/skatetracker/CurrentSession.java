@@ -12,6 +12,9 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -30,25 +33,23 @@ public class CurrentSession extends AppCompatActivity{
     private RecyclerView.LayoutManager trickLayoutManager;
     private AppDatabase database;
     List<Trick> tempTrickList;
-
+    Session currentSession;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_current_session);
+
+        //TOOLBAR
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        toolbar.setTitle("Current Session");
+        toolbar.setTitle("Session In Progress");
         setSupportActionBar(toolbar);
+
+        currentSession = new Session();
+        currentSession.StartTracking();
 
         database = AppDatabase.getDatabase(getApplicationContext());
         tempTrickList = new ArrayList<Trick>();
-
-        if(database.trickDAO().getTricks().size() > 0) {
-            for (Trick t:database.trickDAO().getTricks()) {
-                if(!tempTrickList.contains(t))
-                    tempTrickList.add(t);
-            }
-        }
 
         trickRecyclerView = (RecyclerView) findViewById(R.id.trickRecyclerView);
         trickRecyclerView.setHasFixedSize(true);
@@ -92,13 +93,49 @@ public class CurrentSession extends AppCompatActivity{
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
-        for (Trick trick:database.trickDAO().getTricks()) {
-            database.trickDAO().deleteTrick(trick);
-        }
-        for (Trick trick:tempTrickList) {
-            database.trickDAO().insertTrick(trick);
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_current_session, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.end_session_item:
+                // User chose the "Settings" item, show the app settings UI...
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                // Add the buttons
+                // 2. Chain together various setter methods to set the dialog characteristics
+                builder.setMessage("Are you sure you want to end your Session?")
+                        .setTitle("End Session");
+
+                builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        // User clicked OK button
+                        for (Trick t:tempTrickList) {
+                            currentSession.AddTrick(t);
+                        }
+                        currentSession.PauseTracking();
+                        database.sessionDAO().insertSession(currentSession);
+                        System.out.println(database.sessionDAO().getSessions().size());
+                        finish();
+                    }
+                });
+                builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                    }
+                });
+                // Create the AlertDialog
+                AlertDialog dialog = builder.create();
+                dialog.show();
+                return true;
+
+            default:
+                // If we got here, the user's action was not recognized.
+                // Invoke the superclass to handle it.
+                return super.onOptionsItemSelected(item);
+
         }
     }
 
