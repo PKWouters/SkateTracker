@@ -11,6 +11,21 @@
     >
 
 
+    <TextView
+        android:id="@+id/text_View"
+        android:layout_width="fill_parent"
+        android:layout_height="100dp"
+        android:layout_marginTop="204dp"
+        android:gravity="center"
+        android:text="click the plus button to start"
+        android:textColor="@color/cardview_light_background"
+        android:textSize="20dp"
+        app:layout_constraintEnd_toEndOf="@+id/trickRecyclerView"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="click the plus button to start" />
+
     <android.support.v7.widget.RecyclerView
         android:id="@+id/trickRecyclerView"
         android:layout_width="0dp"
@@ -20,7 +35,9 @@
         android:scrollbars="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0" />
 
 </android.support.constraint.ConstraintLayout>
