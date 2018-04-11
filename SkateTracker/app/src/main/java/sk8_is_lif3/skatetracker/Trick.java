@@ -40,11 +40,15 @@ public class Trick extends Trackable {
         return _static_id;
     }
     public int GetTimesLanded(){ return _timesLanded; }
+    public double GetRatio(){
+        return (_timesLanded / (GetTotalSecondsTracked()/60));
+    }
 
     public void IncrementTimesLanded(){
         if(IsTracking())
             _timesLanded++;
     }
+
     private String GenerateID() {
         //CREATE STATIC ID
         String ret = "";
@@ -60,5 +64,4 @@ public class Trick extends Trackable {
         }
         return ret;
     }
-
 }

@@ -1,5 +1,6 @@
 package sk8_is_lif3.skatetracker;
 
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.os.Handler;
 import android.support.v7.widget.CardView;
@@ -15,10 +16,20 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.github.mikephil.charting.charts.BarChart;
+import com.github.mikephil.charting.components.AxisBase;
+import com.github.mikephil.charting.components.Description;
+import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
 import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.formatter.IAxisValueFormatter;
+import com.github.mikephil.charting.formatter.IValueFormatter;
+import com.github.mikephil.charting.renderer.XAxisRenderer;
+import com.github.mikephil.charting.utils.MPPointF;
+import com.github.mikephil.charting.utils.Utils;
+import com.github.mikephil.charting.utils.ViewPortHandler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -73,8 +84,8 @@ public class SessionAdapter extends RecyclerView.Adapter<SessionAdapter.ViewHold
         final boolean isExpanded = position == _expandedPosition;
         Session currSession = sessionList.get(position);
         holder.sessionNameView.setText(currSession.GetDate());
-        holder.sessionNameView.setTextColor(Color.rgb(255,255,255));
-        holder.totalTimeView.setTextColor(Color.rgb(255,255,255));
+        holder.sessionNameView.setTextColor(Color.WHITE);
+        holder.totalTimeView.setTextColor(Color.WHITE);
         holder.totalTimeView.setText("Total Time: " +(int)(currSession.GetHoursTracked()) + " hrs, " + (int)(currSession.GetMinutesTracked()) + "mins, " + (int)(currSession.GetSecondsTracked()) + " secs");
         holder.removeButton.setVisibility(isExpanded?View.VISIBLE:View.GONE);
         holder.totalTimeView.setVisibility(isExpanded?View.VISIBLE:View.GONE);
@@ -84,20 +95,82 @@ public class SessionAdapter extends RecyclerView.Adapter<SessionAdapter.ViewHold
 
         //Graph Stuff
         ArrayList<Trick> tricks = sessionList.get(position).GetTricksAdded();
+        final String[] trickNames = new String[tricks.size()];
+        for(int i = 0; i < trickNames.length; ++i){
+            trickNames[i] = String.valueOf(tricks.get(i).GetName().toUpperCase() + System.getProperty("line.separator") + tricks.get(i).EllapsedTime() + System.getProperty("line.separator") + tricks.get(i).GetTimesLanded() + " Successful Attempts");
+        }
 
         List<BarEntry> entries = new ArrayList<BarEntry>();
-
+        int[] colors = new int[tricks.size()];
         for(int i = 0; i < tricks.size(); ++i){
-            entries.add(new BarEntry(i+1, tricks.get(i).GetTimesLanded(), tricks.get(i).GetName()));
+            if(tricks.get(i).GetRatio() < 1.0) {
+                float val = (float) (tricks.get(i).GetRatio())-1.0f;
+                entries.add(new BarEntry(i, val));
+                colors[i] = Color.RED;
+            }else{
+                entries.add(new BarEntry(i, (float) (Math.round(tricks.get(i).GetRatio()))));
+                colors[i] = Color.GREEN;
+            }
         }
 
         BarDataSet dataSet = new BarDataSet(entries, "Tricks"); // add entries to dataset
-        dataSet.setColor(Color.rgb(255,255,255));
-        dataSet.setValueTextColor(Color.rgb(255,255,255)); // styling, ...
+        dataSet.setLabel("Successful Landings/Minutes");
+        dataSet.setColors(colors);
+        dataSet.setValueFormatter(new IValueFormatter() {
+            @Override
+            public String getFormattedValue(float value, Entry entry, int dataSetIndex, ViewPortHandler viewPortHandler) {
+                return String.valueOf((int)(GetGCDNum(value)) + "Landed / " +(int)(GetGCDDen(value)) + " minutes");
+            }
+        });
+        dataSet.setValueTextColor(Color.WHITE); // styling, ...
 
         BarData lineData = new BarData(dataSet);
         holder.barChart.setData(lineData);
         holder.barChart.invalidate(); // refresh
+        holder.barChart.getLegend().setTextColor(Color.WHITE);
+
+        IAxisValueFormatter xFormatter = new IAxisValueFormatter() {
+
+            @Override
+            public String getFormattedValue(float value, AxisBase axis) {
+                return trickNames[(int) value];
+            }
+
+        };
+
+
+
+        IAxisValueFormatter yFormatter = new IAxisValueFormatter() {
+            @Override
+            public String getFormattedValue(float value, AxisBase axis) {
+                return Float.toString(value);
+            }
+        };
+        XAxis xAxis = holder.barChart.getXAxis();
+        XAxisRenderer xRenderer = new XAxisRenderer(holder.barChart.getViewPortHandler(), xAxis, holder.barChart.getTransformer(YAxis.AxisDependency.LEFT)){
+            @Override
+            protected void drawLabel(Canvas c, String formattedLabel, float x, float y, MPPointF anchor, float angleDegrees) {
+                String lines[] = formattedLabel.split("\n");
+                for (int i = 0; i < lines.length; i++) {
+                    float vOffset = i * mAxisLabelPaint.getTextSize();
+                    Utils.drawXAxisValue(c, lines[i], x, y + vOffset, mAxisLabelPaint, anchor, angleDegrees);
+                }
+            }
+        };
+        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+        xAxis.setGranularity(1f); // minimum axis-step (interval) is 1
+        xAxis.setTextColor(Color.WHITE);
+        xAxis.setValueFormatter(xFormatter);
+        holder.barChart.setXAxisRenderer(xRenderer);
+        holder.barChart.setExtraBottomOffset(15);
+        YAxis yAxis = holder.barChart.getAxisLeft();
+        yAxis.setDrawLabels(false); // no axis labels
+        yAxis.setDrawAxisLine(false); // no axis line
+        yAxis.setDrawGridLines(false); // no grid lines
+        yAxis.setDrawZeroLine(true); // draw a zero line
+        holder.barChart.getAxisRight().setEnabled(false); // no right axis
+
+
 
         //Button Handlers
         holder.removeButton.setOnClickListener(new View.OnClickListener() {
@@ -118,7 +191,6 @@ public class SessionAdapter extends RecyclerView.Adapter<SessionAdapter.ViewHold
                 notifyDataSetChanged();
             }
         });
-
     }
 
     @Override
@@ -126,6 +198,42 @@ public class SessionAdapter extends RecyclerView.Adapter<SessionAdapter.ViewHold
         return sessionList.size();
     }
 
+    private double GetGCDDen(double n){
+        String s = String.format("%.1f", n);
+        int digitsDec = s.length() - 1 - s.indexOf('.');
+        int denom = 1;
+        for (int i = 0; i < digitsDec; i++) {
+            n *= 10;
+            denom *= 10;
+        }
 
+        int num = (int) Math.round(n);
+        double g = gcd(num, denom);
+        return (denom /g);
+    }
+
+    private double GetGCDNum(double n){
+        String s = String.format("%.1f", n);
+        int digitsDec = s.length() - 1 - s.indexOf('.');
+        int denom = 1;
+        for (int i = 0; i < digitsDec; i++) {
+            n *= 10;
+            denom *= 10;
+        }
+
+        int num = (int) Math.round(n);
+        double g = gcd(num, denom);
+        return (num /g);
+    }
+
+    private double gcd(int x, int y){
+        int r = x % y;
+        while (r != 0){
+            x = y;
+            y = r;
+            r = x % y;
+        }
+        return y;
+    }
 
 }
