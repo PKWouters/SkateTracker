@@ -70,7 +70,7 @@ public class CurrentSession extends AppCompatActivity{
             @Override
             public void run() {
                 if (currentSession.IsTracking()) {
-                    toolbar.setTitle("Session In Progress: " + currentSession.EllapsedTime());
+                    toolbar.setTitle("Active Session: " + currentSession.EllapsedTime());
                     handler.postDelayed(this, 1000);
                 }
             }
@@ -136,6 +136,7 @@ public class CurrentSession extends AppCompatActivity{
                     public void onClick(DialogInterface dialog, int id) {
                         // User clicked OK button
                         for (Trick t:tempTrickList) {
+                            t.PauseTracking();
                             currentSession.AddTrick(t);
                         }
                         currentSession.PauseTracking();
