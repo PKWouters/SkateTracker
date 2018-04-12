@@ -1,6 +1,7 @@
 package sk8_is_lif3.skatetracker;
 
 import android.app.AlertDialog;
+import android.app.MediaRouteButton;
 import android.arch.persistence.room.Room;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -57,6 +58,12 @@ public class CurrentSession extends AppCompatActivity{
         trickRecyclerView.setLayoutManager(trickLayoutManager);
         trickAdapter = new TrickAdapter(tempTrickList);
         trickRecyclerView.setAdapter(trickAdapter);
+
+        if (tempTrickList.size() == 0){
+            trickRecyclerView.setVisibility(View.GONE);
+            TextView tv = (TextView) findViewById(R.id.text_View);
+            tv.setText("Click the plus button to start");
+        }
 
 
         //ADD NEW TRICK BUTTON

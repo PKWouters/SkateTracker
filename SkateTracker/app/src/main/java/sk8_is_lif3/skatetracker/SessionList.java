@@ -15,6 +15,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -82,6 +83,12 @@ public class SessionList extends Fragment {
         toolbar.setTitle("My Sessions");
         AppCompatActivity activity = (AppCompatActivity)getActivity();
         activity.setSupportActionBar(toolbar);
+
+        if (sessionList.size() == 0){
+            sessionRecyclerView.setVisibility(View.GONE);
+            TextView tv = (TextView) getView().findViewById(R.id.text_View);
+            tv.setText("Click the plus button to start");
+        }
 
     }
     @Override
