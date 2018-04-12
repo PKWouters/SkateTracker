@@ -19,7 +19,7 @@ import java.util.List;
 public class TrickAdapter extends RecyclerView.Adapter<TrickAdapter.ViewHolder> {
 
     private List<Trick> trickSet;
-    private int _expandedPosition = -1;
+    private int _expandedPosition = -1, _previousExpandedPosition = -1;
     ViewGroup recyclerView;
 
     public TrickAdapter(List<Trick> tricks) {
@@ -80,6 +80,8 @@ public class TrickAdapter extends RecyclerView.Adapter<TrickAdapter.ViewHolder> 
                     }
             }
         };
+        if(isExpanded)
+            _previousExpandedPosition = position;
 
         holder.ellapsedTimeView.setText(trickSet.get(position).EllapsedTime());
         holder.ellapsedTimeView.setTextColor(Color.rgb(255,255,255));
@@ -130,30 +132,27 @@ public class TrickAdapter extends RecyclerView.Adapter<TrickAdapter.ViewHolder> 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                TransitionManager.beginDelayedTransition(recyclerView);
                 _expandedPosition = isExpanded ? -1:position;
-                notifyDataSetChanged();
+                notifyItemChanged(_previousExpandedPosition);
+                notifyItemChanged(position);
             }
         });
         holder.stopBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                TransitionManager.beginDelayedTransition(recyclerView);
                 trickSet.get(position).PauseTracking();
-                notifyDataSetChanged();
+                notifyItemChanged(position);
             }
         });
         holder.startBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                TransitionManager.beginDelayedTransition(recyclerView);
                 for (Trick t:trickSet) {
                     if(t.IsTracking())
                         t.PauseTracking();
                 }
                 trickSet.get(position).StartTracking();
-                notifyDataSetChanged();
+                notifyItemChanged(position);
             }
         });
 

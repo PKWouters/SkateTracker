@@ -8,7 +8,13 @@ import android.graphics.Color;
 import android.os.Handler;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.transition.AutoTransition;
+import android.transition.ChangeBounds;
+import android.transition.Fade;
+import android.transition.Transition;
 import android.transition.TransitionManager;
+import android.transition.TransitionSet;
+import android.transition.TransitionValues;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -45,6 +51,7 @@ public class SessionAdapter extends RecyclerView.Adapter<SessionAdapter.ViewHold
 
     private List<Session> sessionList;
     private int _expandedPosition = -1;
+    private int _previousExpandedPosition = -1;
     ViewGroup recyclerView;
     AppDatabase database;
 
@@ -59,6 +66,7 @@ public class SessionAdapter extends RecyclerView.Adapter<SessionAdapter.ViewHold
         public TextView sessionNameView, totalTimeView, totalTricksView;
         public View itemView;
         public ImageView removeButton;
+        public int currPosition;
         public BarChart barChart;
         public ViewHolder(View v) {
             super(v);
@@ -78,8 +86,8 @@ public class SessionAdapter extends RecyclerView.Adapter<SessionAdapter.ViewHold
                 .inflate(R.layout.session_card_layout, parent, false);
         recyclerView = parent;
         database = AppDatabase.getDatabase(recyclerView.getContext());
+        final ViewHolder vh = new ViewHolder(v);
 
-        ViewHolder vh = new ViewHolder(v);
         return vh;
 
     }
@@ -101,6 +109,8 @@ public class SessionAdapter extends RecyclerView.Adapter<SessionAdapter.ViewHold
         holder.barChart.setVisibility(isExpanded?View.VISIBLE:View.GONE);
         cardView.setCardElevation(isExpanded?6:0);
         cardView.setActivated(isExpanded);
+        if (isExpanded)
+            _previousExpandedPosition = position;
 
         //--------------Graph Stuff---------------//
         ArrayList<Trick> tricks = sessionList.get(position).GetTricksAdded();
@@ -235,11 +245,12 @@ public class SessionAdapter extends RecyclerView.Adapter<SessionAdapter.ViewHold
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                TransitionManager.beginDelayedTransition(recyclerView);
                 _expandedPosition = isExpanded ? -1:position;
-                notifyDataSetChanged();
+                notifyItemChanged(_previousExpandedPosition);
+                notifyItemChanged(position);
             }
         });
+
     }
 
     @Override
