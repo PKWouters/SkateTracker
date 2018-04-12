@@ -116,16 +116,13 @@ public class SessionList extends Fragment {
     @Override
     public void onResume(){
         super.onResume();
-        if(database.trickDAO().getTricks().size() > 0) {
+        sessionList.clear();
+        if(database.sessionDAO().getSessions().size() > 0) {
             for (Session s:database.sessionDAO().getSessions()) {
-                if(!sessionList.contains(s)) {
-                    sessionList.add(s);
-                    System.out.println(s.tricksAddedString);
-                }
+                sessionList.add(s);
+                sessionAdapter.notifyDataSetChanged();
             }
         }
-        sessionAdapter.notifyDataSetChanged();
-        sessionRecyclerView.setAdapter(sessionAdapter);
     }
 
 }
