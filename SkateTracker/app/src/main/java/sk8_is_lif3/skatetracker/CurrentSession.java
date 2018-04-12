@@ -42,7 +42,7 @@ public class CurrentSession extends AppCompatActivity{
         setContentView(R.layout.activity_current_session);
 
         //TOOLBAR
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle("Session In Progress");
         setSupportActionBar(toolbar);
 
@@ -64,6 +64,18 @@ public class CurrentSession extends AppCompatActivity{
             TextView tv = (TextView) findViewById(R.id.text_View);
             tv.setText("Click the plus button to start");
         }
+
+        final Handler handler = new Handler();
+        final Runnable rn = new Runnable() {
+            @Override
+            public void run() {
+                if (currentSession.IsTracking()) {
+                    toolbar.setTitle("Session In Progress: " + currentSession.EllapsedTime());
+                    handler.postDelayed(this, 1000);
+                }
+            }
+        };
+        handler.postDelayed(rn, 0);
 
 
         //ADD NEW TRICK BUTTON
