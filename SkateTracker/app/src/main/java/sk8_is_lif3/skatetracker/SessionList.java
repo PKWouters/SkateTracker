@@ -2,6 +2,7 @@ package sk8_is_lif3.skatetracker;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.DeadSystemException;
@@ -59,15 +60,15 @@ public class SessionList extends Fragment {
         sessionLayoutManager = new LinearLayoutManager(getContext());
         sessionRecyclerView.setLayoutManager(sessionLayoutManager);
         sessionAdapter = new SessionAdapter(sessionList);
-        sessionRecyclerView.setAdapter(sessionAdapter);
+        //sessionRecyclerView.setAdapter(sessionAdapter);
 
         for (Session s:database.sessionDAO().getSessions()) {
             sessionList.add(s);
             System.out.println(s.tricksAddedString);
         }
 
+        sessionRecyclerView.setAdapter(sessionAdapter);
         sessionAdapter.notifyDataSetChanged();
-
 
         FloatingActionButton floatingActionButton = (FloatingActionButton)getView().findViewById(R.id.newSessionFab);
         floatingActionButton.setOnClickListener(new View.OnClickListener() {

@@ -1,5 +1,8 @@
 package sk8_is_lif3.skatetracker;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.res.Configuration;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.os.Handler;
@@ -10,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -52,7 +56,7 @@ public class SessionAdapter extends RecyclerView.Adapter<SessionAdapter.ViewHold
     //VIEW HOLDER STUFF
     public static class ViewHolder extends RecyclerView.ViewHolder {
         // each data item is just a string in this case
-        public TextView sessionNameView, totalTimeView;
+        public TextView sessionNameView, totalTimeView, totalTricksView;
         public View itemView;
         public ImageView removeButton;
         public BarChart barChart;
@@ -61,6 +65,7 @@ public class SessionAdapter extends RecyclerView.Adapter<SessionAdapter.ViewHold
             itemView = v;
             sessionNameView = v.findViewById(R.id.sessionName);
             totalTimeView = v.findViewById(R.id.totalTimePracticed);
+            totalTricksView = v.findViewById(R.id.totalTricks);
             removeButton = v.findViewById(R.id.removeButton);
             barChart = v.findViewById(R.id.sessionChart);
         }
@@ -88,8 +93,11 @@ public class SessionAdapter extends RecyclerView.Adapter<SessionAdapter.ViewHold
         holder.sessionNameView.setTextColor(Color.WHITE);
         holder.totalTimeView.setTextColor(Color.WHITE);
         holder.totalTimeView.setText("Total Time: " +(int)(currSession.GetHoursTracked()) + " hrs, " + (int)(currSession.GetMinutesTracked()) + "mins, " + (int)(currSession.GetSecondsTracked()) + " secs");
+        holder.totalTricksView.setTextColor(Color.WHITE);
+        holder.totalTricksView.setText(Integer.toString(currSession.GetTricksAdded().size()) + " tricks practiced");
         holder.removeButton.setVisibility(isExpanded?View.VISIBLE:View.GONE);
         holder.totalTimeView.setVisibility(isExpanded?View.VISIBLE:View.GONE);
+        holder.totalTricksView.setVisibility(isExpanded?View.VISIBLE:View.GONE);
         holder.barChart.setVisibility(isExpanded?View.VISIBLE:View.GONE);
         cardView.setCardElevation(isExpanded?6:0);
         cardView.setActivated(isExpanded);
@@ -118,6 +126,8 @@ public class SessionAdapter extends RecyclerView.Adapter<SessionAdapter.ViewHold
         Description d = new Description();
         d.setText("");
         holder.barChart.setDescription(d);
+        holder.barChart.setVisibleXRangeMaximum(4.25f);
+        holder.barChart.setScaleEnabled(false);
         dataSet.setLabel("Successful Landings/Minutes");
         dataSet.setColors(colors);
         dataSet.setValueFormatter(new IValueFormatter() {
@@ -126,7 +136,25 @@ public class SessionAdapter extends RecyclerView.Adapter<SessionAdapter.ViewHold
                 return String.valueOf((int)(GetGCDNum(value)) + " / " +(int)(GetGCDDen(value)));
             }
         });
-        dataSet.setValueTextColor(Color.WHITE); // styling, ...
+        XAxis xAxis = holder.barChart.getXAxis();
+
+        int screenSize = holder.itemView.getResources().getConfiguration().screenLayout &
+                Configuration.SCREENLAYOUT_SIZE_MASK;
+        switch(screenSize) {
+            case Configuration.SCREENLAYOUT_SIZE_LARGE:
+                xAxis.setTextSize(8f);
+                break;
+            case Configuration.SCREENLAYOUT_SIZE_NORMAL:
+                xAxis.setTextSize(4f);
+                break;
+            case Configuration.SCREENLAYOUT_SIZE_SMALL:
+                xAxis.setTextSize(2f);
+                break;
+            default:
+
+        }
+
+        dataSet.setValueTextColor(Color.WHITE);
 
         BarData lineData = new BarData(dataSet);
         holder.barChart.setData(lineData);
@@ -152,7 +180,7 @@ public class SessionAdapter extends RecyclerView.Adapter<SessionAdapter.ViewHold
                 return Float.toString(value);
             }
         };
-        XAxis xAxis = holder.barChart.getXAxis();
+
         XAxisRenderer xRenderer = new XAxisRenderer(holder.barChart.getViewPortHandler(), xAxis, holder.barChart.getTransformer(YAxis.AxisDependency.LEFT)){
             @Override
             protected void drawLabel(Canvas c, String formattedLabel, float x, float y, MPPointF anchor, float angleDegrees) {
@@ -180,11 +208,27 @@ public class SessionAdapter extends RecyclerView.Adapter<SessionAdapter.ViewHold
         holder.removeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                TransitionManager.beginDelayedTransition(recyclerView);
-                database.sessionDAO().deleteSession(sessionList.get(position));
-                sessionList.remove(sessionList.get(position));
-                _expandedPosition = isExpanded ? -1:position;
-                notifyDataSetChanged();
+                final AlertDialog.Builder builder = new AlertDialog.Builder(holder.itemView.getContext());
+                builder.setMessage("Are you sure you want to remove this Session?")
+                        .setTitle("Remove Session")
+                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                TransitionManager.beginDelayedTransition(recyclerView);
+                                database.sessionDAO().deleteSession(sessionList.get(position));
+                                sessionList.remove(sessionList.get(position));
+                                _expandedPosition = isExpanded ? -1:position;
+                                notifyDataSetChanged();
+                            }
+                        })
+                        .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                //Cancel
+                            }
+                        });
+
+                // Create the AlertDialog object and return it
+                builder.create();
+                builder.show();
             }
         });
 

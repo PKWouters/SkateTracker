@@ -43,7 +43,7 @@
                 android:layout_marginStart="17dp"
                 android:layout_marginTop="18dp"
                 android:text="01/01/1999"
-                android:textAppearance="@style/TextAppearance.AppCompat.Large"
+                android:textAppearance="@style/TextAppearance.AppCompat.Display4"
                 android:textColor="@android:color/white"
                 android:textSize="24sp"
                 card_view:layout_constraintStart_toStartOf="parent"
@@ -51,13 +51,21 @@
 
 
             <TextView
+                android:id="@+id/totalTricks"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignStart="@+id/sessionName"
+                android:layout_below="@+id/totalTimePracticed"
+                android:text="0 Tricks Practiced"
+                android:textColor="@color/cardview_light_background" />
+
+            <TextView
                 android:id="@+id/totalTimePracticed"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentTop="true"
                 android:layout_alignStart="@+id/sessionName"
-                android:layout_marginBottom="16dp"
-                android:layout_marginTop="66dp"
+                android:layout_below="@+id/sessionName"
+                android:layout_marginTop="-16dp"
                 android:text="Total Time: 0 hrs, 0 mins, 0 secs"
                 android:textColor="@color/cardview_light_background" />
 
