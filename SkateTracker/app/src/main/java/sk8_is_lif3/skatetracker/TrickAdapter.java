@@ -100,9 +100,9 @@ public class TrickAdapter extends RecyclerView.Adapter<TrickAdapter.ViewHolder> 
                 holder.itemView.getResources().getColor(R.color.colorAccent));
 
         cardView.setCardElevation(isExpanded?6:0);
-        holder.incrementButton.animate().translationX(isExpanded?-125:0);
+        holder.incrementButton.animate().translationX(isExpanded?-125:0).setDuration(200);
         cardView.setActivated(isExpanded);
-
+        handler.postDelayed(rn, 0);
         //Button Handlers
         holder.removeButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -128,7 +128,7 @@ public class TrickAdapter extends RecyclerView.Adapter<TrickAdapter.ViewHolder> 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                handler.postDelayed(rn, 0);
+
                 TransitionManager.beginDelayedTransition(recyclerView);
                 _expandedPosition = isExpanded ? -1:position;
                 notifyDataSetChanged();
