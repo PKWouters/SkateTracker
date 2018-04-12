@@ -84,6 +84,9 @@ public class CurrentSession extends AppCompatActivity{
                                 //Save to Trick List
                                 tempTrickList.add(new Trick(trickName.getText().toString()));
                                 trickAdapter.notifyDataSetChanged();
+                                trickRecyclerView.setVisibility(View.VISIBLE);
+                                TextView tv = (TextView) findViewById(R.id.text_View);
+                                tv.setVisibility(View.GONE);
                             }
                         })
                         .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
