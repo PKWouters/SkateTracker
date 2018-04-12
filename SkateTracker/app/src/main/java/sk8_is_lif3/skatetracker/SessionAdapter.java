@@ -18,6 +18,7 @@ import android.widget.Toast;
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.components.AxisBase;
 import com.github.mikephil.charting.components.Description;
+import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.BarData;
@@ -93,7 +94,7 @@ public class SessionAdapter extends RecyclerView.Adapter<SessionAdapter.ViewHold
         cardView.setCardElevation(isExpanded?6:0);
         cardView.setActivated(isExpanded);
 
-        //Graph Stuff
+        //--------------Graph Stuff---------------//
         ArrayList<Trick> tricks = sessionList.get(position).GetTricksAdded();
         final String[] trickNames = new String[tricks.size()];
         for(int i = 0; i < trickNames.length; ++i){
@@ -103,23 +104,26 @@ public class SessionAdapter extends RecyclerView.Adapter<SessionAdapter.ViewHold
         List<BarEntry> entries = new ArrayList<BarEntry>();
         int[] colors = new int[tricks.size()];
         for(int i = 0; i < tricks.size(); ++i){
+            System.out.println((Math.round(tricks.get(i).GetRatio())));
             if(tricks.get(i).GetRatio() < 1.0) {
-                float val = (float) (tricks.get(i).GetRatio())-1.0f;
-                entries.add(new BarEntry(i, val));
+                entries.add(new BarEntry(i, (float) tricks.get(i).GetRatio()));
                 colors[i] = Color.RED;
             }else{
-                entries.add(new BarEntry(i, (float) (Math.round(tricks.get(i).GetRatio()))));
+                entries.add(new BarEntry(i, (float)(tricks.get(i).GetRatio())));
                 colors[i] = Color.GREEN;
             }
         }
 
         BarDataSet dataSet = new BarDataSet(entries, "Tricks"); // add entries to dataset
+        Description d = new Description();
+        d.setText("");
+        holder.barChart.setDescription(d);
         dataSet.setLabel("Successful Landings/Minutes");
         dataSet.setColors(colors);
         dataSet.setValueFormatter(new IValueFormatter() {
             @Override
             public String getFormattedValue(float value, Entry entry, int dataSetIndex, ViewPortHandler viewPortHandler) {
-                return String.valueOf((int)(GetGCDNum(value)) + "Landed / " +(int)(GetGCDDen(value)) + " minutes");
+                return String.valueOf((int)(GetGCDNum(value)) + " / " +(int)(GetGCDDen(value)));
             }
         });
         dataSet.setValueTextColor(Color.WHITE); // styling, ...
@@ -128,17 +132,19 @@ public class SessionAdapter extends RecyclerView.Adapter<SessionAdapter.ViewHold
         holder.barChart.setData(lineData);
         holder.barChart.invalidate(); // refresh
         holder.barChart.getLegend().setTextColor(Color.WHITE);
+        holder.barChart.getLegend().setForm(Legend.LegendForm.LINE);
 
         IAxisValueFormatter xFormatter = new IAxisValueFormatter() {
 
             @Override
             public String getFormattedValue(float value, AxisBase axis) {
-                return trickNames[(int) value];
+                if((int)(value) < trickNames.length)
+                    return trickNames[(int) value];
+                return "TRICK NOT FOUND";
             }
 
+
         };
-
-
 
         IAxisValueFormatter yFormatter = new IAxisValueFormatter() {
             @Override
@@ -170,8 +176,6 @@ public class SessionAdapter extends RecyclerView.Adapter<SessionAdapter.ViewHold
         yAxis.setDrawZeroLine(true); // draw a zero line
         holder.barChart.getAxisRight().setEnabled(false); // no right axis
 
-
-
         //Button Handlers
         holder.removeButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -183,6 +187,7 @@ public class SessionAdapter extends RecyclerView.Adapter<SessionAdapter.ViewHold
                 notifyDataSetChanged();
             }
         });
+
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
