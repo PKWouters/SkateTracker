@@ -120,13 +120,12 @@ public class TrickAdapter extends RecyclerView.Adapter<TrickAdapter.ViewHolder> 
         holder.incrementButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                TransitionManager.beginDelayedTransition(recyclerView);
                 trickSet.get(position).IncrementTimesLanded();
                 if(trickSet.get(position).IsTracking())
                     Toast.makeText(holder.itemView.getContext(), "Landed: " + trickSet.get(position).GetTimesLanded(), Toast.LENGTH_SHORT).show();
                 else
                     Toast.makeText(holder.itemView.getContext(), "You must be tracking this trick in order to land it...", Toast.LENGTH_SHORT).show();
-                notifyDataSetChanged();
+                notifyItemChanged(position);
             }
         });
         holder.itemView.setOnClickListener(new View.OnClickListener() {
