@@ -6,6 +6,7 @@ import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.DeadSystemException;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
@@ -13,14 +14,24 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import sk8_is_lif3.skatetracker.database.AppDatabase;
 
@@ -34,9 +45,11 @@ import sk8_is_lif3.skatetracker.database.AppDatabase;
  */
 public class SessionList extends Fragment {
 
+    private static final String TAG = "SessionList: ";
     private RecyclerView sessionRecyclerView;
     private RecyclerView.Adapter sessionAdapter;
     private RecyclerView.LayoutManager sessionLayoutManager;
+    private FirebaseUser user;
     private AppDatabase database;
     List<Session> sessionList;
 
@@ -104,6 +117,8 @@ public class SessionList extends Fragment {
 
         database = AppDatabase.getDatabase(getContext());
         sessionList = new ArrayList<Session>();
+        user = FirebaseAuth.getInstance().getCurrentUser();
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     }
     @Override

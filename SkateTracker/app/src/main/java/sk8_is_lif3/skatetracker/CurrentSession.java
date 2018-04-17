@@ -3,7 +3,12 @@ package sk8_is_lif3.skatetracker;
 import android.app.AlertDialog;
 import android.app.MediaRouteButton;
 import android.arch.persistence.room.Room;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
@@ -20,13 +25,12 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import java.util.ArrayList;
 import java.util.List;
 
 import sk8_is_lif3.skatetracker.database.AppDatabase;
 
-public class CurrentSession extends AppCompatActivity{
+public class CurrentSession extends AppCompatActivity /*implements SensorEventListener*/ {
 
 
     private RecyclerView trickRecyclerView;
@@ -35,11 +39,22 @@ public class CurrentSession extends AppCompatActivity{
     private AppDatabase database;
     List<Trick> tempTrickList;
     Session currentSession;
-
+    private SensorManager senSensorManager;
+    private Sensor senAccelerometer;
+    private long lastUpdate = 0;
+    private float last_x, last_y, last_z;
+    private static final int SHAKE_THRESHOLD = 900;
+    private int jumps = 0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_current_session);
+
+        /*
+        senSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        senAccelerometer = senSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        senSensorManager.registerListener(this, senAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
+        */
 
         //TOOLBAR
         final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -115,6 +130,12 @@ public class CurrentSession extends AppCompatActivity{
     }
 
     @Override
+    protected void onPause(){
+        super.onPause();
+        //senSensorManager.unregisterListener(this);
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_current_session, menu);
@@ -162,4 +183,39 @@ public class CurrentSession extends AppCompatActivity{
         }
     }
 
+
+    /*
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        Sensor sensor = event.sensor;
+
+        if(sensor.getType() == Sensor.TYPE_ACCELEROMETER){
+            float x = event.values[0];
+            float y = event.values[1];
+            float z = event.values[2];
+
+            long currTime = System.currentTimeMillis();
+
+            if((currTime - lastUpdate) > 250){
+                long diffTime = (currTime - lastUpdate);
+                lastUpdate = currTime;
+
+                float speed = Math.abs(x + y + z - last_x - last_y - last_z)/ diffTime * 10000;
+
+                if(speed > SHAKE_THRESHOLD){
+                    jumps++;
+                    TextView tv = (TextView) findViewById(R.id.text_View);
+                    tv.setText(Integer.toString(jumps));
+                }
+                last_x = x;
+                last_y = y;
+                last_z = z;
+            }
+        }
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
+    }*/
 }
