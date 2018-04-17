@@ -41,7 +41,7 @@ public class Trick extends Trackable {
     }
     public int GetTimesLanded(){ return _timesLanded; }
     public double GetRatio(){
-        return (_timesLanded / (GetTotalSecondsTracked()/60));
+        return (GetTimesLanded() / (GetTotalSecondsTracked()/60));
     }
 
     public void IncrementTimesLanded(){

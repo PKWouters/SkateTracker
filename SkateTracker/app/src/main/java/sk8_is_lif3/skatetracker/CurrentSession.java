@@ -2,6 +2,7 @@ package sk8_is_lif3.skatetracker;
 
 import android.app.AlertDialog;
 import android.app.MediaRouteButton;
+import android.app.ProgressDialog;
 import android.arch.persistence.room.Room;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -11,6 +12,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -25,8 +27,16 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import sk8_is_lif3.skatetracker.database.AppDatabase;
 
@@ -156,14 +166,65 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
                 builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         // User clicked OK button
+
+                        ArrayList<String> trickIDs = new ArrayList<String>();
+
                         for (Trick t:tempTrickList) {
                             t.PauseTracking();
-                            currentSession.AddTrick(t);
+                            trickIDs.add(t.GetID());
                         }
                         currentSession.PauseTracking();
+
+
+                        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+
+                        // Create Session
+                        Map<String, Object> session = new HashMap<>();
+                        session.put("date", currentSession.GetDate().toString());
+                        session.put("id", currentSession.GetID());
+                        session.put("totalTimeFormatted", currentSession.EllapsedTime());
+
+                        final ProgressDialog progressDialog = ProgressDialog.show(CurrentSession.this, "",
+                                "Saving Session...", true);
+
+                        //Create Map for trick
+                        for(Trick t:tempTrickList){
+                            // Create a new user with a first and last name
+                            Map<String, Object> trick = new HashMap<>();
+                            trick.put("name", t.GetName());
+                            trick.put("id", t.GetID());
+                            trick.put("totalTimeFormatted", t.EllapsedTime());
+                            trick.put("ratio", t.GetRatio());
+                            trick.put("timesLanded", t.GetTimesLanded());
+
+                            //Add to session
+                            session.put("trick-" + t.GetID(), trick);
+                        }
+
+                        //Add Session to Document
+                        db.collection("Sessions")
+                                .document(currentSession.GetID()).set(session)
+                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        progressDialog.dismiss();
+                                        Toast.makeText(getApplicationContext(), "Successfully Saved Session", Toast.LENGTH_SHORT).show();
+                                        finish();
+                                    }
+                                })
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+                                    }
+                                });
+
+                        /*
                         database.sessionDAO().insertSession(currentSession);
                         System.out.println(database.sessionDAO().getSessions().size());
                         finish();
+                        */
                     }
                 });
                 builder.setNegativeButton("No", new DialogInterface.OnClickListener() {

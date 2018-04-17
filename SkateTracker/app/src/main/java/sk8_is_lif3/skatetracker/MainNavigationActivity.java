@@ -127,6 +127,7 @@ public class MainNavigationActivity extends AppCompatActivity {
                 // Successfully signed in
                 FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
                 Toast.makeText(this, "Signed in", Toast.LENGTH_SHORT).show();
+                //if()
                 // ...
             } else {
                 // Sign in failed, check response for error code
