@@ -12,12 +12,19 @@ import android.widget.Toast;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.IdpResponse;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MainNavigationActivity extends AppCompatActivity {
 
@@ -125,18 +132,44 @@ public class MainNavigationActivity extends AppCompatActivity {
 
             if (resultCode == RESULT_OK) {
                 // Successfully signed in
-                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                Toast.makeText(this, "Signed in", Toast.LENGTH_SHORT).show();
-                //if()
+                final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+                final FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+                DocumentReference docRef = db.collection("users").document(user.getUid());
+                docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot document = task.getResult();
+                            if (document.exists()) {
+                                Toast.makeText(getApplicationContext(), "Signed in", Toast.LENGTH_SHORT).show();
+                            } else {
+                                Map<String, Object> newUser = new HashMap<String, Object>();
+                                db.collection("users").document(user.getUid()).set(newUser)
+                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void aVoid) {
+                                            Toast.makeText(getApplicationContext(), "Successfully Registered", Toast.LENGTH_SHORT).show();
+
+                                        }
+                                    })
+                                    .addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+
+                                        }
+                                    });
+                            }
+                        } else {
+
+                        }
+                    }
+                });
                 // ...
             } else {
-                // Sign in failed, check response for error code
-                // ...
-                if(resultCode == RESULT_CANCELED) {
-                    Toast.makeText(this, "Sign In Cancelled", Toast.LENGTH_SHORT).show();
-                    //finish();
-                }else if(response.getError() != null){
-                    Toast.makeText(getApplicationContext(), response.getError().getMessage(), Toast.LENGTH_SHORT).show();
+                if(response.getError() != null){
+                    Toast.makeText(getApplicationContext(), response.getError().getMessage(), Toast.LENGTH_LONG).show();
                     finish();
                 }
 

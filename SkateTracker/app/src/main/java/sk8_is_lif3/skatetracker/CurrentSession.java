@@ -28,11 +28,19 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -48,6 +56,7 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
     private RecyclerView.LayoutManager trickLayoutManager;
     private AppDatabase database;
     List<Trick> tempTrickList;
+    ArrayList<String> sessionIDs;
     Session currentSession;
     private SensorManager senSensorManager;
     private Sensor senAccelerometer;
@@ -76,6 +85,7 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
 
         database = AppDatabase.getDatabase(getApplicationContext());
         tempTrickList = new ArrayList<Trick>();
+        sessionIDs = new ArrayList<String>();
 
         trickRecyclerView = (RecyclerView) findViewById(R.id.trickRecyclerView);
         trickRecyclerView.setHasFixedSize(true);
@@ -176,17 +186,21 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
                         currentSession.PauseTracking();
 
 
-                        FirebaseFirestore db = FirebaseFirestore.getInstance();
+                        final FirebaseFirestore db = FirebaseFirestore.getInstance();
+                        final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
 
                         // Create Session
-                        Map<String, Object> session = new HashMap<>();
+                        final Map<String, Object> session = new HashMap<>();
                         session.put("date", currentSession.GetDate().toString());
                         session.put("id", currentSession.GetID());
                         session.put("totalTimeFormatted", currentSession.EllapsedTime());
+                        session.put("user_id", user.getUid());
 
                         final ProgressDialog progressDialog = ProgressDialog.show(CurrentSession.this, "",
                                 "Saving Session...", true);
+
+                        ArrayList<Map<String, Object>> trickList = new ArrayList<Map<String, Object>>();
 
                         //Create Map for trick
                         for(Trick t:tempTrickList){
@@ -197,10 +211,11 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
                             trick.put("totalTimeFormatted", t.EllapsedTime());
                             trick.put("ratio", t.GetRatio());
                             trick.put("timesLanded", t.GetTimesLanded());
-
                             //Add to session
-                            session.put("trick-" + t.GetID(), trick);
+                            trickList.add(trick);
                         }
+
+                        session.put("tricks", trickList);
 
                         //Add Session to Document
                         db.collection("Sessions")
@@ -209,7 +224,7 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
                                     @Override
                                     public void onSuccess(Void aVoid) {
                                         progressDialog.dismiss();
-                                        Toast.makeText(getApplicationContext(), "Successfully Saved Session", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(getApplicationContext(), "Saved Session", Toast.LENGTH_SHORT).show();
                                         finish();
                                     }
                                 })
@@ -279,4 +294,8 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
 
     }*/
+    public ArrayList<String> ConvertJSONtoList(String value) {
+        Type listType = new TypeToken<List<String>>() {}.getType();
+        return new Gson().fromJson(value, listType);
+    }
 }
