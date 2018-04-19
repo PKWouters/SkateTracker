@@ -34,7 +34,7 @@ public class Trackable {
     public double GetMinutesTracked(){ return _trackedMinutes; }
     public double GetHoursTracked(){ return _trackedHours; }
     public double GetTotalSecondsTracked(){
-        return ((_trackedHours*3600) + (_trackedMinutes * 60) + _trackedSeconds);
+        return ((GetHoursTracked()*3600) + (GetMinutesTracked() * 60) + GetSecondsTracked());
     }
     public boolean IsTracking(){ return _isTracking; }
 

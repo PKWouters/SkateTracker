@@ -8,8 +8,17 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.app.ProgressDialog;
+import android.arch.persistence.room.Room;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.NotificationCompat;
@@ -28,13 +37,28 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
+import java.util.Map;
 
 import sk8_is_lif3.skatetracker.database.AppDatabase;
 
-public class CurrentSession extends AppCompatActivity{
+public class CurrentSession extends AppCompatActivity /*implements SensorEventListener*/ {
 
 
     private RecyclerView trickRecyclerView;
@@ -42,6 +66,7 @@ public class CurrentSession extends AppCompatActivity{
     private RecyclerView.LayoutManager trickLayoutManager;
     private AppDatabase database;
     List<Trick> tempTrickList;
+    ArrayList<String> sessionIDs;
     Session currentSession;
     Trick currentTrick;
 
@@ -49,6 +74,12 @@ public class CurrentSession extends AppCompatActivity{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_current_session);
+
+        /*
+        senSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        senAccelerometer = senSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        senSensorManager.registerListener(this, senAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
+        */
 
         //TOOLBAR
         final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -60,6 +91,7 @@ public class CurrentSession extends AppCompatActivity{
 
         database = AppDatabase.getDatabase(getApplicationContext());
         tempTrickList = new ArrayList<Trick>();
+        sessionIDs = new ArrayList<String>();
 
         trickRecyclerView = (RecyclerView) findViewById(R.id.trickRecyclerView);
         trickRecyclerView.setHasFixedSize(true);
@@ -148,6 +180,12 @@ public class CurrentSession extends AppCompatActivity{
     }
 
     @Override
+    protected void onPause(){
+        super.onPause();
+        //senSensorManager.unregisterListener(this);
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_current_session, menu);
@@ -182,14 +220,70 @@ public class CurrentSession extends AppCompatActivity{
                 builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         // User clicked OK button
+
+                        ArrayList<String> trickIDs = new ArrayList<String>();
+
                         for (Trick t:tempTrickList) {
                             t.PauseTracking();
-                            currentSession.AddTrick(t);
+                            trickIDs.add(t.GetID());
                         }
                         currentSession.PauseTracking();
+
+
+                        final FirebaseFirestore db = FirebaseFirestore.getInstance();
+                        final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+
+                        // Create Session
+                        final Map<String, Object> session = new HashMap<>();
+                        session.put("date", currentSession.GetDate().toString());
+                        session.put("id", currentSession.GetID());
+                        session.put("totalTimeFormatted", currentSession.EllapsedTime());
+                        session.put("user_id", user.getUid());
+
+                        final ProgressDialog progressDialog = ProgressDialog.show(CurrentSession.this, "",
+                                "Saving Session...", true);
+
+                        ArrayList<Map<String, Object>> trickList = new ArrayList<Map<String, Object>>();
+
+                        //Create Map for trick
+                        for(Trick t:tempTrickList){
+                            // Create a new user with a first and last name
+                            Map<String, Object> trick = new HashMap<>();
+                            trick.put("name", t.GetName());
+                            trick.put("id", t.GetID());
+                            trick.put("totalTimeFormatted", t.EllapsedTime());
+                            trick.put("ratio", t.GetRatio());
+                            trick.put("timesLanded", t.GetTimesLanded());
+                            //Add to session
+                            trickList.add(trick);
+                        }
+
+                        session.put("tricks", trickList);
+
+                        //Add Session to Document
+                        db.collection("Sessions")
+                                .document(currentSession.GetID()).set(session)
+                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        progressDialog.dismiss();
+                                        Toast.makeText(getApplicationContext(), "Saved Session", Toast.LENGTH_SHORT).show();
+                                        finish();
+                                    }
+                                })
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+                                    }
+                                });
+
+                        /*
                         database.sessionDAO().insertSession(currentSession);
                         System.out.println(database.sessionDAO().getSessions().size());
                         finish();
+                        */
                     }
                 });
                 builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
@@ -222,3 +316,38 @@ public class CurrentSession extends AppCompatActivity{
         }
     }
 }
+
+    /*
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        Sensor sensor = event.sensor;
+
+        if(sensor.getType() == Sensor.TYPE_ACCELEROMETER){
+            float x = event.values[0];
+            float y = event.values[1];
+            float z = event.values[2];
+
+            long currTime = System.currentTimeMillis();
+
+            if((currTime - lastUpdate) > 250){
+                long diffTime = (currTime - lastUpdate);
+                lastUpdate = currTime;
+
+                float speed = Math.abs(x + y + z - last_x - last_y - last_z)/ diffTime * 10000;
+
+                if(speed > SHAKE_THRESHOLD){
+                    jumps++;
+                    TextView tv = (TextView) findViewById(R.id.text_View);
+                    tv.setText(Integer.toString(jumps));
+                }
+                last_x = x;
+                last_y = y;
+                last_z = z;
+            }
+        }
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
+    }*/
