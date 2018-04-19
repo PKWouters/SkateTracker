@@ -12,15 +12,22 @@
         <activity
             android:name=".CurrentSession"
             android:label="@string/title_activity_current_session"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar"
+            android:launchMode="singleTop"></activity>
+        <receiver android:name=".ActionReceiver"></receiver>
+
         <activity
             android:name=".MainNavigationActivity"
-            android:label="@string/title_activity_main_navigation">
+            android:label="@string/title_activity_main_navigation"
+            android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+
+
     </application>
 
 </manifest>
