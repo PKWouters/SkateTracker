@@ -1,14 +1,23 @@
 package sk8_is_lif3.skatetracker;
 
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.app.TaskStackBuilder;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.net.Uri;
+import android.opengl.Visibility;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.DeadSystemException;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -21,6 +30,8 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.Random;
 
 import sk8_is_lif3.skatetracker.database.AppDatabase;
 
@@ -70,14 +81,56 @@ public class SessionList extends Fragment {
         sessionRecyclerView.setAdapter(sessionAdapter);
         sessionAdapter.notifyDataSetChanged();
 
-        FloatingActionButton floatingActionButton = (FloatingActionButton)getView().findViewById(R.id.newSessionFab);
+        final FloatingActionButton floatingActionButton = (FloatingActionButton)getView().findViewById(R.id.newSessionFab);
         floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Session curr = new Session();
-                Intent intent = new Intent(getActivity(), CurrentSession.class);
-                intent.putExtra("sessionID", curr.GetID());
-                startActivity(intent);
+                Intent intent = new Intent(getContext(), CurrentSession.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                //PendingIntent pendingIntent = PendingIntent.getActivity(getContext(), (int)System.currentTimeMillis(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+                intent.putExtra("session time", 0);
+                //intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                getActivity().startActivity(intent);
+                //PendingIntent pendingIntent = PendingIntent.getActivity(getContext(), 0 , intent, 0);
+
+                //Notification myNotification = new Notification.Builder(getContext())
+                /*
+                String channelId = "default_channel_id";
+                NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getContext(), channelId);
+                    mBuilder.setSmallIcon(R.drawable.ic_notifications_black_24dp);
+                    mBuilder.setContentTitle("The Session");
+                    mBuilder.setPriority(NotificationCompat.PRIORITY_DEFAULT);
+                    mBuilder.setContentIntent(pendingIntent);
+                    mBuilder.setAutoCancel(true);
+
+                NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getContext());
+                notificationManager.notify(GenerateID(),mBuilder.build());
+
+
+
+                NotificationCompat.Builder builder = new NotificationCompat.Builder(getContext(),channelId) ;
+                builder.setSmallIcon((R.drawable.ic_notifications_black_24dp));
+                builder.setContentTitle(("The session"));
+                builder.setPriority(NotificationCompat.PRIORITY_DEFAULT);
+                builder.setAutoCancel(true);
+
+
+                Intent intent = new Intent(getContext(), CurrentSession.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                getActivity().startActivityForResult(intent,0);
+
+                TaskStackBuilder stackBuilder = TaskStackBuilder.create(getContext());
+                stackBuilder.addParentStack(MainNavigationActivity.class);
+                stackBuilder.addNextIntentWithParentStack(intent);
+
+                PendingIntent pendingIntent = stackBuilder.getPendingIntent(0,PendingIntent.FLAG_UPDATE_CURRENT);
+
+                builder.setContentIntent(pendingIntent);
+
+                NotificationManagerCompat NM = NotificationManagerCompat.from(getContext());
+                NM.notify(GenerateID(),builder.build());
+                */
             }
         });
         Toolbar toolbar = (Toolbar) getView().findViewById(R.id.toolbar);
@@ -92,6 +145,21 @@ public class SessionList extends Fragment {
         }
 
     }
+
+
+    private int GenerateID() {
+        //CREATE STATIC ID
+        String ret = "";
+        final String digits = "0123456789";
+        final String alphanum = digits;
+        Random random = new Random();
+        for (int i = 0; i < 6; i++) {
+            int randIndex = Math.abs(random.nextInt()) % alphanum.length();
+            char lett = alphanum.charAt(randIndex);
+            ret += Character.toString(lett);
+        }
+        return Integer.parseInt(ret);
+    }
     @Override
     public void onPause(){
         super.onPause();
@@ -104,6 +172,7 @@ public class SessionList extends Fragment {
 
         database = AppDatabase.getDatabase(getContext());
         sessionList = new ArrayList<Session>();
+
 
     }
     @Override

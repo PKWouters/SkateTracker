@@ -2,12 +2,16 @@ package sk8_is_lif3.skatetracker;
 
 import android.app.AlertDialog;
 import android.app.MediaRouteButton;
+import android.app.PendingIntent;
 import android.arch.persistence.room.Room;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -23,6 +27,7 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import sk8_is_lif3.skatetracker.database.AppDatabase;
 
@@ -99,6 +104,24 @@ public class CurrentSession extends AppCompatActivity{
                                 trickRecyclerView.setVisibility(View.VISIBLE);
                                 TextView tv = (TextView) findViewById(R.id.text_View);
                                 tv.setVisibility(View.GONE);
+
+                                Intent intent = new Intent(getApplicationContext(), this.getClass());
+                                intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                                PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), (int)System.currentTimeMillis(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+                                //Notification myNotification = new Notification.Builder(getContext())
+
+                                String channelId = "default_channel_id";
+                                NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getApplicationContext(), channelId);
+                                mBuilder.setSmallIcon(R.drawable.ic_notifications_black_24dp);
+                                mBuilder.setContentTitle("Tracking: " + trickName.getText().toString());
+                                mBuilder.setPriority(NotificationCompat.PRIORITY_DEFAULT);
+                                mBuilder.setContentIntent(pendingIntent);
+                                mBuilder.setAutoCancel(true);
+
+                                NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getApplicationContext());
+                                notificationManager.notify(GenerateID(),mBuilder.build());
+
                             }
                         })
                         .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -119,6 +142,20 @@ public class CurrentSession extends AppCompatActivity{
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_current_session, menu);
         return true;
+    }
+
+    private int GenerateID() {
+        //CREATE STATIC ID
+        String ret = "";
+        final String digits = "0123456789";
+        final String alphanum = digits;
+        Random random = new Random();
+        for (int i = 0; i < 6; i++) {
+            int randIndex = Math.abs(random.nextInt()) % alphanum.length();
+            char lett = alphanum.charAt(randIndex);
+            ret += Character.toString(lett);
+        }
+        return Integer.parseInt(ret);
     }
 
     @Override
