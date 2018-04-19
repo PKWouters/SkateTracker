@@ -4,6 +4,8 @@ import android.app.AlertDialog;
 import android.app.MediaRouteButton;
 import android.app.PendingIntent;
 import android.arch.persistence.room.Room;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -16,6 +18,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -40,6 +43,7 @@ public class CurrentSession extends AppCompatActivity{
     private AppDatabase database;
     List<Trick> tempTrickList;
     Session currentSession;
+    Trick currentTrick;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,6 +80,11 @@ public class CurrentSession extends AppCompatActivity{
             public void run() {
                 if (currentSession.IsTracking()) {
                     toolbar.setTitle("Active Session: " + currentSession.EllapsedTime());
+                    for(int i = 0; i < tempTrickList.size(); i++){
+                        if(tempTrickList.get(i).IsTracking())
+                            currentTrick = tempTrickList.get(i);
+
+                    }
                     handler.postDelayed(this, 1000);
                 }
             }
@@ -113,15 +122,16 @@ public class CurrentSession extends AppCompatActivity{
 
                                 String channelId = "default_channel_id";
                                 NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getApplicationContext(), channelId);
-                                mBuilder.setSmallIcon(R.drawable.ic_notifications_black_24dp);
-                                mBuilder.setContentTitle("Tracking: " + trickName.getText().toString());
-                                mBuilder.setPriority(NotificationCompat.PRIORITY_DEFAULT);
+                                mBuilder.setSmallIcon(R.drawable.ic_healing_black_24dp);
+                                mBuilder.addAction(R.drawable.ic_plus_1, "Trick Landed ",pendingIntent);
+                                mBuilder.setContentTitle("Active Session");
+                                mBuilder.setContentText("Trick: " + trickName.getText().toString());
+                                mBuilder.setPriority(NotificationCompat.PRIORITY_MAX);
                                 mBuilder.setContentIntent(pendingIntent);
-                                mBuilder.setAutoCancel(true);
+                                mBuilder.setAutoCancel(false);
 
                                 NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getApplicationContext());
                                 notificationManager.notify(GenerateID(),mBuilder.build());
-
                             }
                         })
                         .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -195,8 +205,20 @@ public class CurrentSession extends AppCompatActivity{
                 // If we got here, the user's action was not recognized.
                 // Invoke the superclass to handle it.
                 return super.onOptionsItemSelected(item);
-
         }
     }
-
+    public class ActionReceiver extends BroadcastReceiver{
+        @Override
+        public void onReceive(Context context, Intent intent){
+            String action = intent.getStringExtra("Trick Landed ");
+            if (action.equals("Trick Landed ")) {
+                preformAction1();
+            }
+            Intent it = new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS);
+            context.sendBroadcast(it);
+        }
+        public void preformAction1(){
+            currentTrick.PauseTracking();
+        }
+    }
 }
