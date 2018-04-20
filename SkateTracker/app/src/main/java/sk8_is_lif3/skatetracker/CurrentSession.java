@@ -2,14 +2,18 @@ package sk8_is_lif3.skatetracker;
 
 import android.app.AlertDialog;
 import android.app.MediaRouteButton;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.arch.persistence.room.Room;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.renderscript.RenderScript;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.NotificationCompat;
@@ -131,6 +135,13 @@ public class CurrentSession extends AppCompatActivity{
                                 mBuilder.setAutoCancel(false);
 
                                 NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getApplicationContext());
+                                NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+                                    NotificationChannel mChannel = new NotificationChannel("chanel id", "skate notification",NotificationManager.IMPORTANCE_HIGH);
+
+                                    mNotificationManager.createNotificationChannel(mChannel);
+                                }
+
                                 notificationManager.notify(GenerateID(),mBuilder.build());
                             }
                         })
