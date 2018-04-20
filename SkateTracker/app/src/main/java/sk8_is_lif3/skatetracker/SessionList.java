@@ -123,7 +123,7 @@ public class SessionList extends Fragment {
         sessionList = new ArrayList<String>();
         if(user != null) {
 
-            Query query = db.collection("sessions").whereEqualTo("user_id", user.getUid());
+            Query query = db.collection("Sessions").whereEqualTo("uID", user.getUid());
 
             FirestoreRecyclerOptions<SessionToDisplay> options = new FirestoreRecyclerOptions.Builder<SessionToDisplay>()
                     .setQuery(query, SessionToDisplay.class)
@@ -147,11 +147,10 @@ public class SessionList extends Fragment {
 
                 @Override
                 protected void onBindViewHolder(@NonNull final SessionViewHolder holder, final int position, @NonNull SessionToDisplay model) {
-                    System.out.println(position);
                     final CardView cardView = holder.itemView.findViewById(R.id.card_view);
                     final boolean isExpanded = position == _expandedPosition;
-                    holder.sessionNameView.setText(model.GetDate());
-                    holder.totalTimeView.setText(model.GetTotalTime());
+                    holder.sessionNameView.setText(model.getDate());
+                    holder.totalTimeView.setText(model.getTotalTimeFormatted());
                     holder.sessionNameView.setTextColor(Color.WHITE);
                     holder.totalTimeView.setTextColor(Color.WHITE);
                     holder.totalTricksView.setTextColor(Color.WHITE);
@@ -161,149 +160,152 @@ public class SessionList extends Fragment {
                     holder.barChart.setVisibility(isExpanded ? View.VISIBLE : View.GONE);
                     cardView.setCardElevation(isExpanded ? 6 : 0);
                     cardView.setActivated(isExpanded);
-                    ArrayList<Map<String, Object>> tricks = (ArrayList<Map<String, Object>>) model.GetTricks();
-                    System.out.println(model.GetDate());
-                    holder.totalTricksView.setText(tricks.size() + " tricks practiced");
+                    ArrayList<Map<String, Object>> tricks = (ArrayList<Map<String, Object>>) model.getTricks();
+                    if(tricks != null)
+                        holder.totalTricksView.setText(tricks.size() + " tricks practiced");
                     if (isExpanded)
                         _previousExpandedPosition = position;
 
-                    //--------------Graph Stuff---------------//
+                    if(model.getTricks() != null) {
+                        //--------------Graph Stuff---------------//
 
-                    final String[] trickNames = new String[tricks.size()];
-                    for (int i = 0; i < trickNames.length; ++i) {
-                        trickNames[i] = String.valueOf(tricks.get(i).get("name") + System.getProperty("line.separator") + tricks.get(i).get("totalTimeFormatted") + System.getProperty("line.separator") + tricks.get(i).get("timesLanded") + " Successful Attempts");
-                    }
-
-                    List<BarEntry> entries = new ArrayList<BarEntry>();
-                    int[] colors = new int[tricks.size()];
-                    for (int i = 0; i < tricks.size(); ++i) {
-                        double ratio = Double.parseDouble(tricks.get(i).get("ratio").toString());
-                        if (ratio < 1.0) {
-                            entries.add(new BarEntry(i, (float) (ratio)));
-                            colors[i] = Color.RED;
-                        } else {
-                            entries.add(new BarEntry(i, (float) (ratio)));
-                            colors[i] = Color.GREEN;
-                        }
-                    }
-
-                    BarDataSet dataSet = new BarDataSet(entries, "Tricks"); // add entries to dataset
-                    Description d = new Description();
-                    d.setText("");
-                    holder.barChart.setDescription(d);
-                    holder.barChart.setVisibleXRangeMaximum(4.25f);
-                    holder.barChart.setScaleEnabled(false);
-                    dataSet.setLabel("Successful Landings/Minutes");
-                    dataSet.setColors(colors);
-                    dataSet.setValueFormatter(new IValueFormatter() {
-                        @Override
-                        public String getFormattedValue(float value, Entry entry, int dataSetIndex, ViewPortHandler viewPortHandler) {
-                            return String.valueOf((int) (GetGCDNum(value)) + " / " + (int) (GetGCDDen(value)));
-                        }
-                    });
-                    XAxis xAxis = holder.barChart.getXAxis();
-
-                    int screenSize = holder.itemView.getResources().getConfiguration().screenLayout &
-                            Configuration.SCREENLAYOUT_SIZE_MASK;
-                    switch (screenSize) {
-                        case Configuration.SCREENLAYOUT_SIZE_LARGE:
-                            xAxis.setTextSize(8f);
-                            break;
-                        case Configuration.SCREENLAYOUT_SIZE_NORMAL:
-                            xAxis.setTextSize(4f);
-                            break;
-                        case Configuration.SCREENLAYOUT_SIZE_SMALL:
-                            xAxis.setTextSize(2f);
-                            break;
-                        default:
-
-                    }
-
-                    dataSet.setValueTextColor(Color.WHITE);
-
-                    BarData lineData = new BarData(dataSet);
-                    holder.barChart.setData(lineData);
-                    holder.barChart.invalidate(); // refresh
-                    holder.barChart.getLegend().setTextColor(Color.WHITE);
-                    holder.barChart.getLegend().setForm(Legend.LegendForm.LINE);
-
-                    IAxisValueFormatter xFormatter = new IAxisValueFormatter() {
-
-                        @Override
-                        public String getFormattedValue(float value, AxisBase axis) {
-                            if ((int) (value) < trickNames.length)
-                                return trickNames[(int) value];
-                            return "TRICK NOT FOUND";
+                        final String[] trickNames = new String[tricks.size()];
+                        for (int i = 0; i < trickNames.length; ++i) {
+                            trickNames[i] = String.valueOf(tricks.get(i).get("name") + System.getProperty("line.separator") + tricks.get(i).get("totalTimeFormatted") + System.getProperty("line.separator") + tricks.get(i).get("timesLanded") + " Successful Attempts");
                         }
 
-
-                    };
-
-                    IAxisValueFormatter yFormatter = new IAxisValueFormatter() {
-                        @Override
-                        public String getFormattedValue(float value, AxisBase axis) {
-                            return Float.toString(value);
-                        }
-                    };
-
-                    XAxisRenderer xRenderer = new XAxisRenderer(holder.barChart.getViewPortHandler(), xAxis, holder.barChart.getTransformer(YAxis.AxisDependency.LEFT)) {
-                        @Override
-                        protected void drawLabel(Canvas c, String formattedLabel, float x, float y, MPPointF anchor, float angleDegrees) {
-                            String lines[] = formattedLabel.split("\n");
-                            for (int i = 0; i < lines.length; i++) {
-                                float vOffset = i * mAxisLabelPaint.getTextSize();
-                                Utils.drawXAxisValue(c, lines[i], x, y + vOffset, mAxisLabelPaint, anchor, angleDegrees);
+                        List<BarEntry> entries = new ArrayList<BarEntry>();
+                        int[] colors = new int[tricks.size()];
+                        for (int i = 0; i < tricks.size(); ++i) {
+                            double ratio = Double.parseDouble(tricks.get(i).get("ratio").toString());
+                            if (ratio < 1.0) {
+                                entries.add(new BarEntry(i, (float) (ratio)));
+                                colors[i] = Color.RED;
+                            } else {
+                                entries.add(new BarEntry(i, (float) (ratio)));
+                                colors[i] = Color.GREEN;
                             }
                         }
-                    };
-                    xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
-                    xAxis.setGranularity(1f); // minimum axis-step (interval) is 1
-                    xAxis.setTextColor(Color.WHITE);
-                    xAxis.setValueFormatter(xFormatter);
-                    holder.barChart.setXAxisRenderer(xRenderer);
-                    holder.barChart.setExtraBottomOffset(15);
-                    YAxis yAxis = holder.barChart.getAxisLeft();
-                    yAxis.setDrawLabels(false); // no axis labels
-                    yAxis.setDrawAxisLine(false); // no axis line
-                    yAxis.setDrawGridLines(false); // no grid lines
-                    yAxis.setDrawZeroLine(true); // draw a zero line
-                    holder.barChart.getAxisRight().setEnabled(false); // no right axis
 
-                    //Button Handlers
-                    holder.removeButton.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            final AlertDialog.Builder builder = new AlertDialog.Builder(holder.itemView.getContext());
-                            builder.setMessage("Are you sure you want to remove this Session?")
-                                    .setTitle("Remove Session")
-                                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                                        public void onClick(DialogInterface dialog, int id) {
-                                            TransitionManager.beginDelayedTransition(cardView);
-                                            sessionList.remove(sessionList.get(position));
-                                            _expandedPosition = isExpanded ? -1 : position;
-                                            notifyDataSetChanged();
-                                        }
-                                    })
-                                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                                        public void onClick(DialogInterface dialog, int id) {
-                                            //Cancel
-                                        }
-                                    });
+                        BarDataSet dataSet = new BarDataSet(entries, "Tricks"); // add entries to dataset
+                        Description d = new Description();
+                        d.setText("");
+                        holder.barChart.setDescription(d);
+                        holder.barChart.setVisibleXRangeMaximum(4.25f);
+                        holder.barChart.setScaleEnabled(false);
+                        dataSet.setLabel("Successful Landings/Minutes");
+                        dataSet.setColors(colors);
+                        dataSet.setValueFormatter(new IValueFormatter() {
+                            @Override
+                            public String getFormattedValue(float value, Entry entry, int dataSetIndex, ViewPortHandler viewPortHandler) {
+                                return String.valueOf((int) (GetGCDNum(value)) + " / " + (int) (GetGCDDen(value)));
+                            }
+                        });
+                        XAxis xAxis = holder.barChart.getXAxis();
 
-                            // Create the AlertDialog object and return it
-                            builder.create();
-                            builder.show();
+                        int screenSize = holder.itemView.getResources().getConfiguration().screenLayout &
+                                Configuration.SCREENLAYOUT_SIZE_MASK;
+                        switch (screenSize) {
+                            case Configuration.SCREENLAYOUT_SIZE_LARGE:
+                                xAxis.setTextSize(8f);
+                                break;
+                            case Configuration.SCREENLAYOUT_SIZE_NORMAL:
+                                xAxis.setTextSize(4f);
+                                break;
+                            case Configuration.SCREENLAYOUT_SIZE_SMALL:
+                                xAxis.setTextSize(2f);
+                                break;
+                            default:
+
                         }
-                    });
 
-                    holder.itemView.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            _expandedPosition = isExpanded ? -1 : position;
-                            notifyItemChanged(_previousExpandedPosition);
-                            notifyItemChanged(position);
+                        dataSet.setValueTextColor(Color.WHITE);
+
+                        BarData lineData = new BarData(dataSet);
+                        holder.barChart.setData(lineData);
+                        holder.barChart.invalidate(); // refresh
+                        holder.barChart.getLegend().setTextColor(Color.WHITE);
+                        holder.barChart.getLegend().setForm(Legend.LegendForm.LINE);
+
+                        IAxisValueFormatter xFormatter = new IAxisValueFormatter() {
+
+                            @Override
+                            public String getFormattedValue(float value, AxisBase axis) {
+                                if ((int) (value) < trickNames.length)
+                                    return trickNames[(int) value];
+                                return "TRICK NOT FOUND";
+                            }
+
+
+                        };
+
+                        IAxisValueFormatter yFormatter = new IAxisValueFormatter() {
+                            @Override
+                            public String getFormattedValue(float value, AxisBase axis) {
+                                return Float.toString(value);
+                            }
+                        };
+
+                        XAxisRenderer xRenderer = new XAxisRenderer(holder.barChart.getViewPortHandler(), xAxis, holder.barChart.getTransformer(YAxis.AxisDependency.LEFT)) {
+                            @Override
+                            protected void drawLabel(Canvas c, String formattedLabel, float x, float y, MPPointF anchor, float angleDegrees) {
+                                String lines[] = formattedLabel.split("\n");
+                                for (int i = 0; i < lines.length; i++) {
+                                    float vOffset = i * mAxisLabelPaint.getTextSize();
+                                    Utils.drawXAxisValue(c, lines[i], x, y + vOffset, mAxisLabelPaint, anchor, angleDegrees);
+                                }
+                            }
+                        };
+                        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+                        xAxis.setGranularity(1f); // minimum axis-step (interval) is 1
+                        xAxis.setTextColor(Color.WHITE);
+                        xAxis.setValueFormatter(xFormatter);
+                        holder.barChart.setXAxisRenderer(xRenderer);
+                        holder.barChart.setExtraBottomOffset(15);
+                        YAxis yAxis = holder.barChart.getAxisLeft();
+                        yAxis.setDrawLabels(false); // no axis labels
+                        yAxis.setDrawAxisLine(false); // no axis line
+                        yAxis.setDrawGridLines(false); // no grid lines
+                        yAxis.setDrawZeroLine(true); // draw a zero line
+                        holder.barChart.getAxisRight().setEnabled(false); // no right axis
+
                         }
-                    });
+                        //Button Handlers
+
+                        holder.removeButton.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                final AlertDialog.Builder builder = new AlertDialog.Builder(holder.itemView.getContext());
+                                builder.setMessage("Are you sure you want to remove this Session?")
+                                        .setTitle("Remove Session")
+                                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface dialog, int id) {
+                                                TransitionManager.beginDelayedTransition(cardView);
+                                                sessionList.remove(sessionList.get(position));
+                                                _expandedPosition = isExpanded ? -1 : position;
+                                                notifyDataSetChanged();
+                                            }
+                                        })
+                                        .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface dialog, int id) {
+                                                //Cancel
+                                            }
+                                        });
+
+                                // Create the AlertDialog object and return it
+                                builder.create();
+                                builder.show();
+                            }
+                        });
+
+                        holder.itemView.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                _expandedPosition = isExpanded ? -1 : position;
+                                notifyItemChanged(_previousExpandedPosition);
+                                notifyItemChanged(position);
+                            }
+                        });
                 }
 
                 private double GetGCDDen(double n) {

@@ -239,7 +239,7 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
                         session.put("date", currentSession.GetDate().toString());
                         session.put("id", currentSession.GetID());
                         session.put("totalTimeFormatted", currentSession.EllapsedTime());
-                        session.put("user_id", user.getUid());
+                        session.put("uID", user.getUid());
 
                         final ProgressDialog progressDialog = ProgressDialog.show(CurrentSession.this, "",
                                 "Saving Session...", true);

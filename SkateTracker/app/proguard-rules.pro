@@ -19,3 +19,5 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+-keep class sk8_is_lif3.skatetracker.SessionToDisplay
+-keep class com.google.firebase.example.fireeats.model.** { *; }
