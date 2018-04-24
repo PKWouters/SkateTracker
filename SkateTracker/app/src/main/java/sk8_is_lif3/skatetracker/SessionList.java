@@ -209,10 +209,10 @@ public class SessionList extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        final FirebaseFirestore db = FirebaseFirestore.getInstance();
-        user = FirebaseAuth.getInstance().getCurrentUser();
         sessionList = new ArrayList<String>();
+        final FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        user = FirebaseAuth.getInstance().getCurrentUser();
         if(user != null) {
 
             Query query = db.collection("Sessions").whereEqualTo("uID", user.getUid());
@@ -241,7 +241,8 @@ public class SessionList extends Fragment {
                 protected void onBindViewHolder(@NonNull final SessionViewHolder holder, final int position, @NonNull final SessionToDisplay model) {
                     final CardView cardView = holder.itemView.findViewById(R.id.card_view);
                     final boolean isExpanded = position == _expandedPosition;
-                    holder.sessionNameView.setText(model.getDate());
+                    holder.sessionNameView.setText(model.getDate() + " - " + model.getName());
+                    holder.sessionNameView.setMaxLines(isExpanded ? 2 : 1);
                     holder.totalTimeView.setText(model.getTotalTimeFormatted());
                     holder.sessionNameView.setTextColor(Color.WHITE);
                     holder.totalTimeView.setTextColor(Color.WHITE);
@@ -253,12 +254,12 @@ public class SessionList extends Fragment {
                     cardView.setCardElevation(isExpanded ? 6 : 0);
                     cardView.setActivated(isExpanded);
                     ArrayList<Map<String, Object>> tricks = (ArrayList<Map<String, Object>>) model.getTricks();
-                    if(tricks != null)
+                    if (tricks != null)
                         holder.totalTricksView.setText(tricks.size() + " tricks practiced");
                     if (isExpanded)
                         _previousExpandedPosition = position;
 
-                    if(model.getTricks() != null) {
+                    if (model.getTricks() != null) {
                         //--------------Graph Stuff---------------//
 
                         final String[] trickNames = new String[tricks.size()];
@@ -426,6 +427,7 @@ public class SessionList extends Fragment {
                     double g = gcd(num, denom);
                     return (denom / g);
                 }
+
                 private double GetGCDNum(double n) {
                     String s = String.format("%.1f", n);
                     int digitsDec = s.length() - 1 - s.indexOf('.');
@@ -439,6 +441,7 @@ public class SessionList extends Fragment {
                     double g = gcd(num, denom);
                     return (num / g);
                 }
+
                 private double gcd(int x, int y) {
                     int r = x % y;
                     while (r != 0) {
@@ -450,10 +453,8 @@ public class SessionList extends Fragment {
                 }
 
             };
-            adapter.startListening();
         }
-
-
+        onResume();
     }
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -465,6 +466,8 @@ public class SessionList extends Fragment {
     @Override
     public void onResume(){
         super.onResume();
+        if(adapter != null)
+            adapter.startListening();
 
     }
 

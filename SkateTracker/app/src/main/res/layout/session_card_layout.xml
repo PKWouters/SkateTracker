@@ -35,17 +35,19 @@
 
             <TextView
                 android:id="@+id/sessionName"
-                android:layout_width="wrap_content"
+                android:layout_width="275dp"
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
                 android:layout_alignParentTop="true"
                 android:layout_marginBottom="16dp"
                 android:layout_marginStart="17dp"
                 android:layout_marginTop="18dp"
-                android:text="01/01/1999"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="01/01/1999 - Orlando Skate Park"
                 android:textAppearance="@style/TextAppearance.AppCompat.Display4"
                 android:textColor="@android:color/white"
-                android:textSize="24sp"
+                android:textSize="20sp"
                 card_view:layout_constraintStart_toStartOf="parent"
                 card_view:layout_constraintTop_toTopOf="parent" />
 
