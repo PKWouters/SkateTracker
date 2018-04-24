@@ -12,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        card_view:cardBackgroundColor="@color/colorPrimaryDark"
+        card_view:cardBackgroundColor="@color/colorPrimaryLight"
         card_view:cardCornerRadius="4dp"
         card_view:cardElevation="0dp"
         card_view:cardUseCompatPadding="true"
@@ -31,7 +31,7 @@
                 android:layout_alignParentTop="true"
                 android:layout_marginEnd="16dp"
                 android:layout_marginTop="20dp"
-                card_view:srcCompat="@drawable/ic_remove_circle" />
+                card_view:srcCompat="@drawable/ic_clear_black_24dp" />
 
             <ImageView
                 android:id="@+id/incrementButton"

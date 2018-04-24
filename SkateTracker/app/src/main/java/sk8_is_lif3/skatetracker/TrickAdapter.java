@@ -93,7 +93,7 @@ public class TrickAdapter extends RecyclerView.Adapter<TrickAdapter.ViewHolder> 
         //Is Tracking
         cardView.setCardBackgroundColor(trickSet.get(position).IsTracking()?
                                         holder.itemView.getResources().getColor(R.color.colorAccent):
-                                        holder.itemView.getResources().getColor(R.color.colorPrimaryDark));
+                                        holder.itemView.getResources().getColor(R.color.colorPrimaryLight));
         holder.startBtn.setTextColor(trickSet.get(position).IsTracking()?
                                     Color.rgb(255,255,255):
                                     holder.itemView.getResources().getColor(R.color.colorAccent));

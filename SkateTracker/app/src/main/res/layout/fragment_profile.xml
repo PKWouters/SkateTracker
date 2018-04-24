@@ -4,11 +4,18 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorPrimaryLight"
-    android:theme="@style/AppTheme"
+    android:background="@color/colorBackground"
+    android:theme="@style/Fragment"
     tools:context=".Profile">
 
     <!-- TODO: Update blank fragment layout -->
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/colorPrimary"
+        app:layout_collapseMode="pin"
+        app:popupTheme="@style/AppTheme.PopupOverlay" />
 
     <Button
         android:id="@+id/signOut"
@@ -32,7 +39,6 @@
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:background="@color/cardview_light_background"
         android:text="Build Version: 0.1.3"
         android:textAppearance="@style/TextAppearance.AppCompat.Button"
         app:layout_constraintBottom_toBottomOf="parent"

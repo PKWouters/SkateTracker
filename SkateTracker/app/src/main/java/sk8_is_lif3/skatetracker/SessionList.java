@@ -116,10 +116,102 @@ public class SessionList extends Fragment {
         sessionRecyclerView.setHasFixedSize(true);
         sessionLayoutManager = new LinearLayoutManager(getContext());
         sessionRecyclerView.setLayoutManager(sessionLayoutManager);
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        user = FirebaseAuth.getInstance().getCurrentUser();
+        sessionRecyclerView.setAdapter(adapter);
 
-        database = AppDatabase.getDatabase(getContext());
+        final FloatingActionButton floatingActionButton = (FloatingActionButton)getView().findViewById(R.id.newSessionFab);
+        floatingActionButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getContext(), CurrentSession.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                //PendingIntent pendingIntent = PendingIntent.getActivity(getContext(), (int)System.currentTimeMillis(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+                intent.putExtra("session time", 0);
+                //intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                getActivity().startActivity(intent);
+                //PendingIntent pendingIntent = PendingIntent.getActivity(getContext(), 0 , intent, 0);
+
+                //Notification myNotification = new Notification.Builder(getContext())
+                /*
+                String channelId = "default_channel_id";
+                NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getContext(), channelId);
+                    mBuilder.setSmallIcon(R.drawable.ic_notifications_black_24dp);
+                    mBuilder.setContentTitle("The Session");
+                    mBuilder.setPriority(NotificationCompat.PRIORITY_DEFAULT);
+                    mBuilder.setContentIntent(pendingIntent);
+                    mBuilder.setAutoCancel(true);
+
+                NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getContext());
+                notificationManager.notify(GenerateID(),mBuilder.build());
+
+
+
+                NotificationCompat.Builder builder = new NotificationCompat.Builder(getContext(),channelId) ;
+                builder.setSmallIcon((R.drawable.ic_notifications_black_24dp));
+                builder.setContentTitle(("The session"));
+                builder.setPriority(NotificationCompat.PRIORITY_DEFAULT);
+                builder.setAutoCancel(true);
+
+
+                Intent intent = new Intent(getContext(), CurrentSession.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                getActivity().startActivityForResult(intent,0);
+
+                TaskStackBuilder stackBuilder = TaskStackBuilder.create(getContext());
+                stackBuilder.addParentStack(MainNavigationActivity.class);
+                stackBuilder.addNextIntentWithParentStack(intent);
+
+                PendingIntent pendingIntent = stackBuilder.getPendingIntent(0,PendingIntent.FLAG_UPDATE_CURRENT);
+
+                builder.setContentIntent(pendingIntent);
+
+                NotificationManagerCompat NM = NotificationManagerCompat.from(getContext());
+                NM.notify(GenerateID(),builder.build());
+                */
+            }
+        });
+        Toolbar toolbar = (Toolbar) getView().findViewById(R.id.toolbar);
+        toolbar.setTitle("My Sessions");
+        AppCompatActivity activity = (AppCompatActivity)getActivity();
+        activity.setSupportActionBar(toolbar);
+
+        if (sessionList.size() == 0){
+            //sessionRecyclerView.setVisibility(View.GONE);
+            TextView tv = (TextView) getView().findViewById(R.id.text_View);
+            tv.setText("Click the plus button to start");
+        }
+
+
+    }
+
+
+    private int GenerateID() {
+        //CREATE STATIC ID
+        String ret = "";
+        final String digits = "0123456789";
+        final String alphanum = digits;
+        Random random = new Random();
+        for (int i = 0; i < 6; i++) {
+            int randIndex = Math.abs(random.nextInt()) % alphanum.length();
+            char lett = alphanum.charAt(randIndex);
+            ret += Character.toString(lett);
+        }
+        return Integer.parseInt(ret);
+    }
+    @Override
+    public void onPause(){
+        super.onPause();
+        if (adapter != null) {
+            adapter.stopListening();
+        }
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        final FirebaseFirestore db = FirebaseFirestore.getInstance();
+        user = FirebaseAuth.getInstance().getCurrentUser();
         sessionList = new ArrayList<String>();
         if(user != null) {
 
@@ -146,7 +238,7 @@ public class SessionList extends Fragment {
                 }
 
                 @Override
-                protected void onBindViewHolder(@NonNull final SessionViewHolder holder, final int position, @NonNull SessionToDisplay model) {
+                protected void onBindViewHolder(@NonNull final SessionViewHolder holder, final int position, @NonNull final SessionToDisplay model) {
                     final CardView cardView = holder.itemView.findViewById(R.id.card_view);
                     final boolean isExpanded = position == _expandedPosition;
                     holder.sessionNameView.setText(model.getDate());
@@ -269,43 +361,56 @@ public class SessionList extends Fragment {
                         yAxis.setDrawZeroLine(true); // draw a zero line
                         holder.barChart.getAxisRight().setEnabled(false); // no right axis
 
+                    }
+                    //Button Handlers
+
+                    holder.removeButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            final AlertDialog.Builder builder = new AlertDialog.Builder(holder.itemView.getContext());
+                            builder.setMessage("Are you sure you want to remove this Session?")
+                                    .setTitle("Remove Session")
+                                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int id) {
+                                            TransitionManager.beginDelayedTransition(cardView);
+                                            db.collection("Sessions").document(model.getId())
+                                                    .delete()
+                                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                        @Override
+                                                        public void onSuccess(Void aVoid) {
+                                                            Log.d(TAG, "DocumentSnapshot successfully deleted!");
+                                                        }
+                                                    })
+                                                    .addOnFailureListener(new OnFailureListener() {
+                                                        @Override
+                                                        public void onFailure(@NonNull Exception e) {
+                                                            Log.w(TAG, "Error deleting document", e);
+                                                        }
+                                                    });
+                                            _expandedPosition = isExpanded ? -1 : position;
+                                        }
+                                    })
+                                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int id) {
+                                            //Cancel
+                                        }
+                                    });
+
+                            // Create the AlertDialog object and return it
+                            builder.create();
+                            builder.show();
                         }
-                        //Button Handlers
+                    });
 
-                        holder.removeButton.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                final AlertDialog.Builder builder = new AlertDialog.Builder(holder.itemView.getContext());
-                                builder.setMessage("Are you sure you want to remove this Session?")
-                                        .setTitle("Remove Session")
-                                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                                            public void onClick(DialogInterface dialog, int id) {
-                                                TransitionManager.beginDelayedTransition(cardView);
-                                                sessionList.remove(sessionList.get(position));
-                                                _expandedPosition = isExpanded ? -1 : position;
-                                                notifyDataSetChanged();
-                                            }
-                                        })
-                                        .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                                            public void onClick(DialogInterface dialog, int id) {
-                                                //Cancel
-                                            }
-                                        });
-
-                                // Create the AlertDialog object and return it
-                                builder.create();
-                                builder.show();
-                            }
-                        });
-
-                        holder.itemView.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                _expandedPosition = isExpanded ? -1 : position;
-                                notifyItemChanged(_previousExpandedPosition);
-                                notifyItemChanged(position);
-                            }
-                        });
+                    holder.itemView.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            //TransitionManager.beginDelayedTransition(sessionRecyclerView);
+                            _expandedPosition = isExpanded ? -1 : position;
+                            notifyItemChanged(_previousExpandedPosition);
+                            notifyItemChanged(position);
+                        }
+                    });
                 }
 
                 private double GetGCDDen(double n) {
@@ -321,7 +426,6 @@ public class SessionList extends Fragment {
                     double g = gcd(num, denom);
                     return (denom / g);
                 }
-
                 private double GetGCDNum(double n) {
                     String s = String.format("%.1f", n);
                     int digitsDec = s.length() - 1 - s.indexOf('.');
@@ -335,7 +439,6 @@ public class SessionList extends Fragment {
                     double g = gcd(num, denom);
                     return (num / g);
                 }
-
                 private double gcd(int x, int y) {
                     int r = x % y;
                     while (r != 0) {
@@ -347,102 +450,8 @@ public class SessionList extends Fragment {
                 }
 
             };
-            sessionRecyclerView.setAdapter(adapter);
             adapter.startListening();
         }
-
-        final FloatingActionButton floatingActionButton = (FloatingActionButton)getView().findViewById(R.id.newSessionFab);
-        floatingActionButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(getContext(), CurrentSession.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                //PendingIntent pendingIntent = PendingIntent.getActivity(getContext(), (int)System.currentTimeMillis(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
-
-                intent.putExtra("session time", 0);
-                //intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                getActivity().startActivity(intent);
-                //PendingIntent pendingIntent = PendingIntent.getActivity(getContext(), 0 , intent, 0);
-
-                //Notification myNotification = new Notification.Builder(getContext())
-                /*
-                String channelId = "default_channel_id";
-                NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getContext(), channelId);
-                    mBuilder.setSmallIcon(R.drawable.ic_notifications_black_24dp);
-                    mBuilder.setContentTitle("The Session");
-                    mBuilder.setPriority(NotificationCompat.PRIORITY_DEFAULT);
-                    mBuilder.setContentIntent(pendingIntent);
-                    mBuilder.setAutoCancel(true);
-
-                NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getContext());
-                notificationManager.notify(GenerateID(),mBuilder.build());
-
-
-
-                NotificationCompat.Builder builder = new NotificationCompat.Builder(getContext(),channelId) ;
-                builder.setSmallIcon((R.drawable.ic_notifications_black_24dp));
-                builder.setContentTitle(("The session"));
-                builder.setPriority(NotificationCompat.PRIORITY_DEFAULT);
-                builder.setAutoCancel(true);
-
-
-                Intent intent = new Intent(getContext(), CurrentSession.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                getActivity().startActivityForResult(intent,0);
-
-                TaskStackBuilder stackBuilder = TaskStackBuilder.create(getContext());
-                stackBuilder.addParentStack(MainNavigationActivity.class);
-                stackBuilder.addNextIntentWithParentStack(intent);
-
-                PendingIntent pendingIntent = stackBuilder.getPendingIntent(0,PendingIntent.FLAG_UPDATE_CURRENT);
-
-                builder.setContentIntent(pendingIntent);
-
-                NotificationManagerCompat NM = NotificationManagerCompat.from(getContext());
-                NM.notify(GenerateID(),builder.build());
-                */
-            }
-        });
-        Toolbar toolbar = (Toolbar) getView().findViewById(R.id.toolbar);
-        toolbar.setTitle("My Sessions");
-        AppCompatActivity activity = (AppCompatActivity)getActivity();
-        activity.setSupportActionBar(toolbar);
-
-        if (sessionList.size() == 0){
-            //sessionRecyclerView.setVisibility(View.GONE);
-            TextView tv = (TextView) getView().findViewById(R.id.text_View);
-            tv.setText("Click the plus button to start");
-        }
-
-
-    }
-
-
-    private int GenerateID() {
-        //CREATE STATIC ID
-        String ret = "";
-        final String digits = "0123456789";
-        final String alphanum = digits;
-        Random random = new Random();
-        for (int i = 0; i < 6; i++) {
-            int randIndex = Math.abs(random.nextInt()) % alphanum.length();
-            char lett = alphanum.charAt(randIndex);
-            ret += Character.toString(lett);
-        }
-        return Integer.parseInt(ret);
-    }
-    @Override
-    public void onPause(){
-        super.onPause();
-        if (adapter != null) {
-            adapter.stopListening();
-        }
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
 
 
     }
