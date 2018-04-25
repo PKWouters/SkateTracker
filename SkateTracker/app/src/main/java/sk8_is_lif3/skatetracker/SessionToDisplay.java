@@ -32,7 +32,7 @@ public class SessionToDisplay {
     public void setId(String id){ mId = id; }
     public void setName(String name){ mName = name; }
     public void setTotalTimeFormatted(String time){ mTotalTime = time; }
-    public void setUID(String user_id){ mUid = user_id; }
+    public void setUid(String user_id){ mUid = user_id; }
     public void setTricks(ArrayList<Map<String, Object>> tricks){ mTricks = tricks; }
 
 
