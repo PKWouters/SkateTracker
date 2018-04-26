@@ -236,13 +236,13 @@ public class SessionList extends Fragment {
 
                             switch (screenSize) {
                                 case Configuration.SCREENLAYOUT_SIZE_LARGE:
-                                    duration = 400;
+                                    duration = 390;
                                     break;
                                 case Configuration.SCREENLAYOUT_SIZE_NORMAL:
-                                    duration = 375;
+                                    duration = 300;
                                     break;
                                 case Configuration.SCREENLAYOUT_SIZE_SMALL:
-                                    duration = 300;
+                                    duration = 210;
                                     break;
                                 default:
                             }
