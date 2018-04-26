@@ -12,8 +12,6 @@ public class ActionReceiver extends BroadcastReceiver {
         Intent intent2 = new Intent();
         intent2.setAction("trick_landed");
 
-        // Rebroadcasts to your own receiver.
-        // This receiver is not exported; it'll only be received if the receiver is currently registered.
         context.sendBroadcast(intent2);
     }
 }
