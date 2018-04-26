@@ -2,6 +2,7 @@ package sk8_is_lif3.skatetracker;
 
 import android.app.AlertDialog;
 import android.app.MediaRouteButton;
+import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -10,6 +11,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -29,6 +31,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.RemoteViews;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -48,6 +51,7 @@ public class CurrentSession extends AppCompatActivity{
     List<Trick> tempTrickList;
     Session currentSession;
     Trick currentTrick;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -122,13 +126,21 @@ public class CurrentSession extends AppCompatActivity{
                                 intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                                 PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), (int)System.currentTimeMillis(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
+                                Intent intenttrick = new Intent(getApplicationContext(), ActionReceiver.class);
+                                //intenttrick.setAction("Add Trick");
+                                intenttrick.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
+                                //PendingIntent trickpend = PendingIntent.getActivity(getApplicationContext(), 0, intent, PendingIntent.FLAG_ONE_SHOT);
+                                PendingIntent trickpendclick = PendingIntent.getBroadcast(getApplicationContext(), 0, intenttrick, PendingIntent.FLAG_UPDATE_CURRENT);
+
                                 //Notification myNotification = new Notification.Builder(getContext())
 
                                 String channelId = "default_channel_id";
                                 NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getApplicationContext(), channelId);
+                                mBuilder.setVisibility(Notification.VISIBILITY_PUBLIC);
                                 mBuilder.setSmallIcon(R.drawable.ic_healing_black_24dp);
-                                mBuilder.addAction(R.drawable.ic_plus_1, "Trick Landed ",pendingIntent);
                                 mBuilder.setContentTitle("Active Session");
+                                mBuilder.addAction(R.drawable.ic_plus_1, "Add Trick", trickpendclick);
                                 mBuilder.setContentText("Trick: " + trickName.getText().toString());
                                 mBuilder.setPriority(NotificationCompat.PRIORITY_MAX);
                                 mBuilder.setContentIntent(pendingIntent);
@@ -218,18 +230,27 @@ public class CurrentSession extends AppCompatActivity{
                 return super.onOptionsItemSelected(item);
         }
     }
-    public class ActionReceiver extends BroadcastReceiver{
+    private BroadcastReceiver myReceiver = new BroadcastReceiver() {
         @Override
-        public void onReceive(Context context, Intent intent){
-            String action = intent.getStringExtra("Trick Landed ");
-            if (action.equals("Trick Landed ")) {
-                preformAction1();
-            }
-            Intent it = new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS);
-            context.sendBroadcast(it);
+        public void onReceive(final Context context, final Intent intent) {
+            onMessageReceived();
         }
-        public void preformAction1(){
-            currentTrick.PauseTracking();
-        }
+    };
+    @Override
+    protected void onResume() {
+        super.onResume();
+        registerReceiver(myReceiver, new IntentFilter("Add Trick"));
     }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterReceiver(myReceiver);
+    }
+
+    private void onMessageReceived() {
+
+        currentTrick.IncrementTimesLanded();
+    }
+
 }
