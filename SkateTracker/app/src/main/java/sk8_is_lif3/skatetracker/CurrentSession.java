@@ -268,6 +268,8 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
                                                             @Override
                                                             public void onSuccess(Void aVoid) {
                                                                 progressDialog.dismiss();
+                                                                NotificationManager mNotificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+                                                                mNotificationManager.cancelAll();
                                                                 Toast.makeText(getApplicationContext(), "Saved Session", Toast.LENGTH_SHORT).show();
                                                                 finish();
                                                             }
