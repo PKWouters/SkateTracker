@@ -160,6 +160,9 @@ public class TrickAdapter extends RecyclerView.Adapter<TrickAdapter.ViewHolder> 
                     PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intenttrick, PendingIntent.FLAG_UPDATE_CURRENT);
 
                     String channelId = "default_channel_id";
+
+
+
                     NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context, channelId);
                     mBuilder.setVisibility(Notification.VISIBILITY_PUBLIC);
                     mBuilder.setSmallIcon(R.drawable.ic_healing_black_24dp);
@@ -178,8 +181,9 @@ public class TrickAdapter extends RecyclerView.Adapter<TrickAdapter.ViewHolder> 
                     notificationManager.cancelAll();
 
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
-                        NotificationChannel mChannel = new NotificationChannel("chanel id", "skate notification",NotificationManager.IMPORTANCE_HIGH);
+                        NotificationChannel mChannel = new NotificationChannel(channelId, "SkateTracker", NotificationManager.IMPORTANCE_HIGH);
                         mNotificationManager.createNotificationChannel(mChannel);
+                        mBuilder.setChannelId(channelId);
                     }
 
                     notificationManager.notify(GenerateID(),mBuilder.build());
