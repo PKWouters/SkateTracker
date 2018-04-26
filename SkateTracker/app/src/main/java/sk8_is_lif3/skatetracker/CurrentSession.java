@@ -205,16 +205,23 @@ public class CurrentSession extends AppCompatActivity{
             onMessageReceived();
         }
     };
+
     @Override
     protected void onResume() {
         super.onResume();
         currentTrick = tAdapt.GetCurrentTrick();
-        registerReceiver(myReceiver, new IntentFilter("Add Trick"));
+        registerReceiver(myReceiver, new IntentFilter("trick_landed"));
     }
 
     @Override
     protected void onPause() {
         super.onPause();
+    }
+
+    @Override
+    protected void onDestroy(){
+        super.onDestroy();
+        tAdapt.SetCurrentTrick(null);
         unregisterReceiver(myReceiver);
     }
 

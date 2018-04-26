@@ -20,6 +20,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RemoteViews;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -162,14 +163,12 @@ public class TrickAdapter extends RecyclerView.Adapter<TrickAdapter.ViewHolder> 
                 Context context = holder.itemView.getContext();
                 Intent intent = new Intent((holder.itemView.getContext()), this.getClass());
                 intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                PendingIntent pendingIntent = PendingIntent.getActivity(context, (int)System.currentTimeMillis(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
                 Intent intenttrick = new Intent(context, ActionReceiver.class);
-                //intenttrick.setAction("Add Trick");
                 intenttrick.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
                 //PendingIntent trickpend = PendingIntent.getActivity(getApplicationContext(), 0, intent, PendingIntent.FLAG_ONE_SHOT);
-                PendingIntent trickpendclick = PendingIntent.getBroadcast(context, 0, intenttrick, PendingIntent.FLAG_UPDATE_CURRENT);
+                PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intenttrick, PendingIntent.FLAG_UPDATE_CURRENT);
 
                 //Notification myNotification = new Notification.Builder(getContext())
 
@@ -178,7 +177,7 @@ public class TrickAdapter extends RecyclerView.Adapter<TrickAdapter.ViewHolder> 
                 mBuilder.setVisibility(Notification.VISIBILITY_PUBLIC);
                 mBuilder.setSmallIcon(R.drawable.ic_healing_black_24dp);
                 mBuilder.setContentTitle("Active Session");
-                mBuilder.addAction(R.drawable.ic_plus_1, "Add Trick", trickpendclick);
+                mBuilder.addAction(R.drawable.ic_plus_1, "Add Trick", pendingIntent);
                 mBuilder.setContentText("Trick: " + holder.trickNameView.getText().toString());
                 mBuilder.setPriority(NotificationCompat.PRIORITY_MAX);
                 mBuilder.setContentIntent(pendingIntent);
