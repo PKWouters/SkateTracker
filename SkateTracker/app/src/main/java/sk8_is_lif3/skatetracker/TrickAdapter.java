@@ -7,6 +7,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.media.RingtoneManager;
 import android.os.Build;
 import android.os.Handler;
 import android.support.v4.app.NotificationCompat;
@@ -14,6 +15,7 @@ import android.support.v4.app.NotificationManagerCompat;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.transition.TransitionManager;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -165,13 +167,9 @@ public class TrickAdapter extends RecyclerView.Adapter<TrickAdapter.ViewHolder> 
                 PendingIntent pendingIntent = PendingIntent.getActivity(context, (int)System.currentTimeMillis(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
                 Intent intenttrick = new Intent(context, ActionReceiver.class);
-                //intenttrick.setAction("Add Trick");
                 intenttrick.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
-                //PendingIntent trickpend = PendingIntent.getActivity(getApplicationContext(), 0, intent, PendingIntent.FLAG_ONE_SHOT);
                 PendingIntent trickpendclick = PendingIntent.getBroadcast(context, 0, intenttrick, PendingIntent.FLAG_UPDATE_CURRENT);
-
-                //Notification myNotification = new Notification.Builder(getContext())
 
                 String channelId = "default_channel_id";
                 NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context, channelId);
@@ -184,8 +182,12 @@ public class TrickAdapter extends RecyclerView.Adapter<TrickAdapter.ViewHolder> 
                 mBuilder.setContentIntent(pendingIntent);
                 mBuilder.setAutoCancel(false);
 
+                Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                mBuilder.setSound(alarmSound);
+
                 NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
                 NotificationManager mNotificationManager = (NotificationManager) recyclerView.getContext().getSystemService(Context.NOTIFICATION_SERVICE);
+                notificationManager.cancelAll();
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
                     NotificationChannel mChannel = new NotificationChannel("chanel id", "skate notification",NotificationManager.IMPORTANCE_HIGH);

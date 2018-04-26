@@ -87,50 +87,8 @@ public class SessionList extends Fragment {
             public void onClick(View v) {
                 Intent intent = new Intent(getContext(), CurrentSession.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                //PendingIntent pendingIntent = PendingIntent.getActivity(getContext(), (int)System.currentTimeMillis(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
-
                 intent.putExtra("session time", 0);
-                //intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 getActivity().startActivity(intent);
-                //PendingIntent pendingIntent = PendingIntent.getActivity(getContext(), 0 , intent, 0);
-
-                //Notification myNotification = new Notification.Builder(getContext())
-                /*
-                String channelId = "default_channel_id";
-                NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getContext(), channelId);
-                    mBuilder.setSmallIcon(R.drawable.ic_notifications_black_24dp);
-                    mBuilder.setContentTitle("The Session");
-                    mBuilder.setPriority(NotificationCompat.PRIORITY_DEFAULT);
-                    mBuilder.setContentIntent(pendingIntent);
-                    mBuilder.setAutoCancel(true);
-
-                NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getContext());
-                notificationManager.notify(GenerateID(),mBuilder.build());
-
-
-
-                NotificationCompat.Builder builder = new NotificationCompat.Builder(getContext(),channelId) ;
-                builder.setSmallIcon((R.drawable.ic_notifications_black_24dp));
-                builder.setContentTitle(("The session"));
-                builder.setPriority(NotificationCompat.PRIORITY_DEFAULT);
-                builder.setAutoCancel(true);
-
-
-                Intent intent = new Intent(getContext(), CurrentSession.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                getActivity().startActivityForResult(intent,0);
-
-                TaskStackBuilder stackBuilder = TaskStackBuilder.create(getContext());
-                stackBuilder.addParentStack(MainNavigationActivity.class);
-                stackBuilder.addNextIntentWithParentStack(intent);
-
-                PendingIntent pendingIntent = stackBuilder.getPendingIntent(0,PendingIntent.FLAG_UPDATE_CURRENT);
-
-                builder.setContentIntent(pendingIntent);
-
-                NotificationManagerCompat NM = NotificationManagerCompat.from(getContext());
-                NM.notify(GenerateID(),builder.build());
-                */
             }
         });
         Toolbar toolbar = (Toolbar) getView().findViewById(R.id.toolbar);
