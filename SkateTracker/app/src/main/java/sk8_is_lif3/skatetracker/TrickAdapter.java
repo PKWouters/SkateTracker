@@ -89,6 +89,7 @@ public class TrickAdapter extends RecyclerView.Adapter<TrickAdapter.ViewHolder> 
                 if(position < trickSet.size())
                     if(isExpanded && trickSet.get(position).IsTracking()){
                         holder.ellapsedTimeView.setText(trickSet.get(position).EllapsedTime());
+                        holder.timesLandedView.setText("Landed: " + trickSet.get(position).GetTimesLanded() + " times");
                         handler.postDelayed(this, 1000);
                     }
             }
@@ -156,8 +157,10 @@ public class TrickAdapter extends RecyclerView.Adapter<TrickAdapter.ViewHolder> 
                     intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
                     Intent intenttrick = new Intent(context, ActionReceiver.class);
-                    intenttrick.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    Intent intentSession = new Intent(context, CurrentSession.class);
+                    intentSession.addFlags(Intent.FLAG_FROM_BACKGROUND);
                     PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intenttrick, PendingIntent.FLAG_UPDATE_CURRENT);
+                    PendingIntent pendingSessionIntent = PendingIntent.getActivity(context, 0, intentSession, PendingIntent.FLAG_UPDATE_CURRENT);
 
                     String channelId = "default_channel_id";
 
@@ -167,10 +170,10 @@ public class TrickAdapter extends RecyclerView.Adapter<TrickAdapter.ViewHolder> 
                     mBuilder.setVisibility(Notification.VISIBILITY_PUBLIC);
                     mBuilder.setSmallIcon(R.drawable.ic_healing_black_24dp);
                     mBuilder.setContentTitle("Active Session");
-                    mBuilder.addAction(R.drawable.ic_plus_1, "Add Trick", pendingIntent);
+                    mBuilder.addAction(R.drawable.ic_plus_1, "Landed", pendingIntent);
                     mBuilder.setContentText("Trick: " + holder.trickNameView.getText().toString());
                     mBuilder.setPriority(NotificationCompat.PRIORITY_MAX);
-                    mBuilder.setContentIntent(pendingIntent);
+                    mBuilder.setContentIntent(pendingSessionIntent);
                     mBuilder.setAutoCancel(false);
 
                     Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
