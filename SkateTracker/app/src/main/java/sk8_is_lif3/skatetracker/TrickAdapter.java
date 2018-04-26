@@ -98,7 +98,7 @@ public class TrickAdapter extends RecyclerView.Adapter<TrickAdapter.ViewHolder> 
                                     Color.rgb(255,255,255):
                                     holder.itemView.getResources().getColor(R.color.colorAccent));
 
-        cardView.setCardElevation(isExpanded?6:0);
+        cardView.setCardElevation(isExpanded?8:2);
         holder.incrementButton.animate().translationX(isExpanded?-125:0).setDuration(200);
         cardView.setActivated(isExpanded);
 
