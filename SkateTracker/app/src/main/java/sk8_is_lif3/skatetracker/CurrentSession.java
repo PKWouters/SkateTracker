@@ -45,6 +45,7 @@ public class CurrentSession extends AppCompatActivity{
 
 
     private RecyclerView trickRecyclerView;
+    private TrickAdapter tAdapt;
     private RecyclerView.Adapter trickAdapter;
     private RecyclerView.LayoutManager trickLayoutManager;
     private AppDatabase database;
@@ -73,7 +74,8 @@ public class CurrentSession extends AppCompatActivity{
         trickRecyclerView.setHasFixedSize(true);
         trickLayoutManager = new LinearLayoutManager(this);
         trickRecyclerView.setLayoutManager(trickLayoutManager);
-        trickAdapter = new TrickAdapter(tempTrickList);
+        tAdapt = new TrickAdapter(tempTrickList);
+        trickAdapter = (RecyclerView.Adapter) tAdapt;
         trickRecyclerView.setAdapter(trickAdapter);
 
         if (tempTrickList.size() == 0){
@@ -121,40 +123,6 @@ public class CurrentSession extends AppCompatActivity{
                                 trickRecyclerView.setVisibility(View.VISIBLE);
                                 TextView tv = (TextView) findViewById(R.id.text_View);
                                 tv.setVisibility(View.GONE);
-
-                                Intent intent = new Intent(getApplicationContext(), this.getClass());
-                                intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                                PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), (int)System.currentTimeMillis(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
-
-                                Intent intenttrick = new Intent(getApplicationContext(), ActionReceiver.class);
-                                //intenttrick.setAction("Add Trick");
-                                intenttrick.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-
-                                //PendingIntent trickpend = PendingIntent.getActivity(getApplicationContext(), 0, intent, PendingIntent.FLAG_ONE_SHOT);
-                                PendingIntent trickpendclick = PendingIntent.getBroadcast(getApplicationContext(), 0, intenttrick, PendingIntent.FLAG_UPDATE_CURRENT);
-
-                                //Notification myNotification = new Notification.Builder(getContext())
-
-                                String channelId = "default_channel_id";
-                                NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getApplicationContext(), channelId);
-                                mBuilder.setVisibility(Notification.VISIBILITY_PUBLIC);
-                                mBuilder.setSmallIcon(R.drawable.ic_healing_black_24dp);
-                                mBuilder.setContentTitle("Active Session");
-                                mBuilder.addAction(R.drawable.ic_plus_1, "Add Trick", trickpendclick);
-                                mBuilder.setContentText("Trick: " + trickName.getText().toString());
-                                mBuilder.setPriority(NotificationCompat.PRIORITY_MAX);
-                                mBuilder.setContentIntent(pendingIntent);
-                                mBuilder.setAutoCancel(false);
-
-                                NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getApplicationContext());
-                                NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
-                                    NotificationChannel mChannel = new NotificationChannel("chanel id", "skate notification",NotificationManager.IMPORTANCE_HIGH);
-
-                                    mNotificationManager.createNotificationChannel(mChannel);
-                                }
-
-                                notificationManager.notify(GenerateID(),mBuilder.build());
                             }
                         })
                         .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -168,6 +136,7 @@ public class CurrentSession extends AppCompatActivity{
                 builder.show();
             }
         });
+        onResume();
     }
 
     @Override
@@ -239,6 +208,7 @@ public class CurrentSession extends AppCompatActivity{
     @Override
     protected void onResume() {
         super.onResume();
+        currentTrick = tAdapt.GetCurrentTrick();
         registerReceiver(myReceiver, new IntentFilter("Add Trick"));
     }
 
@@ -249,8 +219,8 @@ public class CurrentSession extends AppCompatActivity{
     }
 
     private void onMessageReceived() {
-
-        currentTrick.IncrementTimesLanded();
+        if(currentTrick != null)
+            currentTrick.IncrementTimesLanded();
     }
 
 }

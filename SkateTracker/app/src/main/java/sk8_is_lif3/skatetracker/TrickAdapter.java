@@ -1,7 +1,16 @@
 package sk8_is_lif3.skatetracker;
 
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Handler;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.transition.TransitionManager;
@@ -15,12 +24,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.List;
+import java.util.Random;
 
 public class TrickAdapter extends RecyclerView.Adapter<TrickAdapter.ViewHolder> {
 
     private List<Trick> trickSet;
     private int _expandedPosition = -1, _previousExpandedPosition = -1;
     ViewGroup recyclerView;
+    private Trick currentTrick;
 
     public TrickAdapter(List<Trick> tricks) {
         trickSet = tricks;
@@ -140,16 +151,53 @@ public class TrickAdapter extends RecyclerView.Adapter<TrickAdapter.ViewHolder> 
             @Override
             public void onClick(View v) {
                 trickSet.get(position).PauseTracking();
+                if(currentTrick == trickSet.get(position))
+                    currentTrick = null;
                 notifyItemChanged(position);
             }
         });
         holder.startBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Context context = holder.itemView.getContext();
+                Intent intent = new Intent((holder.itemView.getContext()), this.getClass());
+                intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                PendingIntent pendingIntent = PendingIntent.getActivity(context, (int)System.currentTimeMillis(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+                Intent intenttrick = new Intent(context, ActionReceiver.class);
+                //intenttrick.setAction("Add Trick");
+                intenttrick.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
+                //PendingIntent trickpend = PendingIntent.getActivity(getApplicationContext(), 0, intent, PendingIntent.FLAG_ONE_SHOT);
+                PendingIntent trickpendclick = PendingIntent.getBroadcast(context, 0, intenttrick, PendingIntent.FLAG_UPDATE_CURRENT);
+
+                //Notification myNotification = new Notification.Builder(getContext())
+
+                String channelId = "default_channel_id";
+                NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context, channelId);
+                mBuilder.setVisibility(Notification.VISIBILITY_PUBLIC);
+                mBuilder.setSmallIcon(R.drawable.ic_healing_black_24dp);
+                mBuilder.setContentTitle("Active Session");
+                mBuilder.addAction(R.drawable.ic_plus_1, "Add Trick", trickpendclick);
+                mBuilder.setContentText("Trick: " + holder.trickNameView.getText().toString());
+                mBuilder.setPriority(NotificationCompat.PRIORITY_MAX);
+                mBuilder.setContentIntent(pendingIntent);
+                mBuilder.setAutoCancel(false);
+
+                NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
+                NotificationManager mNotificationManager = (NotificationManager) recyclerView.getContext().getSystemService(Context.NOTIFICATION_SERVICE);
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+                    NotificationChannel mChannel = new NotificationChannel("chanel id", "skate notification",NotificationManager.IMPORTANCE_HIGH);
+                    mNotificationManager.createNotificationChannel(mChannel);
+                }
+
+                notificationManager.notify(GenerateID(),mBuilder.build());
                 for (Trick t:trickSet) {
                     if(t.IsTracking())
                         t.PauseTracking();
                 }
+                SetCurrentTrick(trickSet.get(position));
                 trickSet.get(position).StartTracking();
                 notifyItemChanged(position);
             }
@@ -157,9 +205,26 @@ public class TrickAdapter extends RecyclerView.Adapter<TrickAdapter.ViewHolder> 
 
     }
 
+    public Trick GetCurrentTrick(){ return currentTrick; }
+    public void SetCurrentTrick(Trick cTrick ){ currentTrick = cTrick; }
+
     @Override
     public int getItemCount() {
         return trickSet.size();
+    }
+
+    private int GenerateID() {
+        //CREATE STATIC ID
+        String ret = "";
+        final String digits = "0123456789";
+        final String alphanum = digits;
+        Random random = new Random();
+        for (int i = 0; i < 6; i++) {
+            int randIndex = Math.abs(random.nextInt()) % alphanum.length();
+            char lett = alphanum.charAt(randIndex);
+            ret += Character.toString(lett);
+        }
+        return Integer.parseInt(ret);
     }
 
 
