@@ -23,6 +23,18 @@
             app:contentScrim="@color/colorPrimary"
             app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
+            <ImageView
+                android:id="@+id/image"
+                android:src="@drawable/sessionsbackground"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:scaleType="centerCrop"
+                android:fitsSystemWindows="true"
+                app:layout_collapseMode="parallax"
+                android:tint="@color/colorPrimaryLight"
+                android:tintMode="multiply"/>
+
+
             <android.support.v7.widget.Toolbar
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
@@ -33,7 +45,10 @@
         </android.support.design.widget.CollapsingToolbarLayout>
     </android.support.design.widget.AppBarLayout>
 
-    <include layout="@layout/content_sessions_list" />
+    <include
+        layout="@layout/content_sessions_list"
+        android:layout_height="558dp"
+        android:layout_marginTop="16dp" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/newSessionFab"

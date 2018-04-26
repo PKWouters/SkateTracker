@@ -164,47 +164,11 @@ public class SessionList extends Fragment {
 
                 @Override
                 protected void onBindViewHolder(@NonNull final SessionViewHolder holder, final int position, @NonNull final SessionToDisplay model) {
-                    final CardView cardView = holder.itemView.findViewById(R.id.card_view);
+                    //final CardView cardView = holder.itemView.findViewById(R.id.card_view);
                     holder.sessionNameView.setText(model.getDate() + " - " + model.getName());
                     holder.sessionNameView.setMaxLines(2);
                     holder.sessionNameView.setTransitionName("sessionNameTransition" + model.getId());
                     holder.sessionNameView.setTextColor(Color.WHITE);
-                    holder.removeButton.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            final AlertDialog.Builder builder = new AlertDialog.Builder(holder.itemView.getContext());
-                            builder.setMessage("Are you sure you want to remove this Session?")
-                                    .setTitle("Remove Session")
-                                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                                        public void onClick(DialogInterface dialog, int id) {
-                                            TransitionManager.beginDelayedTransition(cardView);
-                                            db.collection("Sessions").document(model.getId())
-                                                    .delete()
-                                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                        @Override
-                                                        public void onSuccess(Void aVoid) {
-                                                            Log.d(TAG, "DocumentSnapshot successfully deleted!");
-                                                        }
-                                                    })
-                                                    .addOnFailureListener(new OnFailureListener() {
-                                                        @Override
-                                                        public void onFailure(@NonNull Exception e) {
-                                                            Log.w(TAG, "Error deleting document", e);
-                                                        }
-                                                    });
-                                        }
-                                    })
-                                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                                        public void onClick(DialogInterface dialog, int id) {
-                                            //Cancel
-                                        }
-                                    });
-
-                            // Create the AlertDialog object and return it
-                            builder.create();
-                            builder.show();
-                        }
-                    });
 
                     holder.itemView.setOnClickListener(new View.OnClickListener() {
                         @Override
@@ -342,7 +306,6 @@ public class SessionList extends Fragment {
             super(v);
             itemView = v;
             sessionNameView = v.findViewById(R.id.sessionName);
-            removeButton = v.findViewById(R.id.removeButton);
         }
     }
 

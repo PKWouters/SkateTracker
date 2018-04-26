@@ -43,7 +43,6 @@ public class SessionAdapter extends RecyclerView.Adapter<SessionAdapter.ViewHold
             sessionNameView = v.findViewById(R.id.sessionName);
             totalTimeView = v.findViewById(R.id.totalTimePracticed);
             totalTricksView = v.findViewById(R.id.totalTricks);
-            removeButton = v.findViewById(R.id.removeButton);
             barChart = v.findViewById(R.id.sessionChart);
         }
     }
