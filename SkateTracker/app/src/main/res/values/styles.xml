@@ -15,7 +15,7 @@
         <!-- specify shared element transitions -->
 
         <item name="android:windowSharedElementEnterTransition">@android:transition/move</item>
-        <item name="android:windowSharedElementExitTransition">@android:transition/move</item>-->
+        <item name="android:windowSharedElementExitTransition">@android:transition/move</item>
 
 
         <item name="android:windowBackground">@color/colorBackground</item>
@@ -25,7 +25,7 @@
         <item name="colorAccent">@color/colorAccent</item>
 
         <!-- enable window content transitions -->
-        <item name="android:windowActivityTransitions">true</item>
+        <item name="android:windowContentTransitions">true</item>
     </style>
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />

@@ -1,22 +1,15 @@
 package sk8_is_lif3.skatetracker;
 
 import android.annotation.SuppressLint;
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.res.Configuration;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.transition.TransitionInflater;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.transition.TransitionManager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -39,14 +32,8 @@ import com.github.mikephil.charting.renderer.XAxisRenderer;
 import com.github.mikephil.charting.utils.MPPointF;
 import com.github.mikephil.charting.utils.Utils;
 import com.github.mikephil.charting.utils.ViewPortHandler;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -54,7 +41,7 @@ import java.util.Map;
 
 public class SessionDetailFragment extends Fragment{
 
-    private String mName, mTotalTime;
+    private String mName, mTotalTime, mId;
     private ArrayList<Map<String, Object>> mTricks;
 
     private BarChart barChart;
@@ -64,28 +51,43 @@ public class SessionDetailFragment extends Fragment{
         // Required empty public constructor
     }
 
+    public SessionDetailFragment newInstance(String name, String totalTime, ArrayList<Map<String, Object>> tricks){
+
+        SessionDetailFragment fragment = new SessionDetailFragment();
+        Bundle args = new Bundle();
+        fragment.setArguments(args);
+        return fragment;
+    }
+
     @SuppressLint("ValidFragment")
-    public SessionDetailFragment(String name, String totalTime, ArrayList<Map<String, Object>> tricks) {
+    public SessionDetailFragment(String name, String totalTime, String id, ArrayList<Map<String, Object>> tricks) {
         mName = name;
         mTotalTime = totalTime;
         mTricks = tricks;
+        mId = id;
     }
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        //getView().findViewById(R.id.toolbar_title).setTransitionName("sessionNameTransition"+mId);
+        final AppCompatActivity activity = (AppCompatActivity) getActivity();
         Toolbar toolbar = (Toolbar) getView().findViewById(R.id.toolbar);
-        toolbar.setTitle(mName);
-        toolbar.setTransitionName("sessionNameTransition");
-        toolbar.setNestedScrollingEnabled(true);
-        AppCompatActivity activity = (AppCompatActivity) getActivity();
-        activity.setSupportActionBar(toolbar);
 
-        startPostponedEnterTransition();
+
+        activity.setSupportActionBar(toolbar);
+        activity.getSupportActionBar().setDisplayShowTitleEnabled(false);
+        activity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        activity.getSupportActionBar().setDisplayShowHomeEnabled(true);
+        activity.getSupportActionBar().setHomeButtonEnabled(true);
+
+        TextView sessionName = getView().findViewById(R.id.sessionName);
+        sessionName.setText(mName);
+        sessionName.setTextColor(Color.WHITE);
+        sessionName.setTransitionName("sessionNameTransition" + mId);
 
         barChart = getView().findViewById(R.id.sessionChart);
         totalTimeView = getView().findViewById(R.id.totalTimePracticed);
         totalTricksView = getView().findViewById(R.id.totalTricks);
-
         totalTimeView.setText(mTotalTime);
         totalTimeView.setTextColor(Color.WHITE);
         totalTricksView.setTextColor(Color.WHITE);
@@ -131,19 +133,6 @@ public class SessionDetailFragment extends Fragment{
 
             int screenSize = getView().getResources().getConfiguration().screenLayout &
                     Configuration.SCREENLAYOUT_SIZE_MASK;
-            switch (screenSize) {
-                case Configuration.SCREENLAYOUT_SIZE_LARGE:
-                    xAxis.setTextSize(9f);
-                    break;
-                case Configuration.SCREENLAYOUT_SIZE_NORMAL:
-                    xAxis.setTextSize(5f);
-                    break;
-                case Configuration.SCREENLAYOUT_SIZE_SMALL:
-                    xAxis.setTextSize(3f);
-                    break;
-                default:
-
-            }
 
             dataSet.setValueTextColor(Color.WHITE);
 
@@ -194,9 +183,26 @@ public class SessionDetailFragment extends Fragment{
             yAxis.setDrawGridLines(false); // no grid lines
             yAxis.setDrawZeroLine(true); // draw a zero line
             barChart.getAxisRight().setEnabled(false); // no right axis
-            barChart.setVisibleXRangeMaximum(4.25f);
+            switch (screenSize) {
+                case Configuration.SCREENLAYOUT_SIZE_LARGE:
+                    xAxis.setTextSize(12f);
+                    barChart.setVisibleXRangeMaximum(4.25f);
+                    break;
+                case Configuration.SCREENLAYOUT_SIZE_NORMAL:
+                    xAxis.setTextSize(8f);
+                    barChart.setVisibleXRangeMaximum(3.25f);
+                    break;
+                case Configuration.SCREENLAYOUT_SIZE_SMALL:
+                    xAxis.setTextSize(4f);
+                    barChart.setVisibleXRangeMaximum(2.25f);
+                    break;
+                default:
+
+
+            }
 
         }
+        startPostponedEnterTransition();
     }
 
     private double GetGCDDen(double n) {
@@ -240,7 +246,8 @@ public class SessionDetailFragment extends Fragment{
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setSharedElementEnterTransition(TransitionInflater.from(getContext()).inflateTransition(android.R.transition.move));
+        postponeEnterTransition();
+
     }
 
     @Override
@@ -258,5 +265,21 @@ public class SessionDetailFragment extends Fragment{
     @Override
     public void onDetach() {
         super.onDetach();
+    }
+
+    private TextView getTitleTextView(Toolbar toolbar) {
+        try {
+            Class<?> toolbarClass = Toolbar.class;
+            Field titleTextViewField = toolbarClass.getDeclaredField("mTitleTextView");
+            titleTextViewField.setAccessible(true);
+            TextView titleTextView = (TextView) titleTextViewField.get(toolbar);
+
+            return titleTextView;
+        }
+        catch (NoSuchFieldException | IllegalAccessException e) {
+            e.printStackTrace();
+        }
+
+        return null;
     }
 }

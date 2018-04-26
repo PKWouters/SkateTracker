@@ -50,7 +50,7 @@
                 android:textSize="20sp"
                 card_view:layout_constraintStart_toStartOf="parent"
                 card_view:layout_constraintTop_toTopOf="parent"
-                android:transitionName="sessionNameTransition"/>
+                android:transitionName="@string/session_name_transition"/>
 
 
         </RelativeLayout>
