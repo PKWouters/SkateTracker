@@ -2,12 +2,20 @@ package sk8_is_lif3.skatetracker;
 
 import android.app.AlertDialog;
 import android.app.MediaRouteButton;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.arch.persistence.room.Room;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.Handler;
+import android.renderscript.RenderScript;
 import android.app.ProgressDialog;
 import android.arch.persistence.room.Room;
 import android.content.Context;
@@ -34,6 +42,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.RemoteViews;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -62,6 +71,7 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
 
 
     private RecyclerView trickRecyclerView;
+    private TrickAdapter tAdapt;
     private RecyclerView.Adapter trickAdapter;
     private RecyclerView.LayoutManager trickLayoutManager;
     private AppDatabase database;
@@ -69,6 +79,7 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
     ArrayList<String> sessionIDs;
     Session currentSession;
     Trick currentTrick;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,7 +108,8 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
         trickRecyclerView.setHasFixedSize(true);
         trickLayoutManager = new LinearLayoutManager(this);
         trickRecyclerView.setLayoutManager(trickLayoutManager);
-        trickAdapter = new TrickAdapter(tempTrickList);
+        tAdapt = new TrickAdapter(tempTrickList);
+        trickAdapter = (RecyclerView.Adapter) tAdapt;
         trickRecyclerView.setAdapter(trickAdapter);
 
         if (tempTrickList.size() == 0){
@@ -145,25 +157,6 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
                                 trickRecyclerView.setVisibility(View.VISIBLE);
                                 TextView tv = (TextView) findViewById(R.id.text_View);
                                 tv.setVisibility(View.GONE);
-
-                                Intent intent = new Intent(getApplicationContext(), this.getClass());
-                                intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                                PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), (int)System.currentTimeMillis(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
-
-                                //Notification myNotification = new Notification.Builder(getContext())
-
-                                String channelId = "default_channel_id";
-                                NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getApplicationContext(), channelId);
-                                mBuilder.setSmallIcon(R.drawable.ic_healing_black_24dp);
-                                mBuilder.addAction(R.drawable.ic_plus_1, "Trick Landed ",pendingIntent);
-                                mBuilder.setContentTitle("Active Session");
-                                mBuilder.setContentText("Trick: " + trickName.getText().toString());
-                                mBuilder.setPriority(NotificationCompat.PRIORITY_MAX);
-                                mBuilder.setContentIntent(pendingIntent);
-                                mBuilder.setAutoCancel(false);
-
-                                NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getApplicationContext());
-                                notificationManager.notify(GenerateID(),mBuilder.build());
                             }
                         })
                         .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -177,13 +170,9 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
                 builder.show();
             }
         });
+        onResume();
     }
 
-    @Override
-    protected void onPause(){
-        super.onPause();
-        //senSensorManager.unregisterListener(this);
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -302,7 +291,8 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
                         sessionNameBuilder.show();
                         /*
                         database.sessionDAO().insertSession(currentSession);
-                        System.out.println(database.sessionDAO().getSessions().size());
+                        NotificationManager nM = (NotificationManager)getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+                        nM.cancelAll();
                         finish();
                         */
                     }
@@ -322,53 +312,35 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
                 return super.onOptionsItemSelected(item);
         }
     }
-    public class ActionReceiver extends BroadcastReceiver{
+    private BroadcastReceiver myReceiver = new BroadcastReceiver() {
         @Override
-        public void onReceive(Context context, Intent intent){
-            String action = intent.getStringExtra("Trick Landed ");
-            if (action.equals("Trick Landed ")) {
-                preformAction1();
-            }
-            Intent it = new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS);
-            context.sendBroadcast(it);
+        public void onReceive(final Context context, final Intent intent) {
+            onMessageReceived();
         }
-        public void preformAction1(){
-            currentTrick.PauseTracking();
-        }
+    };
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        currentTrick = tAdapt.GetCurrentTrick();
+        registerReceiver(myReceiver, new IntentFilter("trick_landed"));
     }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+    }
+
+    @Override
+    protected void onDestroy(){
+        super.onDestroy();
+        tAdapt.SetCurrentTrick(null);
+        unregisterReceiver(myReceiver);
+    }
+
+    private void onMessageReceived() {
+        if(currentTrick != null)
+            currentTrick.IncrementTimesLanded();
+    }
+
 }
-
-    /*
-    @Override
-    public void onSensorChanged(SensorEvent event) {
-        Sensor sensor = event.sensor;
-
-        if(sensor.getType() == Sensor.TYPE_ACCELEROMETER){
-            float x = event.values[0];
-            float y = event.values[1];
-            float z = event.values[2];
-
-            long currTime = System.currentTimeMillis();
-
-            if((currTime - lastUpdate) > 250){
-                long diffTime = (currTime - lastUpdate);
-                lastUpdate = currTime;
-
-                float speed = Math.abs(x + y + z - last_x - last_y - last_z)/ diffTime * 10000;
-
-                if(speed > SHAKE_THRESHOLD){
-                    jumps++;
-                    TextView tv = (TextView) findViewById(R.id.text_View);
-                    tv.setText(Integer.toString(jumps));
-                }
-                last_x = x;
-                last_y = y;
-                last_z = z;
-            }
-        }
-    }
-
-    @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {
-
-    }*/

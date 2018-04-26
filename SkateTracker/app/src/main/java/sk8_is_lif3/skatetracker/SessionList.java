@@ -93,10 +93,7 @@ public class SessionList extends Fragment {
             public void onClick(View v) {
                 Intent intent = new Intent(getContext(), CurrentSession.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                //PendingIntent pendingIntent = PendingIntent.getActivity(getContext(), (int)System.currentTimeMillis(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
-
                 intent.putExtra("session time", 0);
-                //intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 getActivity().startActivity(intent);
             }
         });
