@@ -180,7 +180,8 @@ public class CurrentSession extends AppCompatActivity{
                         }
                         currentSession.PauseTracking();
                         database.sessionDAO().insertSession(currentSession);
-                        System.out.println(database.sessionDAO().getSessions().size());
+                        NotificationManager nM = (NotificationManager)getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+                        nM.cancelAll();
                         finish();
                     }
                 });
