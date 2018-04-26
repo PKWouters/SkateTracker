@@ -35,47 +35,23 @@
 
             <TextView
                 android:id="@+id/sessionName"
-                android:layout_width="wrap_content"
+                android:layout_width="275dp"
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
                 android:layout_alignParentTop="true"
                 android:layout_marginBottom="16dp"
                 android:layout_marginStart="17dp"
                 android:layout_marginTop="18dp"
-                android:text="01/01/1999"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="01/01/1999 - Orlando Skate Park"
                 android:textAppearance="@style/TextAppearance.AppCompat.Display4"
                 android:textColor="@android:color/white"
-                android:textSize="24sp"
+                android:textSize="20sp"
                 card_view:layout_constraintStart_toStartOf="parent"
-                card_view:layout_constraintTop_toTopOf="parent" />
+                card_view:layout_constraintTop_toTopOf="parent"
+                android:transitionName="@string/session_name_transition"/>
 
-
-            <TextView
-                android:id="@+id/totalTricks"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignStart="@+id/sessionName"
-                android:layout_below="@+id/totalTimePracticed"
-                android:text="0 Tricks Practiced"
-                android:textColor="@color/cardview_light_background" />
-
-            <TextView
-                android:id="@+id/totalTimePracticed"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignStart="@+id/sessionName"
-                android:layout_below="@+id/sessionName"
-                android:layout_marginTop="-16dp"
-                android:text="Total Time: 0 hrs, 0 mins, 0 secs"
-                android:textColor="@color/cardview_light_background" />
-
-            <com.github.mikephil.charting.charts.BarChart
-                android:id="@+id/sessionChart"
-                android:layout_width="match_parent"
-                android:layout_height="195dp"
-                android:layout_marginEnd="16dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="95dp" />
 
         </RelativeLayout>
 

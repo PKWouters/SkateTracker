@@ -32,7 +32,7 @@ public class TrickAdapter extends RecyclerView.Adapter<TrickAdapter.ViewHolder> 
         // each data item is just a string in this case
         public TextView trickNameView, ellapsedTimeView, timesLandedView;
         public View itemView;
-        public Button startBtn, stopBtn;
+        public Button startBtn;
         public LinearLayout btnLayout;
         public ImageView removeButton, incrementButton;
         public ViewHolder(View v) {
@@ -41,7 +41,6 @@ public class TrickAdapter extends RecyclerView.Adapter<TrickAdapter.ViewHolder> 
             trickNameView = v.findViewById(R.id.sessionName);
             ellapsedTimeView = v.findViewById(R.id.ellapsedTimeCounter);
             startBtn = v.findViewById(R.id.startTrackingButton);
-            stopBtn = v.findViewById(R.id.stopTrackingButton);
             btnLayout = v.findViewById(R.id.buttonLayout);
             removeButton = v.findViewById(R.id.arrowView);
             incrementButton = v.findViewById(R.id.incrementButton);
@@ -94,12 +93,10 @@ public class TrickAdapter extends RecyclerView.Adapter<TrickAdapter.ViewHolder> 
         cardView.setCardBackgroundColor(trickSet.get(position).IsTracking()?
                                         holder.itemView.getResources().getColor(R.color.colorAccent):
                                         holder.itemView.getResources().getColor(R.color.colorPrimaryLight));
+        holder.startBtn.setText(trickSet.get(position).IsTracking()? "Stop Tracking" : "Start Tracking");
         holder.startBtn.setTextColor(trickSet.get(position).IsTracking()?
                                     Color.rgb(255,255,255):
                                     holder.itemView.getResources().getColor(R.color.colorAccent));
-        holder.stopBtn.setTextColor(trickSet.get(position).IsTracking()?
-                Color.rgb(255,255,255):
-                holder.itemView.getResources().getColor(R.color.colorAccent));
 
         cardView.setCardElevation(isExpanded?6:0);
         holder.incrementButton.animate().translationX(isExpanded?-125:0).setDuration(200);
@@ -136,22 +133,25 @@ public class TrickAdapter extends RecyclerView.Adapter<TrickAdapter.ViewHolder> 
                 notifyItemChanged(position);
             }
         });
-        holder.stopBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                trickSet.get(position).PauseTracking();
-                notifyItemChanged(position);
-            }
-        });
         holder.startBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                for (Trick t:trickSet) {
-                    if(t.IsTracking())
-                        t.PauseTracking();
+                if(!trickSet.get(position).IsTracking()) {
+                    for (int i = 0; i < trickSet.size(); i++) {
+                        if (trickSet.get(i).IsTracking()) {
+                            trickSet.get(i).PauseTracking();
+                            notifyItemChanged(i);
+                            break;
+                        }
+                    }
+                    trickSet.get(position).StartTracking();
+                    notifyItemChanged(position);
+                    return;
+                }else{
+                    trickSet.get(position).PauseTracking();
+                    notifyItemChanged(position);
+                    return;
                 }
-                trickSet.get(position).StartTracking();
-                notifyItemChanged(position);
             }
         });
 

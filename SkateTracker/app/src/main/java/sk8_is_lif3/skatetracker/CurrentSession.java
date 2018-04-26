@@ -220,65 +220,86 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
                 builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         // User clicked OK button
+                        // Use the Builder class for convenient dialog construction
+                        final AlertDialog.Builder sessionNameBuilder = new AlertDialog.Builder(CurrentSession.this);
+                        final LayoutInflater inflater = getLayoutInflater();
+                        final View dlgView = inflater.inflate(R.layout.name_session_dialog, null);
 
-                        ArrayList<String> trickIDs = new ArrayList<String>();
+                        final TextView sessionNameField = (EditText) dlgView.findViewById(R.id.trickNameField);
+                        sessionNameBuilder.setView(dlgView)
+                                .setMessage("Name Your Session")
+                                .setPositiveButton("Save", new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface dialog, int id) {
+                                                //Save to Trick List
+                                                final String sessionName = sessionNameField.getText().toString();
+                                                ArrayList<String> trickIDs = new ArrayList<String>();
 
-                        for (Trick t:tempTrickList) {
-                            t.PauseTracking();
-                            trickIDs.add(t.GetID());
-                        }
-                        currentSession.PauseTracking();
+                                                for (Trick t : tempTrickList) {
+                                                    t.PauseTracking();
+                                                    trickIDs.add(t.GetID());
+                                                }
+                                                currentSession.PauseTracking();
 
 
-                        final FirebaseFirestore db = FirebaseFirestore.getInstance();
-                        final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                                                final FirebaseFirestore db = FirebaseFirestore.getInstance();
+                                                final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
+                                                // Create Session
+                                                final Map<String, Object> session = new HashMap<>();
+                                                session.put("date", currentSession.GetDate().toString());
+                                                session.put("id", currentSession.GetID());
+                                                session.put("totalTimeFormatted", currentSession.EllapsedTime());
+                                                session.put("uID", user.getUid());
+                                                session.put("name", sessionName);
 
-                        // Create Session
-                        final Map<String, Object> session = new HashMap<>();
-                        session.put("date", currentSession.GetDate().toString());
-                        session.put("id", currentSession.GetID());
-                        session.put("totalTimeFormatted", currentSession.EllapsedTime());
-                        session.put("uID", user.getUid());
+                                                final ProgressDialog progressDialog = ProgressDialog.show(CurrentSession.this, "",
+                                                        "Saving Session...", true);
 
-                        final ProgressDialog progressDialog = ProgressDialog.show(CurrentSession.this, "",
-                                "Saving Session...", true);
+                                                ArrayList<Map<String, Object>> trickList = new ArrayList<Map<String, Object>>();
 
-                        ArrayList<Map<String, Object>> trickList = new ArrayList<Map<String, Object>>();
+                                                //Create Map for trick
+                                                for (Trick t : tempTrickList) {
+                                                    // Create a new user with a first and last name
+                                                    Map<String, Object> trick = new HashMap<>();
+                                                    trick.put("name", t.GetName());
+                                                    trick.put("id", t.GetID());
+                                                    trick.put("totalTimeFormatted", t.EllapsedTime());
+                                                    trick.put("ratio", t.GetRatio());
+                                                    trick.put("timesLanded", t.GetTimesLanded());
+                                                    //Add to session
+                                                    trickList.add(trick);
+                                                }
 
-                        //Create Map for trick
-                        for(Trick t:tempTrickList){
-                            // Create a new user with a first and last name
-                            Map<String, Object> trick = new HashMap<>();
-                            trick.put("name", t.GetName());
-                            trick.put("id", t.GetID());
-                            trick.put("totalTimeFormatted", t.EllapsedTime());
-                            trick.put("ratio", t.GetRatio());
-                            trick.put("timesLanded", t.GetTimesLanded());
-                            //Add to session
-                            trickList.add(trick);
-                        }
+                                                session.put("tricks", trickList);
 
-                        session.put("tricks", trickList);
+                                                //Add Session to Document
+                                                db.collection("Sessions")
+                                                        .document(currentSession.GetID()).set(session)
+                                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                            @Override
+                                                            public void onSuccess(Void aVoid) {
+                                                                progressDialog.dismiss();
+                                                                Toast.makeText(getApplicationContext(), "Saved Session", Toast.LENGTH_SHORT).show();
+                                                                finish();
+                                                            }
+                                                        })
+                                                        .addOnFailureListener(new OnFailureListener() {
+                                                            @Override
+                                                            public void onFailure(@NonNull Exception e) {
+                                                                Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+                                                            }
+                                                        });
+                                            }
+                                        });
+                        sessionNameBuilder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
 
-                        //Add Session to Document
-                        db.collection("Sessions")
-                                .document(currentSession.GetID()).set(session)
-                                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void aVoid) {
-                                        progressDialog.dismiss();
-                                        Toast.makeText(getApplicationContext(), "Saved Session", Toast.LENGTH_SHORT).show();
-                                        finish();
-                                    }
-                                })
-                                .addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_LONG).show();
-                                    }
-                                });
+                            }
+                        });
 
+                        // Create the AlertDialog object and return it
+                        sessionNameBuilder.create();
+                        sessionNameBuilder.show();
                         /*
                         database.sessionDAO().insertSession(currentSession);
                         System.out.println(database.sessionDAO().getSessions().size());
