@@ -164,8 +164,6 @@ public class TrickAdapter extends RecyclerView.Adapter<TrickAdapter.ViewHolder> 
 
                     String channelId = "default_channel_id";
 
-
-
                     NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context, channelId);
                     mBuilder.setVisibility(Notification.VISIBILITY_PUBLIC);
                     mBuilder.setSmallIcon(R.drawable.ic_healing_black_24dp);
