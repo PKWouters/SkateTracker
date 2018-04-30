@@ -2,7 +2,6 @@ package sk8_is_lif3.skatetracker;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.Configuration;
@@ -14,14 +13,12 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -101,7 +98,7 @@ public class SessionDetailFragment extends Fragment{
         activity.getSupportActionBar().setHomeButtonEnabled(true);
         setHasOptionsMenu(true);
 
-        TextView sessionName = getView().findViewById(R.id.sessionName);
+        TextView sessionName = getView().findViewById(R.id.trickName);
         sessionName.setText(mName);
         sessionName.setTextColor(Color.WHITE);
         sessionName.setTransitionName("sessionNameTransition" + mId);
@@ -364,9 +361,10 @@ public class SessionDetailFragment extends Fragment{
                                                         }
                                                     }
 
-                                                    ratio = ratio / (currentTricks.size()+1);
+                                                    ratio = ratio / (updatedTricks.size());
 
                                                     userTrick.put("avgRatio", ratio);
+                                                    userTrick.put("name", existingTrick.get("name"));
                                                     userTrick.put("sessions", updatedTricks);
 
                                                     //Add to User Object

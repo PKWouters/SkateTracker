@@ -1,16 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <item
+        android:id="@+id/navigation_learn"
+        android:icon="@drawable/ic_school_black_24dp"
+        android:title="Learn" />
+
+    <item
+        android:id="@+id/navigation_skate"
+        android:icon="@drawable/ic_healing_black_24dp"
+        android:title="SKATE" />
     <item
         android:id="@+id/navigation_sessions"
         android:icon="@drawable/ic_insert_chart_black_24dp"
-        android:title="Sessions" />
-
+        android:title="Activity" />
     <item
         android:id="@+id/navigation_spots"
-        android:icon="@drawable/ic_place_black_24dp"
-        android:title="Skate Spots" />
-
+        android:icon="@drawable/ic_map_black_24dp"
+        android:title="Spots" />
     <item
         android:id="@+id/navigation_profile"
         android:icon="@drawable/ic_account_circle_black_24dp"

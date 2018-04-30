@@ -22,7 +22,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RemoteViews;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -52,7 +51,7 @@ public class TrickAdapter extends RecyclerView.Adapter<TrickAdapter.ViewHolder> 
         public ViewHolder(View v) {
             super(v);
             itemView = v;
-            trickNameView = v.findViewById(R.id.sessionName);
+            trickNameView = v.findViewById(R.id.trickName);
             ellapsedTimeView = v.findViewById(R.id.ellapsedTimeCounter);
             startBtn = v.findViewById(R.id.startTrackingButton);
             btnLayout = v.findViewById(R.id.buttonLayout);

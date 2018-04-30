@@ -1,52 +1,112 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.v4.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/scrollView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:tools="http://schemas.android.com/tools"
+    android:clipToPadding="false"
     android:fillViewport="true"
-    app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context=".SessionList"
-    tools:showIn="@layout/fragment_session_list">
+    tools:showIn="@layout/fragment_session_list"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-    <android.support.constraint.ConstraintLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/colorBackground">
+        android:layout_height="match_parent"
+        android:fillViewport="true">
+
+    <LinearLayout
+        android:id="@+id/layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:isScrollContainer="true"
+        android:orientation="vertical"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
 
         <TextView
-            android:id="@+id/text_View"
+            android:id="@+id/tricksTextView"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:text="whatever"
-            android:textAppearance="@style/TextAppearance.AppCompat.Display1"
-            android:textColor="@color/cardview_light_background"
-            android:textSize="20dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/sessionsRecyclerView"
-            app:layout_constraintHorizontal_bias="0.498"
-            app:layout_constraintStart_toEndOf="@+id/sessionsRecyclerView"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.53"
-            tools:text="whatever" />
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="-8dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginTop="32dp"
+            android:text="Tricks"
+            android:textAppearance="@style/TextAppearance.AppCompat.Headline" />
+
+        <View
+            android:id="@+id/divider4"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginTop="8dp"
+            android:background="?android:attr/listDivider" />
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/trickRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_margin="8dp"
+            android:layout_marginTop="16dp"
+            android:layout_weight="1.7"
+            android:background="@color/colorBackground"
+            android:clipToPadding="false"
+            android:isScrollContainer="false"
+            android:nestedScrollingEnabled="false"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+        </android.support.v7.widget.RecyclerView>
+
+        <Space
+            android:id="@+id/spacing1"
+            android:layout_width="match_parent"
+            android:layout_height="16dp">
+
+        </Space>
+
+        <TextView
+            android:id="@+id/sessionsTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="-8dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginTop="0dp"
+            android:text="Recent Sessions"
+            android:textAppearance="@style/TextAppearance.AppCompat.Headline" />
+
+        <View
+            android:id="@+id/divider5"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginBottom="-8dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginTop="8dp"
+            android:background="?android:attr/listDivider" />
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/sessionsRecyclerView"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginEnd="4dp"
-            android:layout_marginStart="4dp"
-            android:layout_marginTop="16dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:layout_marginLeft="0dp"
+            android:layout_marginRight="0dp"
+            android:layout_marginTop="8dp"
             android:background="@color/colorBackground"
-            android:clipChildren="true"
+            android:nestedScrollingEnabled="true"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.0">
+            app:layout_constraintStart_toStartOf="parent">
 
         </android.support.v7.widget.RecyclerView>
-    </android.support.constraint.ConstraintLayout>
+
+        <Space
+            android:id="@+id/spacing"
+            android:layout_width="match_parent"
+            android:layout_height="32dp" />
+        </LinearLayout>
+    </ScrollView>
 </android.support.v4.widget.NestedScrollView>

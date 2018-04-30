@@ -7,47 +7,12 @@
     android:fillViewport="true"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context=".SessionDetailFragment"
-    tools:showIn="@layout/fragment_session_detail">
+    tools:showIn="@layout/fragment_trick_detail">
 
     <android.support.constraint.ConstraintLayout
         android:id="@+id/contentLayout"
         android:layout_width="match_parent"
         android:layout_height="fill_parent">
-
-        <TextView
-            android:id="@+id/totalTimePracticed"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_alignStart="@+id/trickName"
-            android:layout_below="@+id/trickName"
-            android:layout_marginEnd="16dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="8dp"
-            android:text="Total Time: 0 hrs, 0 mins, 0 secs"
-            android:textAlignment="viewStart"
-            android:textAppearance="@style/TextAppearance.AppCompat.Display1"
-            android:textSize="24sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/totalTricks" />
-
-        <TextView
-            android:id="@+id/totalTricks"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_alignStart="@+id/trickName"
-            android:layout_below="@+id/totalTimePracticed"
-            android:layout_marginEnd="16dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="8dp"
-            android:text="0 Tricks Practiced"
-            android:textAlignment="viewStart"
-            android:textAppearance="@style/TextAppearance.AppCompat.Display1"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/divider" />
 
         <TextView
             android:id="@+id/trickName"
@@ -77,21 +42,22 @@
             app:layout_constraintTop_toBottomOf="@+id/trickName" />
 
         <FrameLayout
-            android:id="@+id/barChartLayout"
+            android:id="@+id/lineChartLayout"
             android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_marginBottom="8dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="120dp"
             android:layout_marginEnd="16dp"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="8dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/totalTimePracticed">
+            app:layout_constraintTop_toBottomOf="@+id/trickName"
+            app:layout_constraintVertical_bias="0.666">
 
-            <com.github.mikephil.charting.charts.BarChart
-                android:id="@+id/sessionChart"
+            <com.github.mikephil.charting.charts.LineChart
+                android:id="@+id/trickChart"
                 android:layout_width="match_parent"
                 android:layout_height="266dp"
                 android:layout_marginBottom="8dp"

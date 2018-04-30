@@ -308,6 +308,7 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
                                                                     //Add To Trick Object
                                                                     updatedTricks.add(userTrickSesh);
                                                                     userTrick.put("avgRatio", ratio);
+                                                                    userTrick.put("name", t.GetName().toString().toUpperCase());
                                                                     userTrick.put("sessions", updatedTricks);
 
                                                                     //Add to User Object
@@ -346,6 +347,7 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
                                                                     //Add To Trick Object
                                                                     updatedTricks.add(userTrickSesh);
                                                                     userTrick.put("sessions", updatedTricks);
+                                                                    userTrick.put("name", t.GetName().toString().toUpperCase());
 
                                                                     //Add to User Object
                                                                     db.collection("users").document(user.getUid())

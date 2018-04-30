@@ -40,7 +40,7 @@ public class SessionAdapter extends RecyclerView.Adapter<SessionAdapter.ViewHold
         public ViewHolder(View v) {
             super(v);
             itemView = v;
-            sessionNameView = v.findViewById(R.id.sessionName);
+            sessionNameView = v.findViewById(R.id.trickName);
             totalTimeView = v.findViewById(R.id.totalTimePracticed);
             totalTricksView = v.findViewById(R.id.totalTricks);
             barChart = v.findViewById(R.id.sessionChart);

@@ -47,8 +47,9 @@
 
     <include
         layout="@layout/content_sessions_list"
-        android:layout_height="558dp"
-        android:layout_marginTop="16dp" />
+        android:layout_height="match_parent"
+        android:layout_marginTop="16dp"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/newSessionFab"
