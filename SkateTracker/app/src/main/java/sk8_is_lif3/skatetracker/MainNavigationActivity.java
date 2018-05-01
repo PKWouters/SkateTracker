@@ -60,6 +60,10 @@ public class MainNavigationActivity extends AppCompatActivity {
                             .replace(R.id.fragment, new SessionList(), "SessionsList")
                             .commit();
                     return true;
+                case R.id.navigation_learn:
+                    return true;
+                case R.id.navigation_skate:
+                    return true;
                 case R.id.navigation_spots:
                     return true;
                 case R.id.navigation_profile:
@@ -96,11 +100,13 @@ public class MainNavigationActivity extends AppCompatActivity {
                 .replace(R.id.fragment, new SessionList(), "SessionsList")
                 .commit();
 
+
         setContentView(R.layout.activity_main_navigation);
 
 
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+        navigation.getMenu().getItem(2).setChecked(true);
 
 
     }

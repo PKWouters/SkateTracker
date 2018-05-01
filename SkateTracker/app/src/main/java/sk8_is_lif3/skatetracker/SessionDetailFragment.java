@@ -2,7 +2,6 @@ package sk8_is_lif3.skatetracker;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.Configuration;
@@ -14,14 +13,12 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -41,10 +38,15 @@ import com.github.mikephil.charting.renderer.XAxisRenderer;
 import com.github.mikephil.charting.utils.MPPointF;
 import com.github.mikephil.charting.utils.Utils;
 import com.github.mikephil.charting.utils.ViewPortHandler;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.lang.reflect.Field;
@@ -96,7 +98,7 @@ public class SessionDetailFragment extends Fragment{
         activity.getSupportActionBar().setHomeButtonEnabled(true);
         setHasOptionsMenu(true);
 
-        TextView sessionName = getView().findViewById(R.id.sessionName);
+        TextView sessionName = getView().findViewById(R.id.trickName);
         sessionName.setText(mName);
         sessionName.setTextColor(Color.WHITE);
         sessionName.setTransitionName("sessionNameTransition" + mId);
@@ -318,6 +320,80 @@ public class SessionDetailFragment extends Fragment{
                         .setTitle("Remove Session")
                         .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                             public void onClick(final DialogInterface dialog, int id) {
+
+
+                                final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                                final CollectionReference colRef = db.collection("users").document(user.getUid()).collection("tricks");
+
+                                //Set Up Trick Objects
+                                for (final Map<String, Object> t : mTricks) {
+
+                                    DocumentReference currDoc = colRef.document(t.get("name").toString().replaceAll("\\s+","").toLowerCase());
+                                    currDoc.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                            if (task.isSuccessful()) {
+                                                DocumentSnapshot document = task.getResult();
+                                                if (document.exists()) {
+                                                    Map<String, Object> existingTrick = document.getData();
+
+                                                    //Create Trick for User Object
+                                                    Map<String, Object> userTrick = new HashMap<>();
+                                                    Long landings = (Long)(existingTrick.get("totalLandings"));
+                                                    Long currLandings = (Long)(t.get("timesLanded"));
+                                                    if(landings != null)
+                                                        userTrick.put("totalLandings", landings.intValue()-currLandings.intValue());
+
+                                                    //Get Current Sessions, Create Updated Sessions
+                                                    ArrayList<Map<String, Object>> currentTricks = (ArrayList<Map<String, Object>>)existingTrick.get("sessions");
+                                                    ArrayList<Map<String, Object>> updatedTricks = new ArrayList<Map<String, Object>>();
+
+                                                    double ratio = 0.0;
+
+                                                    if(currentTricks != null) {
+                                                        //Add Current to Updated
+                                                        for (Map<String, Object> currTrick : currentTricks) {
+                                                            if(!currTrick.get("id").toString().equals(t.get("id").toString())){
+                                                                updatedTricks.add(currTrick);
+                                                                double trickRatio = (double)currTrick.get("ratio");
+                                                                ratio += trickRatio;
+                                                            }
+                                                        }
+                                                    }
+
+                                                    ratio = ratio / (updatedTricks.size());
+
+                                                    userTrick.put("avgRatio", ratio);
+                                                    userTrick.put("name", existingTrick.get("name"));
+                                                    userTrick.put("sessions", updatedTricks);
+
+                                                    //Add to User Object
+                                                    db.collection("users").document(user.getUid())
+                                                            .collection("tricks")
+                                                            .document(t.get("name").toString().replaceAll("\\s+","").toLowerCase())
+                                                            .set(userTrick)
+                                                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                                @Override
+                                                                public void onSuccess(Void aVoid) {
+
+                                                                }
+                                                            }).addOnFailureListener(new OnFailureListener() {
+                                                        @Override
+                                                        public void onFailure(@NonNull Exception e) {
+                                                            Toast.makeText(getContext(), e.getMessage().toString(), Toast.LENGTH_SHORT).show();
+                                                        }
+                                                    });
+
+                                                } else {
+
+                                                }
+                                            } else {
+
+                                            }
+                                        }
+                                    });
+                                }
+
                                 db.collection("Sessions").document(mId)
                                         .delete()
                                         .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -326,7 +402,7 @@ public class SessionDetailFragment extends Fragment{
                                                 AppCompatActivity activity = (AppCompatActivity)getActivity();
                                                 activity.getSupportFragmentManager().popBackStack();
                                                 dialog.dismiss();
-                                            }
+ }
                                         })
                                         .addOnFailureListener(new OnFailureListener() {
                                             @Override
