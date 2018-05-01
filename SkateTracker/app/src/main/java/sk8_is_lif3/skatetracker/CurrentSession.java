@@ -349,6 +349,9 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
                                                                     userTrick.put("sessions", updatedTricks);
                                                                     userTrick.put("name", t.GetName().toString().toUpperCase());
 
+                                                                    double ratio = (t.GetRatio()/updatedTricks.size());
+                                                                    userTrick.put("avgRatio", ratio);
+
                                                                     //Add to User Object
                                                                     db.collection("users").document(user.getUid())
                                                                             .collection("tricks")

@@ -47,10 +47,9 @@
         <android.support.v7.widget.RecyclerView
             android:id="@+id/trickRecyclerView"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
+            android:layout_height="wrap_content"
             android:layout_margin="8dp"
             android:layout_marginTop="16dp"
-            android:layout_weight="1.7"
             android:background="@color/colorBackground"
             android:clipToPadding="false"
             android:isScrollContainer="false"

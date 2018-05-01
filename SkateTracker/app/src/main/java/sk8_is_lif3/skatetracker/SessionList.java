@@ -134,7 +134,8 @@ public class SessionList extends Fragment {
         if(user != null) {
 
             Query query = db.collection("Sessions").whereEqualTo("uID", user.getUid()).orderBy("date", Query.Direction.DESCENDING).limit(4);
-            Query trickQuery = db.collection("users").document(user.getUid()).collection("tricks").whereGreaterThan("avgRatio", 0.0).limit(4);
+            Query trickQuery = db.collection("users").document(user.getUid()).collection("tricks").whereGreaterThanOrEqualTo("avgRatio", 0.0).orderBy("avgRatio", Query.Direction.DESCENDING).limit(4);
+
 
             FirestoreRecyclerOptions<SessionToDisplay> options = new FirestoreRecyclerOptions.Builder<SessionToDisplay>()
                     .setQuery(query, SessionToDisplay.class)
@@ -343,8 +344,10 @@ public class SessionList extends Fragment {
     @Override
     public void onResume(){
         super.onResume();
-        if(trickAdapter != null)
+        if(trickAdapter != null) {
             trickAdapter.startListening();
+            trickAdapter.onDataChanged();
+        }
         if(adapter != null)
             adapter.startListening();
 
