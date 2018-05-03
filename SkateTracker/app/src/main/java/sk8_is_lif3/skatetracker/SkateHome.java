@@ -5,6 +5,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,6 +20,11 @@ public class SkateHome extends Fragment {
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+
+        Toolbar toolbar = (Toolbar) getView().findViewById(R.id.toolbar);
+        toolbar.setTitle("S.K.A.T.E");
+        AppCompatActivity activity = (AppCompatActivity)getActivity();
+        activity.setSupportActionBar(toolbar);
 
     }
 
