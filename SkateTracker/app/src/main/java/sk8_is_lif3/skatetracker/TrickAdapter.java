@@ -151,6 +151,7 @@ public class TrickAdapter extends RecyclerView.Adapter<TrickAdapter.ViewHolder> 
             @Override
             public void onClick(View v) {
                 if(!trickSet.get(position).IsTracking()) {
+
                     Context context = holder.itemView.getContext();
                     Intent intent = new Intent((holder.itemView.getContext()), this.getClass());
                     intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
@@ -199,6 +200,8 @@ public class TrickAdapter extends RecyclerView.Adapter<TrickAdapter.ViewHolder> 
                     notifyItemChanged(position);
                     return;
                 }else{
+                    NotificationManager mNotificationManager = (NotificationManager) holder.itemView.getContext().getSystemService(Context.NOTIFICATION_SERVICE);
+                    mNotificationManager.cancelAll();
                     trickSet.get(position).PauseTracking();
                     if(currentTrick == trickSet.get(position))
                         currentTrick = null;

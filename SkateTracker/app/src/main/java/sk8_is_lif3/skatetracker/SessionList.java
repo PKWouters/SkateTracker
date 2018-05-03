@@ -25,6 +25,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
@@ -133,7 +134,7 @@ public class SessionList extends Fragment {
         user = FirebaseAuth.getInstance().getCurrentUser();
         if(user != null) {
 
-            Query query = db.collection("Sessions").whereEqualTo("uID", user.getUid()).orderBy("date", Query.Direction.DESCENDING).limit(4);
+            Query query = db.collection("users").document(user.getUid()).collection("sessions").orderBy("date", Query.Direction.DESCENDING).limit(4);
             Query trickQuery = db.collection("users").document(user.getUid()).collection("tricks").whereGreaterThanOrEqualTo("avgRatio", 0.0).orderBy("avgRatio", Query.Direction.DESCENDING).limit(4);
 
 
@@ -144,101 +145,6 @@ public class SessionList extends Fragment {
             FirestoreRecyclerOptions<TrickToDisplay> trickOptions = new FirestoreRecyclerOptions.Builder<TrickToDisplay>()
                     .setQuery(trickQuery, TrickToDisplay.class)
                     .build();
-
-            adapter = new FirestoreRecyclerAdapter<SessionToDisplay, SessionViewHolder>(options) {
-
-                private int _expandedPosition = -1;
-                private int _previousExpandedPosition = -1;
-
-                @NonNull
-                @Override
-                public SessionViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-                    // create a new view
-                    View v = (View) LayoutInflater.from(parent.getContext())
-                            .inflate(R.layout.session_card_layout, parent, false);
-                    final SessionViewHolder vh = new SessionViewHolder(v);
-
-                    return vh;
-                }
-
-                @Override
-                protected void onBindViewHolder(@NonNull final SessionViewHolder holder, final int position, @NonNull final SessionToDisplay model) {
-                    //final CardView cardView = holder.itemView.findViewById(R.id.card_view);
-                    holder.sessionNameView.setText(model.getDate() + " - " + model.getName());
-                    holder.sessionNameView.setMaxLines(2);
-                    holder.sessionNameView.setTransitionName("sessionNameTransition" + model.getId());
-                    holder.sessionNameView.setTextColor(Color.WHITE);
-
-                    holder.itemView.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-
-                            Transition mainTransition = TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade);
-                            mainTransition.setDuration(250);
-                            mainTransition.setStartDelay(375);
-
-                            Transition textTransScale = new SessionNameTransition();
-                            textTransScale.setDuration(375);
-                            textTransScale.setInterpolator(new FastOutSlowInInterpolator());
-
-                            Transition textTransMove = new ChangeTransform();
-                            textTransMove.setDuration(375);
-                            textTransMove.setInterpolator(new FastOutSlowInInterpolator());
-
-                            Transition textTransBounds = new ChangeBounds();
-                            textTransBounds.setDuration(375);
-                            textTransBounds.setInterpolator(new FastOutSlowInInterpolator());
-
-                            long duration = 375;
-
-                            int screenSize = getView().getResources().getConfiguration().screenLayout &
-                                    Configuration.SCREENLAYOUT_SIZE_MASK;
-
-                            switch (screenSize) {
-                                case Configuration.SCREENLAYOUT_SIZE_LARGE:
-                                    duration = 390;
-                                    break;
-                                case Configuration.SCREENLAYOUT_SIZE_NORMAL:
-                                    duration = 300;
-                                    break;
-                                case Configuration.SCREENLAYOUT_SIZE_SMALL:
-                                    duration = 210;
-                                    break;
-                                default:
-                            }
-                            mainTransition.setStartDelay(duration);
-                            textTransScale.setDuration(duration);
-                            textTransMove.setDuration(duration);
-                            textTransBounds.setDuration(duration);
-
-                            TransitionSet tSet = new TransitionSet().addTransition(textTransMove).addTransition(textTransScale).addTransition(textTransBounds);
-
-                            setSharedElementReturnTransition(tSet);
-                            //setExitTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
-                            setEnterTransition(null);
-                            setExitTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
-                            setReturnTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.slide_left));
-                            setReenterTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.slide_left));
-
-                            SessionDetailFragment nextFrag = new SessionDetailFragment(model.getDate() + " - " + model.getName(), model.getTotalTimeFormatted(), model.getId(), model.getTricks());
-
-                            nextFrag.setSharedElementEnterTransition(tSet);
-                            nextFrag.setEnterTransition(mainTransition);
-                            nextFrag.setExitTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.slide_right));
-                            nextFrag.setReturnTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.slide_right));
-
-                            getActivity().getSupportFragmentManager().beginTransaction()
-                                    .setReorderingAllowed(true)
-                                    .addSharedElement(holder.sessionNameView, holder.sessionNameView.getTransitionName())
-                                    .replace(R.id.fragment, nextFrag,"SessionDetailFragment")
-                                    .addToBackStack(model.getId())
-                                    .commit();
-                        }
-                    });
-                }
-
-            };
-            adapter.startListening();
 
             trickAdapter = new FirestoreRecyclerAdapter<TrickToDisplay, TrickViewHolder>(trickOptions) {
                 @NonNull
@@ -332,6 +238,98 @@ public class SessionList extends Fragment {
                 }
             };
             trickAdapter.startListening();
+
+            adapter = new FirestoreRecyclerAdapter<SessionToDisplay, SessionViewHolder>(options) {
+
+                @NonNull
+                @Override
+                public SessionViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                    // create a new view
+                    View v = (View) LayoutInflater.from(parent.getContext())
+                            .inflate(R.layout.session_card_layout, parent, false);
+                    final SessionViewHolder vh = new SessionViewHolder(v);
+
+                    return vh;
+                }
+
+                @Override
+                protected void onBindViewHolder(@NonNull final SessionViewHolder holder, final int position, @NonNull final SessionToDisplay model) {
+                    //final CardView cardView = holder.itemView.findViewById(R.id.card_view);
+                    holder.sessionNameView.setText(model.getDate() + " - " + model.getName());
+                    holder.sessionNameView.setMaxLines(2);
+                    holder.sessionNameView.setTransitionName("sessionNameTransition" + model.getId());
+                    holder.sessionNameView.setTextColor(Color.WHITE);
+
+                    holder.itemView.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+
+                            Transition mainTransition = TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade);
+                            mainTransition.setDuration(250);
+                            mainTransition.setStartDelay(375);
+
+                            Transition textTransScale = new SessionNameTransition();
+                            textTransScale.setDuration(375);
+                            textTransScale.setInterpolator(new FastOutSlowInInterpolator());
+
+                            Transition textTransMove = new ChangeTransform();
+                            textTransMove.setDuration(375);
+                            textTransMove.setInterpolator(new FastOutSlowInInterpolator());
+
+                            Transition textTransBounds = new ChangeBounds();
+                            textTransBounds.setDuration(375);
+                            textTransBounds.setInterpolator(new FastOutSlowInInterpolator());
+
+                            long duration = 375;
+
+                            int screenSize = getView().getResources().getConfiguration().screenLayout &
+                                    Configuration.SCREENLAYOUT_SIZE_MASK;
+
+                            switch (screenSize) {
+                                case Configuration.SCREENLAYOUT_SIZE_LARGE:
+                                    duration = 390;
+                                    break;
+                                case Configuration.SCREENLAYOUT_SIZE_NORMAL:
+                                    duration = 300;
+                                    break;
+                                case Configuration.SCREENLAYOUT_SIZE_SMALL:
+                                    duration = 210;
+                                    break;
+                                default:
+                            }
+                            mainTransition.setStartDelay(duration);
+                            textTransScale.setDuration(duration);
+                            textTransMove.setDuration(duration);
+                            textTransBounds.setDuration(duration);
+
+                            TransitionSet tSet = new TransitionSet().addTransition(textTransMove).addTransition(textTransScale).addTransition(textTransBounds);
+
+                            setSharedElementReturnTransition(tSet);
+                            //setExitTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
+                            setEnterTransition(null);
+                            setExitTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
+                            setReturnTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.slide_left));
+                            setReenterTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.slide_left));
+
+                            SessionDetailFragment nextFrag = new SessionDetailFragment(model.getDate() + " - " + model.getName(), model.getTotalTimeFormatted(), model.getId(), model.getTricks());
+
+                            nextFrag.setSharedElementEnterTransition(tSet);
+                            nextFrag.setEnterTransition(mainTransition);
+                            nextFrag.setExitTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.slide_right));
+                            nextFrag.setReturnTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.slide_right));
+
+                            getActivity().getSupportFragmentManager().beginTransaction()
+                                    .setReorderingAllowed(true)
+                                    .addSharedElement(holder.sessionNameView, holder.sessionNameView.getTransitionName())
+                                    .replace(R.id.fragment, nextFrag,"SessionDetailFragment")
+                                    .addToBackStack(model.getId())
+                                    .commit();
+                        }
+                    });
+                }
+
+            };
+            adapter.startListening();
         }
     }
     @Override
@@ -348,8 +346,10 @@ public class SessionList extends Fragment {
             trickAdapter.startListening();
             trickAdapter.onDataChanged();
         }
-        if(adapter != null)
+        if(adapter != null) {
             adapter.startListening();
+            adapter.onDataChanged();
+        }
 
     }
 
@@ -380,11 +380,6 @@ public class SessionList extends Fragment {
             trickNameView = v.findViewById(R.id.trickName);
             trickRatioView = v.findViewById(R.id.trickRatio);
         }
-    }
-
-    public ArrayList<String> ConvertJSONtoList(String value) {
-        Type listType = new TypeToken<List<String>>() {}.getType();
-        return new Gson().fromJson(value, listType);
     }
 
     private class SpacesItemDecoration extends RecyclerView.ItemDecoration {
