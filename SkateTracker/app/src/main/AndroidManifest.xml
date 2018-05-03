@@ -30,8 +30,13 @@
 
         <receiver android:name=".ActionReceiver" />
 
-        <activity android:name=".SkateGame" />
-        <activity android:name=".SkateSetup"></activity>
+        <activity android:name=".SkateGame" >
+            
+        </activity>
+        <activity android:name=".SkateSetup">
+
+
+        </activity>
     </application>
 
 </manifest>
