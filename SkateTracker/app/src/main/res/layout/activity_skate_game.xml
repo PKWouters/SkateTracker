@@ -24,8 +24,6 @@
             android:id="@+id/player1Layout"
             android:layout_width="match_parent"
             android:layout_height="103dp"
-            android:background="@color/cardview_dark_background"
-            android:backgroundTintMode="multiply"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
@@ -52,9 +50,7 @@
                     android:text="S"
                     android:textAlignment="textStart"
                     android:textAppearance="@style/TextAppearance.AppCompat.Display3"
-                    android:textColor="@android:color/white"
-                    android:textSize="70sp"
-                    android:textStyle="bold" />
+                    android:textColor="@color/colorPrimary" />
 
                 <TextView
                     android:id="@+id/k_Text"
@@ -64,9 +60,7 @@
                     android:text="K"
                     android:textAlignment="textStart"
                     android:textAppearance="@style/TextAppearance.AppCompat.Display3"
-                    android:textColor="@android:color/white"
-                    android:textSize="70sp"
-                    android:textStyle="bold" />
+                    android:textColor="@color/colorPrimary" />
 
                 <TextView
                     android:id="@+id/a_Text"
@@ -76,7 +70,7 @@
                     android:text="A"
                     android:textAlignment="textStart"
                     android:textAppearance="@style/TextAppearance.AppCompat.Display3"
-                    android:textColor="@color/colorPrimaryLight" />
+                    android:textColor="@color/colorPrimary" />
 
                 <TextView
                     android:id="@+id/t_Text"
@@ -86,7 +80,7 @@
                     android:text="T"
                     android:textAlignment="textStart"
                     android:textAppearance="@style/TextAppearance.AppCompat.Display3"
-                    android:textColor="@color/colorPrimaryLight" />
+                    android:textColor="@color/colorPrimary" />
 
                 <TextView
                     android:id="@+id/e_Text"
@@ -96,7 +90,7 @@
                     android:text="E"
                     android:textAlignment="textStart"
                     android:textAppearance="@style/TextAppearance.AppCompat.Display3"
-                    android:textColor="@color/colorPrimaryLight" />
+                    android:textColor="@color/colorPrimary" />
             </LinearLayout>
         </android.support.constraint.ConstraintLayout>
 
@@ -199,7 +193,6 @@
             android:id="@+id/player2Layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:backgroundTintMode="multiply"
             android:elevation="6dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -230,9 +223,8 @@
                     android:text="S"
                     android:textAlignment="textStart"
                     android:textAppearance="@style/TextAppearance.AppCompat.Display3"
-                    android:textColor="@color/colorPrimaryLight"
-                    android:textSize="70sp"
-                    android:textStyle="bold" />
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="56sp" />
 
                 <TextView
                     android:id="@+id/k_TextP2"
@@ -242,9 +234,8 @@
                     android:text="K"
                     android:textAlignment="textStart"
                     android:textAppearance="@style/TextAppearance.AppCompat.Display3"
-                    android:textColor="@color/colorPrimaryLight"
-                    android:textSize="70sp"
-                    android:textStyle="bold" />
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="56sp" />
 
                 <TextView
                     android:id="@+id/a_TextP2"
