@@ -25,7 +25,6 @@ public class SkateHome extends Fragment {
         toolbar.setTitle("S.K.A.T.E");
         AppCompatActivity activity = (AppCompatActivity)getActivity();
         activity.setSupportActionBar(toolbar);
-
     }
 
 
