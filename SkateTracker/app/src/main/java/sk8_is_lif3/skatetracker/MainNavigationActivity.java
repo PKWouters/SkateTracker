@@ -3,6 +3,7 @@ package sk8_is_lif3.skatetracker;
 import android.app.Notification;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
