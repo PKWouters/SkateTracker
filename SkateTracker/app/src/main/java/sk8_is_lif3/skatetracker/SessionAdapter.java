@@ -12,7 +12,6 @@ import com.github.mikephil.charting.charts.BarChart;
 import java.util.List;
 import java.util.Map;
 
-import sk8_is_lif3.skatetracker.database.AppDatabase;
 
 public class SessionAdapter extends RecyclerView.Adapter<SessionAdapter.ViewHolder> {
 
@@ -20,7 +19,6 @@ public class SessionAdapter extends RecyclerView.Adapter<SessionAdapter.ViewHold
     private int _expandedPosition = -1;
     private int _previousExpandedPosition = -1;
     ViewGroup recyclerView;
-    AppDatabase database;
     Map<String, Object> currSession;
 
     public SessionAdapter(List<String> sessions) {
@@ -53,7 +51,6 @@ public class SessionAdapter extends RecyclerView.Adapter<SessionAdapter.ViewHold
         View v = (View) LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.session_card_layout, parent, false);
         recyclerView = parent;
-        database = AppDatabase.getDatabase(recyclerView.getContext());
         final ViewHolder vh = new ViewHolder(v);
 
         return vh;

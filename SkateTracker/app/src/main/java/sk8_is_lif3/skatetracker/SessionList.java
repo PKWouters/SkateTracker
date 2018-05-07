@@ -42,7 +42,6 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-import sk8_is_lif3.skatetracker.database.AppDatabase;
 import sk8_is_lif3.skatetracker.transitions.SessionNameTransition;
 
 
@@ -61,7 +60,6 @@ public class SessionList extends Fragment {
     private RecyclerView trickGridView;
     private GridLayoutManager trickLayoutManager;
     private FirebaseUser user;
-    private AppDatabase database;
     List<String> sessionList;
     private FirestoreRecyclerAdapter<SessionToDisplay, SessionViewHolder> adapter;
     private FirestoreRecyclerAdapter<TrickToDisplay, TrickViewHolder> trickAdapter;

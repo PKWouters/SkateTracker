@@ -2,6 +2,7 @@ package sk8_is_lif3.skatetracker;
 
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.Index;
 import android.arch.persistence.room.PrimaryKey;
 import android.os.Handler;
@@ -14,23 +15,20 @@ import java.util.Locale;
 import java.util.Random;
 import java.util.logging.LogRecord;
 
-@Entity(tableName = "tricks")
 public class Trick extends Trackable {
-
-    @PrimaryKey
-    @NonNull
     public String _static_id;
 
-    @ColumnInfo(name = "name")
+    public String _database_id;
+
     public String _name;
 
-    @ColumnInfo(name = "timesLanded")
     public int _timesLanded;
 
-    public Trick(String name) {
+    public Trick(String name, String dbID) {
         super();
         _name = name;
         _static_id = GenerateID();
+        _database_id = dbID;
     }
 
     public String GetName() {
@@ -39,6 +37,7 @@ public class Trick extends Trackable {
     public String GetID() {
         return _static_id;
     }
+    public String GetDBID(){ return _database_id; }
     public int GetTimesLanded(){ return _timesLanded; }
     public double GetRatio(){
         return (GetTimesLanded() / (GetTotalSecondsTracked()/60));

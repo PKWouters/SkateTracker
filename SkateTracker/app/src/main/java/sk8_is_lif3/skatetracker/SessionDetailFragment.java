@@ -328,7 +328,7 @@ public class SessionDetailFragment extends Fragment{
                                 //Set Up Trick Objects
                                 for (final Map<String, Object> t : mTricks) {
 
-                                    DocumentReference currDoc = colRef.document(t.get("name").toString().replaceAll("\\s+","").toLowerCase());
+                                    DocumentReference currDoc = colRef.document(t.get("dbID").toString());
                                     currDoc.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                         @Override
                                         public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -365,12 +365,13 @@ public class SessionDetailFragment extends Fragment{
 
                                                     userTrick.put("avgRatio", ratio);
                                                     userTrick.put("name", existingTrick.get("name"));
+                                                    userTrick.put("dbID", existingTrick.get("dbID"));
                                                     userTrick.put("sessions", updatedTricks);
 
                                                     //Add to User Object
                                                     db.collection("users").document(user.getUid())
                                                             .collection("tricks")
-                                                            .document(t.get("name").toString().replaceAll("\\s+","").toLowerCase())
+                                                            .document(t.get("dbID").toString())
                                                             .set(userTrick)
                                                             .addOnSuccessListener(new OnSuccessListener<Void>() {
                                                                 @Override

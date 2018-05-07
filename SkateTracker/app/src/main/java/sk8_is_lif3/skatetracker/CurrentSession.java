@@ -1,6 +1,8 @@
 package sk8_is_lif3.skatetracker;
 
 import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.DialogFragment;
 import android.app.MediaRouteButton;
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -41,6 +43,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.RemoteViews;
 import android.widget.TextView;
@@ -66,7 +69,6 @@ import java.util.List;
 import java.util.Random;
 import java.util.Map;
 
-import sk8_is_lif3.skatetracker.database.AppDatabase;
 
 public class CurrentSession extends AppCompatActivity /*implements SensorEventListener*/ {
 
@@ -75,8 +77,8 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
     private TrickAdapter tAdapt;
     private RecyclerView.Adapter trickAdapter;
     private RecyclerView.LayoutManager trickLayoutManager;
-    private AppDatabase database;
     List<Trick> tempTrickList;
+    ArrayList<String> trickList;
     ArrayList<String> sessionIDs;
     Session currentSession;
     Trick currentTrick;
@@ -98,10 +100,30 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
         toolbar.setTitle("Session In Progress");
         setSupportActionBar(toolbar);
 
+        final FirebaseFirestore db = FirebaseFirestore.getInstance();
+        final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+        DocumentReference docRef = db.collection("tricks").document("trick_LIST");
+        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        Map<String, Object> data = document.getData();
+                        trickList = (ArrayList<String>)(data.get("list"));
+                    } else {
+                        Toast.makeText(getApplicationContext(), "Could Not Load Trick List", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+
+                }
+            }
+        });
+
         currentSession = new Session();
         currentSession.StartTracking();
 
-        database = AppDatabase.getDatabase(getApplicationContext());
         tempTrickList = new ArrayList<Trick>();
         sessionIDs = new ArrayList<String>();
 
@@ -150,14 +172,80 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
                 final TextView trickName = (EditText) dlgView.findViewById(R.id.trickNameField);
                 builder.setView(dlgView)
                         .setMessage("Add New Trick")
-                        .setPositiveButton("Add", new DialogInterface.OnClickListener() {
+
+                        .setPositiveButton("Next", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
-                                //Save to Trick List
-                                tempTrickList.add(new Trick(trickName.getText().toString()));
-                                trickAdapter.notifyDataSetChanged();
-                                trickRecyclerView.setVisibility(View.VISIBLE);
-                                TextView tv = (TextView) findViewById(R.id.text_View);
-                                tv.setVisibility(View.GONE);
+
+                                //Search Tricks With Names
+                                String tName = trickName.getText().toString().replaceAll("\\s+","_").toLowerCase();
+                                final ArrayList<String> foundTrickIDs = new ArrayList<>();
+                                final CharSequence[] foundTrickNames;
+                                for(int i = 0; i < trickList.size(); i++){
+                                    if(trickList.get(i).contains(tName) && foundTrickIDs.size() < 5){
+                                        foundTrickIDs.add(trickList.get(i).toString());
+                                    }
+                                    if(foundTrickIDs.size() >= 5){
+                                        break;
+                                    }
+                                }
+                                foundTrickNames = new CharSequence[foundTrickIDs.size()];
+                                for(int i = 0; i < foundTrickIDs.size(); i++){
+                                    foundTrickNames[i] = foundTrickIDs.get(i).substring(6).replaceAll("_"," ").toUpperCase();
+                                }
+
+                                final AlertDialog.Builder choiceBuilder = new AlertDialog.Builder(CurrentSession.this);
+                                choiceBuilder.setTitle("Choose A Trick");
+                                if(foundTrickNames.length > 0) {
+                                    choiceBuilder.setItems(foundTrickNames, new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            //Save to Trick List
+                                            tempTrickList.add(new Trick(foundTrickNames[which].toString(), foundTrickIDs.get(which)));
+                                            trickAdapter.notifyDataSetChanged();
+                                            trickRecyclerView.setVisibility(View.VISIBLE);
+                                            TextView tv = (TextView) findViewById(R.id.text_View);
+                                            tv.setVisibility(View.GONE);
+                                        }
+                                    }).setNeutralButton("Add as Custom", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            //Save to Trick List
+                                            tempTrickList.add(new Trick(trickName.getText().toString().toUpperCase(), "custom_" + trickName.getText().toString().replaceAll("\\s+","_").toLowerCase()));
+                                            trickAdapter.notifyDataSetChanged();
+                                            trickRecyclerView.setVisibility(View.VISIBLE);
+                                            TextView tv = (TextView) findViewById(R.id.text_View);
+                                            tv.setVisibility(View.GONE);
+                                        }
+                                    }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+
+                                        }
+                                    });
+                                }else {
+                                    choiceBuilder.setMessage("No tricks containing \"" + trickName.getText().toString() + "\" found. You can still add this trick as a Custom Trick.")
+                                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+
+                                        }
+                                    })
+                                    .setNeutralButton("Add as Custom", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            //Save to Trick List
+                                            tempTrickList.add(new Trick(trickName.getText().toString().toUpperCase(), "custom_" + trickName.getText().toString().replaceAll("\\s+","_").toLowerCase()));
+                                            trickAdapter.notifyDataSetChanged();
+                                            trickRecyclerView.setVisibility(View.VISIBLE);
+                                            TextView tv = (TextView) findViewById(R.id.text_View);
+                                            tv.setVisibility(View.GONE);
+                                        }
+                                    });
+                                }
+                                choiceBuilder.create();
+                                choiceBuilder.show();
+
+
                             }
                         })
                         .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -258,16 +346,18 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
                                                     trick.put("id", t.GetID());
                                                     trick.put("totalTimeFormatted", t.EllapsedTime());
                                                     trick.put("ratio", t.GetRatio());
+                                                    trick.put("dbID", t.GetDBID().toLowerCase());
                                                     trick.put("timesLanded", t.GetTimesLanded());
                                                     trickList.add(trick);
 
 
-                                                    DocumentReference currDoc = colRef.document(t.GetName().replaceAll("\\s+","").toLowerCase());
+                                                    DocumentReference currDoc = colRef.document(t.GetDBID().toLowerCase());
                                                     currDoc.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                                         @Override
                                                         public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                                                             if (task.isSuccessful()) {
                                                                 DocumentSnapshot document = task.getResult();
+                                                                //----IF TRICK ALREADY EXISTS----//
                                                                 if (document.exists()) {
                                                                     Map<String, Object> existingTrick = document.getData();
 
@@ -308,12 +398,13 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
                                                                     updatedTricks.add(userTrickSesh);
                                                                     userTrick.put("avgRatio", ratio);
                                                                     userTrick.put("name", t.GetName().toString().toUpperCase());
+                                                                    userTrick.put("dbID", t.GetDBID().toLowerCase());
                                                                     userTrick.put("sessions", updatedTricks);
 
                                                                     //Add to User Object
                                                                     db.collection("users").document(user.getUid())
                                                                             .collection("tricks")
-                                                                            .document(t.GetName().replaceAll("\\s+","").toLowerCase())
+                                                                            .document(t.GetDBID().toLowerCase())
                                                                             .set(userTrick)
                                                                             .addOnSuccessListener(new OnSuccessListener<Void>() {
                                                                                 @Override
@@ -326,7 +417,7 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
                                                                                     Toast.makeText(getApplicationContext(), e.getMessage().toString(), Toast.LENGTH_SHORT).show();
                                                                                 }
                                                                     });
-
+                                                                //----IF TRICK DOES NOT EXIST----//
                                                                 } else {
                                                                     //Create Trick for User Object
                                                                     Map<String, Object> userTrick = new HashMap<>();
@@ -341,12 +432,13 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
                                                                     userTrickSesh.put("ratio", t.GetRatio());
                                                                     userTrickSesh.put("timeSpent", t.GetTotalSecondsTracked());
                                                                     userTrickSesh.put("id", t.GetID());
-
+                                                                    userTrickSesh.put("totalLandings", t.GetTimesLanded());
 
                                                                     //Add To Trick Object
                                                                     updatedTricks.add(userTrickSesh);
                                                                     userTrick.put("sessions", updatedTricks);
                                                                     userTrick.put("name", t.GetName().toString().toUpperCase());
+                                                                    userTrick.put("dbID", t.GetDBID().toLowerCase());
 
                                                                     double ratio = (t.GetRatio()/updatedTricks.size());
                                                                     userTrick.put("avgRatio", ratio);
@@ -354,7 +446,7 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
                                                                     //Add to User Object
                                                                     db.collection("users").document(user.getUid())
                                                                             .collection("tricks")
-                                                                            .document(t.GetName().replaceAll("\\s+","").toLowerCase())
+                                                                            .document(t.GetDBID().toLowerCase())
                                                                             .set(userTrick)
                                                                             .addOnSuccessListener(new OnSuccessListener<Void>() {
                                                                                 @Override
