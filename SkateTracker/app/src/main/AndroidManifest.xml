@@ -21,18 +21,18 @@
             android:label="@string/app_name"
             android:launchMode="singleTop"
             android:screenOrientation="portrait">
-
-        </activity>
-
-        <receiver android:name=".ActionReceiver" />
-
-        <activity android:name=".SkateGame" />
-        <activity android:name=".SkateSetup">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+
+        <receiver android:name=".ActionReceiver" />
+
+        <activity android:name=".SkateGame" >
+        </activity>
+        <activity android:name=".SkateSetup">
         </activity>
     </application>
 
