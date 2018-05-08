@@ -285,6 +285,11 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
     }
 
     @Override
+    public void onBackPressed() {
+
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.end_session_item:
