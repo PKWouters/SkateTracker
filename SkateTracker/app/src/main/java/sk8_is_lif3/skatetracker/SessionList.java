@@ -163,10 +163,8 @@ public class SessionList extends Fragment {
                     holder.trickNameView.setMaxLines(1);
                     holder.trickNameView.setTransitionName("trickNameTransition" + Integer.toString(position));
                     holder.trickNameView.setTextColor(Color.WHITE);
-                    DecimalFormat df = new DecimalFormat("#.##");
-                    df.setRoundingMode(RoundingMode.CEILING);
-                    double val = Double.valueOf(df.format(model.getAvgRatio()));
-                    holder.trickRatioView.setText(Double.toString(val*100) + "%");
+                    int val = (int)(model.getAvgRatio()*100);
+                    holder.trickRatioView.setText(Integer.toString(val) + ".0 %");
                     holder.itemView.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
@@ -218,7 +216,7 @@ public class SessionList extends Fragment {
                             setReturnTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.slide_left));
                             setReenterTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.slide_left));
 
-                            TrickDetailFragment nextFrag = new TrickDetailFragment(model.getName().toUpperCase().toString(), model.getAvgRatio(), model.getSessions());
+                            TrickDetailFragment nextFrag = new TrickDetailFragment(model.getName().toUpperCase().toString(), model.getAvgRatio(), model.getDbID(), model.getSessions());
 
                             nextFrag.setSharedElementEnterTransition(tSet);
                             nextFrag.setEnterTransition(mainTransition);

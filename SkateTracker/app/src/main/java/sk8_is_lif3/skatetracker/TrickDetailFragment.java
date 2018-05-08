@@ -10,6 +10,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -19,6 +20,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -62,8 +64,8 @@ import java.util.Map;
 
 public class TrickDetailFragment extends Fragment{
 
-    private String mName;
-    private double mRatio, mId;
+    private String mName, mId;
+    private double mRatio;
     private ArrayList<Map<String, Object>> mSessions;
 
     private LineChart lineChart;
@@ -82,10 +84,11 @@ public class TrickDetailFragment extends Fragment{
     }
 
     @SuppressLint("ValidFragment")
-    public TrickDetailFragment(String name, double ratio, ArrayList<Map<String, Object>> sessions) {
+    public TrickDetailFragment(String name, double ratio, String id, ArrayList<Map<String, Object>> sessions) {
         mName = name;
         mRatio = ratio;
         mSessions = sessions;
+        mId = id;
     }
 
     @Override
@@ -93,7 +96,7 @@ public class TrickDetailFragment extends Fragment{
         //getView().findViewById(R.id.toolbar_title).setTransitionName("sessionNameTransition"+mId);
         final AppCompatActivity activity = (AppCompatActivity) getActivity();
         Toolbar toolbar = (Toolbar) getView().findViewById(R.id.toolbar);
-
+        final Button learnButton = getView().findViewById(R.id.learnButton);
 
         activity.setSupportActionBar(toolbar);
         activity.getSupportActionBar().setDisplayShowTitleEnabled(false);
@@ -115,23 +118,46 @@ public class TrickDetailFragment extends Fragment{
         progress.setDonut_progress(Integer.toString(ratioToInt));
         if(ratioToInt < 100){
             progressText.setText("Progress: LEARNING");
+            if(mId.contains("trick_")) {
+                TextView learnText = getView().findViewById(R.id.learningDescView);
+                learnText.setVisibility(View.VISIBLE);
+                learnButton.setVisibility(View.VISIBLE);
+            }else{
+                TextView learnText = getView().findViewById(R.id.learningDescView);
+                learnText.setVisibility(View.GONE);
+                learnButton.setVisibility(View.GONE);
+            }
             progress.setTextColor(getResources().getColor(R.color.colorAccent));
             progress.setFinishedStrokeColor(getResources().getColor(R.color.colorAccent));
         }else{
             progressText.setText("Progress: MASTERED");
             progress.setTextColor(getResources().getColor(android.R.color.holo_green_dark));
             progress.setFinishedStrokeColor(getResources().getColor(android.R.color.holo_green_dark));
-
+            TextView learnText = getView().findViewById(R.id.learningDescView);
+            learnText.setVisibility(View.GONE);
+            learnButton.setVisibility(View.GONE);
         }
+
+        learnButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Snackbar.make(getView(), "Skate School Coming Soon :)", Snackbar.LENGTH_SHORT).show();
+            }
+        });
+
+
+
+
+
+        //--------------GRAPH STUFF---------------//
 
         lineChart = getView().findViewById(R.id.trickChart);
 
         if (mSessions != null && mSessions.size() > 0) {
-            //--------------Graph Stuff---------------//
 
             final String[] trickNames = new String[mSessions.size()];
             for (int i = 0; i < trickNames.length; ++i) {
-                trickNames[i] = String.valueOf(mSessions.get(i).get("date") + System.getProperty("line.separator") + mSessions.get(i).get("totalLandings") + " Successful Attempts");
+                trickNames[i] = String.valueOf(mSessions.get(i).get("date") + System.getProperty("line.separator") + mSessions.get(i).get("totalLandings") + " Landings");
             }
 
             List<Entry> entries = new ArrayList<Entry>();
@@ -214,23 +240,23 @@ public class TrickDetailFragment extends Fragment{
             switch (screenSize) {
                 case Configuration.SCREENLAYOUT_SIZE_LARGE:
                     xAxis.setTextSize(12f);
-                    lineChart.setVisibleXRangeMaximum(4.25f);
                     break;
                 case Configuration.SCREENLAYOUT_SIZE_NORMAL:
                     xAxis.setTextSize(8f);
-                    lineChart.setVisibleXRangeMaximum(3.25f);
                     break;
                 case Configuration.SCREENLAYOUT_SIZE_SMALL:
                     xAxis.setTextSize(4f);
-                    lineChart.setVisibleXRangeMaximum(2.25f);
                     break;
                 default:
 
 
             }
+            lineChart.moveViewToX((float)(entries.size()-1));
             lineChart.setScaleEnabled(true);
             lineChart.setScaleYEnabled(false);
 
+        }else{
+            lineChart.setVisibility(View.GONE);
         }
         startPostponedEnterTransition();
     }
