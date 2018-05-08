@@ -28,14 +28,14 @@ public class SkateSetup extends AppCompatActivity {
                 String player2;
                 player1 = pone.getText().toString();
                 player2 = ptwo.getText().toString();
-                if(player1 != null && player2 != null) {
+                if(player1.isEmpty() || player2.isEmpty()) {
+                    Toast.makeText(getApplicationContext(), "Both Names must be entered", Toast.LENGTH_SHORT).show();
+                }else{
                     Intent myIntent = new Intent(view.getContext(), SkateGame.class);
-                    Bundle extras = myIntent.getExtras();
+                    Bundle extras = new Bundle();
                     extras.putString("player1Name", player1);
                     extras.putString("player2Name", player2);
                     startActivityForResult(myIntent, 0);
-                }else{
-                    Toast.makeText(getApplicationContext(), "Both Names must be entered", Toast.LENGTH_SHORT).show();
                 }
             }
         });
