@@ -22,6 +22,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.github.lzyzsd.circleprogress.DonutProgress;
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.AxisBase;
@@ -104,6 +105,24 @@ public class TrickDetailFragment extends Fragment{
         TextView sessionName = getView().findViewById(R.id.trickName);
         sessionName.setText(mName);
         sessionName.setTextColor(Color.WHITE);
+
+        TextView progressText = getView().findViewById(R.id.trickProgressName);
+
+        DonutProgress progress = (DonutProgress) getView().findViewById(R.id.trickProgress);
+        int ratioToInt = (int)(mRatio*100);
+        if(ratioToInt > 100)
+            ratioToInt = 100;
+        progress.setDonut_progress(Integer.toString(ratioToInt));
+        if(ratioToInt < 100){
+            progressText.setText("Progress: LEARNING");
+            progress.setTextColor(getResources().getColor(R.color.colorAccent));
+            progress.setFinishedStrokeColor(getResources().getColor(R.color.colorAccent));
+        }else{
+            progressText.setText("Progress: MASTERED");
+            progress.setTextColor(getResources().getColor(android.R.color.holo_green_dark));
+            progress.setFinishedStrokeColor(getResources().getColor(android.R.color.holo_green_dark));
+
+        }
 
         lineChart = getView().findViewById(R.id.trickChart);
 
