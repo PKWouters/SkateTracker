@@ -35,6 +35,7 @@ public class SkateSetup extends AppCompatActivity {
                     Bundle extras = new Bundle();
                     extras.putString("player1Name", player1);
                     extras.putString("player2Name", player2);
+                    myIntent.putExtras(extras);
                     startActivityForResult(myIntent, 0);
                 }
             }

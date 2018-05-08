@@ -1,6 +1,7 @@
 package sk8_is_lif3.skatetracker;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -10,6 +11,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 
 public class SkateHome extends Fragment {
 
@@ -25,6 +27,15 @@ public class SkateHome extends Fragment {
         toolbar.setTitle("S.K.A.T.E");
         AppCompatActivity activity = (AppCompatActivity)getActivity();
         activity.setSupportActionBar(toolbar);
+
+        Button classicBtn = (Button)getView().findViewById(R.id.classic_button);
+        classicBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent gameSetup = new Intent(getActivity(), SkateSetup.class);
+                startActivity(gameSetup);
+            }
+        });
     }
 
 

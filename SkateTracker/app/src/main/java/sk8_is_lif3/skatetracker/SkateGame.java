@@ -1,6 +1,7 @@
 package sk8_is_lif3.skatetracker;
 
 import android.arch.persistence.room.Update;
+import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -31,8 +32,14 @@ public class SkateGame extends AppCompatActivity {
         setContentView(R.layout.activity_skate_game);
 
         //---INTENT STUFF HERE---//
+        Intent recieveIntent = getIntent();
+        String p1 = recieveIntent.getExtras().getString("player1Name");
+        String p2 = recieveIntent.getExtras().getString("player2Name");
 
-        
+        TextView p1NameView = (TextView)findViewById(R.id.player1NameView);
+        TextView p2NameView = (TextView)findViewById(R.id.player2NameView);
+        p1NameView.setText(p1);
+        p2NameView.setText(p2);
 
         //-----------------------//
 
@@ -198,6 +205,12 @@ public class SkateGame extends AppCompatActivity {
             }
                 TextView roundNumView = findViewById(R.id.roundTrickText);
                 roundNumView.setText("Round: " + roundNum);
+        }else{
+
+        }
+        //END SCREEN DIALOG
+        if(playerOneScore >= 5 || playerTwoScore >= 5){
+
         }
     }
 }
