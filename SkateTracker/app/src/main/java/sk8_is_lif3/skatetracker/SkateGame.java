@@ -181,7 +181,7 @@ public class SkateGame extends AppCompatActivity {
                 if(offPlayer == 2) {
                     TransitionManager.beginDelayedTransition((ViewGroup) findViewById(R.id.p2Card));
                     CardView p2Card = findViewById(R.id.p2Card);
-                    p2Card.setCardBackgroundColor(getResources().getColor(R.color.colorAccentDark));
+                    p2Card.setCardBackgroundColor(getResources().getColor(R.color.skatesetcolorAccent));
                 }else {
                     TransitionManager.beginDelayedTransition((ViewGroup) findViewById(R.id.p2Card));
                     CardView p2Card = findViewById(R.id.p2Card);
@@ -196,7 +196,7 @@ public class SkateGame extends AppCompatActivity {
                 if(offPlayer == 1) {
                     TransitionManager.beginDelayedTransition((ViewGroup) findViewById(R.id.p1Card));
                     CardView p1Card = findViewById(R.id.p1Card);
-                    p1Card.setCardBackgroundColor(getResources().getColor(R.color.colorAccentDark));
+                    p1Card.setCardBackgroundColor(getResources().getColor(R.color.skatesetcolorAccent));
                 }else {
                     TransitionManager.beginDelayedTransition((ViewGroup) findViewById(R.id.p1Card));
                     CardView p1Card = findViewById(R.id.p1Card);
