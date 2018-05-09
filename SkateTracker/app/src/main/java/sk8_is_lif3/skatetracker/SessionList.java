@@ -91,7 +91,6 @@ public class SessionList extends Fragment {
         trickGridView.setHasFixedSize(false);
         trickGridView.setLayoutManager(trickLayoutManager);
         trickGridView.setAdapter(trickAdapter);
-        int spacingInPixels = 10;
         trickGridView.addItemDecoration(new SpacesItemDecoration(20));
         trickGridView.setNestedScrollingEnabled(true);
 

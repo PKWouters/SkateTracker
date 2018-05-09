@@ -18,6 +18,9 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.HashMap;
+import java.util.Map;
+
 
 public class SkateGame extends AppCompatActivity {
 
@@ -25,6 +28,8 @@ public class SkateGame extends AppCompatActivity {
     int offPlayer, currentPlayer;
     int playerOneScore = 0, playerTwoScore = 0;
     int roundNum = 1;
+    String p1, p2;
+    Map<String, String> resultsMap;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,13 +38,15 @@ public class SkateGame extends AppCompatActivity {
 
         //---INTENT STUFF HERE---//
         Intent recieveIntent = getIntent();
-        String p1 = recieveIntent.getExtras().getString("player1Name");
-        String p2 = recieveIntent.getExtras().getString("player2Name");
+        p1 = recieveIntent.getExtras().getString("player1Name");
+        p2 = recieveIntent.getExtras().getString("player2Name");
 
         TextView p1NameView = (TextView)findViewById(R.id.player1NameView);
         TextView p2NameView = (TextView)findViewById(R.id.player2NameView);
         p1NameView.setText(p1);
         p2NameView.setText(p2);
+
+        resultsMap = new HashMap<String, String>();
 
         //-----------------------//
 
@@ -59,12 +66,16 @@ public class SkateGame extends AppCompatActivity {
                     if (playerOneScore < 5 && playerTwoScore < 5) {
                         if (currentPlayer == 1) {
                             currentPlayer = 2;
-                            if (offPlayer == 2)
+                            if (offPlayer == 2) {
+                                resultsMap.put("Round: " + roundNum, "both");
                                 roundNum++;
-                        } else if (currentPlayer == 2) {
+                            }
+                        }else if (currentPlayer == 2) {
                             currentPlayer = 1;
-                            if (offPlayer == 1)
+                            if (offPlayer == 1) {
+                                resultsMap.put("Round: " + roundNum, "both");
                                 roundNum++;
+                            }
                         }
                         UpdateCards(gameMode);
                     }
@@ -80,6 +91,7 @@ public class SkateGame extends AppCompatActivity {
                                 offPlayer = 2;
                             } else if (currentPlayer == 2) {
                                 playerTwoScore++;
+                                resultsMap.put("Round: " + roundNum, "p1");
                                 roundNum++;
                                 TextView letterToChange;
                                 TransitionManager.beginDelayedTransition((ViewGroup) findViewById(R.id.p2Card));
@@ -122,6 +134,7 @@ public class SkateGame extends AppCompatActivity {
                             if (currentPlayer == 1) {
                                 TransitionManager.beginDelayedTransition((ViewGroup) findViewById(R.id.p1Card));
                                 playerOneScore++;
+                                resultsMap.put("Round: " + roundNum, "p2");
                                 roundNum++;
                                 TextView letterToChange;
                                 switch (playerOneScore) {
@@ -210,7 +223,11 @@ public class SkateGame extends AppCompatActivity {
         }
         //END SCREEN DIALOG
         if(playerOneScore >= 5 || playerTwoScore >= 5){
-
+            ResultsFragment resultsDialog = new ResultsFragment(resultsMap, p2.toString());
+            if(playerOneScore < playerTwoScore){
+                resultsDialog = new ResultsFragment(resultsMap, p1.toString());
+            }
+            resultsDialog.show(getSupportFragmentManager(), "resultsDialog");
         }
     }
 }
