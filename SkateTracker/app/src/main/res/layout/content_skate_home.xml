@@ -18,7 +18,7 @@
         <android.support.v7.widget.CardView
             android:id="@+id/classic_card"
             android:layout_width="match_parent"
-            android:layout_height="170dp"
+            android:layout_height="wrap_content"
             android:layout_marginEnd="16dp"
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
@@ -47,13 +47,12 @@
                 <TextView
                     android:id="@+id/classic_description"
                     android:layout_width="0dp"
-                    android:layout_height="62dp"
+                    android:layout_height="wrap_content"
                     android:layout_marginEnd="16dp"
                     android:layout_marginStart="16dp"
                     android:layout_marginTop="8dp"
-                    android:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+                    android:text="Can't beat the classics. One person sets up a trick, and the one has to copy. Just try not to be a poser in the process. First one to S.K.A.T.E loses."
                     android:textAppearance="@style/TextAppearance.AppCompat.Caption"
-                    app:layout_constraintBottom_toTopOf="@+id/classic_button"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0.0"
                     app:layout_constraintStart_toStartOf="parent"
@@ -64,9 +63,10 @@
                     style="@style/Widget.AppCompat.Button.Borderless.Colored"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
                     android:text="Start"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent" />
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/classic_description" />
             </android.support.constraint.ConstraintLayout>
 
         </android.support.v7.widget.CardView>
@@ -74,7 +74,7 @@
         <android.support.v7.widget.CardView
             android:id="@+id/pregen_card"
             android:layout_width="match_parent"
-            android:layout_height="170dp"
+            android:layout_height="wrap_content"
             android:layout_marginEnd="16dp"
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
@@ -108,9 +108,8 @@
                     android:layout_marginEnd="16dp"
                     android:layout_marginStart="16dp"
                     android:layout_marginTop="8dp"
-                    android:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+                    android:text="Looking for a challenge? Compete using randomly chosen tricks from a difficulty of your choice. No need to rip into your friends for doing difficult tricks. Just make sure not too smash your phone instead."
                     android:textAppearance="@style/TextAppearance.AppCompat.Caption"
-                    app:layout_constraintBottom_toTopOf="@+id/pregenStart"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0.0"
                     app:layout_constraintStart_toStartOf="parent"
@@ -121,9 +120,10 @@
                     style="@style/Widget.AppCompat.Button.Borderless.Colored"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
                     android:text="Start"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent" />
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/pregen_description" />
             </android.support.constraint.ConstraintLayout>
 
         </android.support.v7.widget.CardView>
