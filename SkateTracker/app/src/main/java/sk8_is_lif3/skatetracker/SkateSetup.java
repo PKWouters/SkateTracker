@@ -14,6 +14,8 @@ import org.w3c.dom.Text;
 
 public class SkateSetup extends AppCompatActivity {
 
+    int gameMode;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -23,6 +25,9 @@ public class SkateSetup extends AppCompatActivity {
         final Button next = (Button) findViewById(R.id.StartSkateB);
         final EditText pone = (EditText) findViewById(R.id.PlayerOneT);
         final EditText ptwo = (EditText) findViewById(R.id.PlayerTwoT);
+
+        gameMode = getIntent().getIntExtra("gamemode", 0);
+
         next.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -37,6 +42,7 @@ public class SkateSetup extends AppCompatActivity {
                     Bundle extras = new Bundle();
                     extras.putString("player1Name", player1);
                     extras.putString("player2Name", player2);
+                    extras.putInt("gamemode", gameMode);
                     myIntent.putExtras(extras);
                     myIntent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
                     startActivityForResult(myIntent, 0);

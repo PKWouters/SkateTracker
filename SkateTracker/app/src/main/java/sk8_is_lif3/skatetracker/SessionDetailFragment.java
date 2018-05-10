@@ -394,7 +394,7 @@ public class SessionDetailFragment extends Fragment{
                                     });
                                 }
 
-                                db.collection("Sessions").document(mId)
+                                db.collection("users").document(user.getUid()).collection("sessions").document(mId)
                                         .delete()
                                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                                             @Override
