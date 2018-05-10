@@ -40,7 +40,7 @@ public class SkateHome extends Fragment {
         });
 
         Button pregenBtn = (Button)getView().findViewById(R.id.pregen_button);
-        classicBtn.setOnClickListener(new View.OnClickListener() {
+        pregenBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent gameSetup = new Intent(getActivity(), SkateSetup.class);

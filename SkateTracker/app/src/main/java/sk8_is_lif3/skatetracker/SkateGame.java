@@ -30,6 +30,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 import static com.firebase.ui.auth.AuthUI.getApplicationContext;
 
@@ -40,9 +41,10 @@ public class SkateGame extends AppCompatActivity {
     int offPlayer, currentPlayer;
     int playerOneScore = 0, playerTwoScore = 0;
     int roundNum = 1;
-    String p1, p2;
+    String p1, p2, currTrick = "";
     Map<String, String> resultsMap;
     ArrayList<String> trickList;
+    boolean p1Landed = false;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,8 +71,7 @@ public class SkateGame extends AppCompatActivity {
 
         landBtn = (ImageButton)findViewById(R.id.landedButton);
         failBtn = (ImageButton)findViewById(R.id.failedButton);
-
-        UpdateCards(gameMode);
+        UpdateCards(gameMode, currTrick);
 
         if(gameMode == 0) { //---CLASSIC SKATE---//
             landBtn.setOnClickListener(new View.OnClickListener() {
@@ -90,7 +91,7 @@ public class SkateGame extends AppCompatActivity {
                                 roundNum++;
                             }
                         }
-                        UpdateCards(gameMode);
+                        UpdateCards(gameMode, currTrick);
                     }
                 }
             });
@@ -188,7 +189,7 @@ public class SkateGame extends AppCompatActivity {
                                 offPlayer = 1;
                             }
                         }
-                        UpdateCards(gameMode);
+                        UpdateCards(gameMode, currTrick);
                     }
                 }
             });
@@ -207,6 +208,9 @@ public class SkateGame extends AppCompatActivity {
                         if (document.exists()) {
                             Map<String, Object> data = document.getData();
                             trickList = (ArrayList<String>)(data.get("list"));
+                            currTrick = GetNewTrick();
+                            TextView roundNumView = findViewById(R.id.roundTrickText);
+                            roundNumView.setText(currTrick);
                         } else {
                             Toast.makeText(getApplicationContext(), "Could Not Load Trick List", Toast.LENGTH_SHORT).show();
                         }
@@ -222,13 +226,18 @@ public class SkateGame extends AppCompatActivity {
                     if (playerOneScore < 5 && playerTwoScore < 5) {
                         if (currentPlayer == 1) {
                             currentPlayer = 2;
+                            p1Landed = true;
 
                         }else if (currentPlayer == 2) {
                             currentPlayer = 1;
                             roundNum++;
-
+                            if(p1Landed)
+                                resultsMap.put(roundNum + "_" + currTrick, "both");
+                            else
+                                resultsMap.put(roundNum + "_" + currTrick, "p2");
+                            currTrick = GetNewTrick();
                         }
-                        UpdateCards(gameMode);
+                        UpdateCards(gameMode, currTrick);
                     }
                 }
             });
@@ -238,8 +247,12 @@ public class SkateGame extends AppCompatActivity {
                     if (playerOneScore < 5 && playerTwoScore < 5) {
                         if (currentPlayer == 2) {
                                 playerTwoScore++;
-                                resultsMap.put("Round: " + roundNum, "p1");
                                 roundNum++;
+                                if(p1Landed)
+                                    resultsMap.put(roundNum + "_" + currTrick, "p1");
+                                else
+                                    resultsMap.put(roundNum + "_" + currTrick, "none");
+                                currTrick = GetNewTrick();
                                 TextView letterToChange;
                                 TransitionManager.beginDelayedTransition((ViewGroup) findViewById(R.id.p2Card));
                                 switch (playerTwoScore) {
@@ -280,7 +293,7 @@ public class SkateGame extends AppCompatActivity {
                         else if (currentPlayer == 1) {
                             TransitionManager.beginDelayedTransition((ViewGroup) findViewById(R.id.p1Card));
                             playerOneScore++;
-                            resultsMap.put("Round: " + roundNum, "p2");
+                            p1Landed = false;
                             TextView letterToChange;
                             switch (playerOneScore) {
                                 case (1):
@@ -316,7 +329,7 @@ public class SkateGame extends AppCompatActivity {
                             }
                             currentPlayer = 2;
                         }
-                        UpdateCards(gameMode);
+                        UpdateCards(gameMode, currTrick);
                     }
                 }
             });
@@ -324,7 +337,16 @@ public class SkateGame extends AppCompatActivity {
         }
 
     }
-    private void UpdateCards(int gameMode){
+
+    private String GetNewTrick(){
+        Random rand = new Random();
+        // nextInt is normally exclusive of the top value,
+        // so add 1 to make it inclusive
+        int randomNum = rand.nextInt((trickList.size() - 0)) + 0;
+        return trickList.get(randomNum).substring(6).replaceAll("_"," ").toUpperCase();
+    }
+
+    private void UpdateCards(int gameMode, String currTrick){
 
         if(gameMode == 0) {
             if(currentPlayer == 1){
@@ -376,13 +398,15 @@ public class SkateGame extends AppCompatActivity {
                 CardView p1Card = findViewById(R.id.p1Card);
                 p1Card.setCardBackgroundColor(getResources().getColor(R.color.colorPrimaryDark));
             }
+            TextView roundNumView = findViewById(R.id.roundTrickText);
+            roundNumView.setText(currTrick);
 
         }
         //END SCREEN DIALOG
         if(playerOneScore >= 5 || playerTwoScore >= 5){
-            ResultsFragment resultsDialog = new ResultsFragment(resultsMap, p2.toString(), p1.toString(), p2.toString());
+            ResultsFragment resultsDialog = new ResultsFragment(resultsMap, gameMode, p2.toString(), p1.toString(), p2.toString());
             if(playerOneScore < playerTwoScore){
-                resultsDialog = new ResultsFragment(resultsMap, p1.toString(), p1.toString(), p2.toString());
+                resultsDialog = new ResultsFragment(resultsMap, gameMode, p1.toString(), p1.toString(), p2.toString());
             }
             resultsDialog.show(getSupportFragmentManager(), "resultsDialog");
             resultsDialog.setCancelable(false);
