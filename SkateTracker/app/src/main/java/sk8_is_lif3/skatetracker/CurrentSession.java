@@ -242,7 +242,6 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
                                                 session.put("date", currentSession.GetDate().toString());
                                                 session.put("id", currentSession.GetID());
                                                 session.put("totalTimeFormatted", currentSession.EllapsedTime());
-                                                session.put("uID", user.getUid());
                                                 session.put("name", sessionName);
 
                                                 final ProgressDialog progressDialog = ProgressDialog.show(CurrentSession.this, "",
@@ -382,8 +381,8 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
 
 
                                                 //Add Session to Document
-                                                db.collection("Sessions")
-                                                        .document(currentSession.GetID()).set(session)
+                                                db.collection("users")
+                                                        .document(user.getUid()).collection("sessions").document(currentSession.GetID()).set(session)
                                                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                                                             @Override
                                                             public void onSuccess(Void aVoid) {
