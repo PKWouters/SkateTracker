@@ -1,10 +1,12 @@
 package sk8_is_lif3.skatetracker;
 
+import android.app.AlertDialog;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.media.RingtoneManager;
@@ -122,10 +124,26 @@ public class TrickAdapter extends RecyclerView.Adapter<TrickAdapter.ViewHolder> 
         holder.removeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                TransitionManager.beginDelayedTransition(recyclerView);
-                trickSet.remove(trickSet.get(position));
-                _expandedPosition = isExpanded ? -1:position;
-                notifyDataSetChanged();
+                AlertDialog.Builder builder = new AlertDialog.Builder(holder.itemView.getContext());
+                // Add the buttons
+                // 2. Chain together various setter methods to set the dialog characteristics
+                builder.setMessage("Are you sure you want to remove this trick?")
+                        .setTitle("Remove Trick?");
+
+                builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        TransitionManager.beginDelayedTransition(recyclerView);
+                        trickSet.remove(trickSet.get(position));
+                        _expandedPosition = isExpanded ? -1 : position;
+                        notifyDataSetChanged();
+                    }
+                });
+                builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                    }
+                });
+                builder.create();
+                builder.show();
             }
         });
         holder.incrementButton.setOnClickListener(new View.OnClickListener() {
