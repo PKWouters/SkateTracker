@@ -3,9 +3,9 @@ package sk8_is_lif3.skatetracker;
 import android.app.Notification;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.design.widget.BottomNavigationView;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import androidx.appcompat.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -34,8 +34,8 @@ public class MainNavigationActivity extends AppCompatActivity {
     private static final int RC_SIGN_IN = 123;
     private TextView mTextMessage;
 
-    private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
-            = new BottomNavigationView.OnNavigationItemSelectedListener() {
+    private com.google.android.material.bottomnavigation.BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
+            = new com.google.android.material.bottomnavigation.BottomNavigationView.OnNavigationItemSelectedListener() {
 
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {

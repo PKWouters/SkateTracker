@@ -10,10 +10,10 @@ import android.graphics.Color;
 import android.media.RingtoneManager;
 import android.os.Build;
 import android.os.Handler;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.NotificationManagerCompat;
-import android.support.v7.widget.CardView;
-import android.support.v7.widget.RecyclerView;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
+import androidx.cardview.widget.CardView;
+import androidx.recyclerview.widget.RecyclerView;
 import android.transition.TransitionManager;
 import android.net.Uri;
 import android.view.LayoutInflater;
@@ -28,7 +28,7 @@ import android.widget.Toast;
 import java.util.List;
 import java.util.Random;
 
-public class TrickAdapter extends RecyclerView.Adapter<TrickAdapter.ViewHolder> {
+public class TrickAdapter extends androidx.recyclerview.widget.RecyclerView.Adapter<TrickAdapter.ViewHolder> {
 
     private List<Trick> trickSet;
     private int _expandedPosition = -1, _previousExpandedPosition = -1;
@@ -41,7 +41,7 @@ public class TrickAdapter extends RecyclerView.Adapter<TrickAdapter.ViewHolder> 
 
 
     //VIEW HOLDER STUFF
-    public static class ViewHolder extends RecyclerView.ViewHolder {
+    public static class ViewHolder extends androidx.recyclerview.widget.RecyclerView.ViewHolder {
         // each data item is just a string in this case
         public TextView trickNameView, ellapsedTimeView, timesLandedView;
         public View itemView;
@@ -74,7 +74,7 @@ public class TrickAdapter extends RecyclerView.Adapter<TrickAdapter.ViewHolder> 
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
-        CardView cardView = holder.itemView.findViewById(R.id.card_view);
+        androidx.cardview.widget.CardView cardView = holder.itemView.findViewById(R.id.card_view);
         final boolean isExpanded = position == _expandedPosition;
         holder.trickNameView.setText(trickSet.get(position).GetName());
         holder.trickNameView.setTextColor(Color.rgb(255,255,255));

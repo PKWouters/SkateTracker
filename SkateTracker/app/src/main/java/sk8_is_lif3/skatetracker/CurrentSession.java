@@ -8,7 +8,7 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.arch.persistence.room.Room;
+import androidx.room.Room;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -19,7 +19,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.renderscript.RenderScript;
 import android.app.ProgressDialog;
-import android.arch.persistence.room.Room;
+import androidx.room.Room;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.hardware.Sensor;
@@ -28,15 +28,15 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.NotificationManagerCompat;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
+import androidx.annotation.NonNull;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.appcompat.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -76,7 +76,7 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
     private RecyclerView trickRecyclerView;
     private TrickAdapter tAdapt;
     private RecyclerView.Adapter trickAdapter;
-    private RecyclerView.LayoutManager trickLayoutManager;
+    private androidx.recyclerview.widget.RecyclerView.LayoutManager trickLayoutManager;
     List<Trick> tempTrickList;
     ArrayList<String> trickList;
     ArrayList<String> sessionIDs;
@@ -160,7 +160,7 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
 
 
         //ADD NEW TRICK BUTTON
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        FloatingActionButton fab = (com.google.android.material.floatingactionbutton.FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

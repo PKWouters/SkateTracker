@@ -5,24 +5,25 @@ import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
-import android.support.transition.ChangeBounds;
-import android.support.transition.ChangeTransform;
-import android.support.transition.TransitionInflater;
-import android.support.v4.app.Fragment;
-import android.support.v4.view.animation.FastOutSlowInInterpolator;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
-import android.support.transition.Transition;
-import android.support.transition.TransitionSet;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import androidx.transition.ChangeBounds;
+import androidx.transition.ChangeTransform;
+import androidx.transition.TransitionInflater;
+import androidx.fragment.app.Fragment;
+import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.appcompat.widget.Toolbar;
+import androidx.transition.Transition;
+import androidx.transition.TransitionSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -55,10 +56,10 @@ import sk8_is_lif3.skatetracker.transitions.SessionNameTransition;
 public class SessionList extends Fragment {
 
     private static final String TAG = "SessionList: ";
-    private RecyclerView sessionRecyclerView;
-    private RecyclerView.LayoutManager sessionLayoutManager;
-    private RecyclerView trickGridView;
-    private GridLayoutManager trickLayoutManager;
+    private androidx.recyclerview.widget.RecyclerView sessionRecyclerView;
+    private androidx.recyclerview.widget.RecyclerView.LayoutManager sessionLayoutManager;
+    private androidx.recyclerview.widget.RecyclerView trickGridView;
+    private androidx.recyclerview.widget.GridLayoutManager trickLayoutManager;
     private FirebaseUser user;
     List<String> sessionList;
     private FirestoreRecyclerAdapter<SessionToDisplay, SessionViewHolder> adapter;
@@ -85,7 +86,7 @@ public class SessionList extends Fragment {
         sessionRecyclerView.setAdapter(adapter);
         sessionRecyclerView.setNestedScrollingEnabled(false);
 
-        trickLayoutManager = new GridLayoutManager(getContext(), 2);
+        trickLayoutManager = new androidx.recyclerview.widget.GridLayoutManager(getContext(), 2);
         trickGridView = getView().findViewById(R.id.trickRecyclerView);
         trickGridView.setHasFixedSize(false);
         trickGridView.setLayoutManager(trickLayoutManager);
@@ -99,6 +100,7 @@ public class SessionList extends Fragment {
         floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 Intent intent = new Intent(getContext(), CurrentSession.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 intent.putExtra("session time", 0);
@@ -349,7 +351,7 @@ public class SessionList extends Fragment {
 
     }
 
-    private class SessionViewHolder extends RecyclerView.ViewHolder {
+    private class SessionViewHolder extends androidx.recyclerview.widget.RecyclerView.ViewHolder {
         private View view;
 
         // each data item is just a string in this case
@@ -363,7 +365,7 @@ public class SessionList extends Fragment {
         }
     }
 
-    private class TrickViewHolder extends RecyclerView.ViewHolder {
+    private class TrickViewHolder extends androidx.recyclerview.widget.RecyclerView.ViewHolder {
         private View view;
 
         // each data item is just a string in this case
@@ -378,7 +380,7 @@ public class SessionList extends Fragment {
         }
     }
 
-    private class SpacesItemDecoration extends RecyclerView.ItemDecoration {
+    private class SpacesItemDecoration extends androidx.recyclerview.widget.RecyclerView.ItemDecoration {
         private int space;
 
         public SpacesItemDecoration(int space) {
@@ -387,7 +389,7 @@ public class SessionList extends Fragment {
 
         @Override
         public void getItemOffsets(Rect outRect, View view,
-                                   RecyclerView parent, RecyclerView.State state) {
+                                   androidx.recyclerview.widget.RecyclerView parent, androidx.recyclerview.widget.RecyclerView.State state) {
             outRect.left = space;
             outRect.right = space;
             outRect.bottom = space/2;

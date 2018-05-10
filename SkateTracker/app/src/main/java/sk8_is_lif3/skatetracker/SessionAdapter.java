@@ -1,6 +1,6 @@
 package sk8_is_lif3.skatetracker;
 
-import android.support.v7.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 
-public class SessionAdapter extends RecyclerView.Adapter<SessionAdapter.ViewHolder> {
+public class SessionAdapter extends androidx.recyclerview.widget.RecyclerView.Adapter<SessionAdapter.ViewHolder> {
 
     private List<String> sessionList;
     private int _expandedPosition = -1;
@@ -28,7 +28,7 @@ public class SessionAdapter extends RecyclerView.Adapter<SessionAdapter.ViewHold
 
 
     //VIEW HOLDER STUFF
-    public static class ViewHolder extends RecyclerView.ViewHolder {
+    public static class ViewHolder extends androidx.recyclerview.widget.RecyclerView.ViewHolder {
         // each data item is just a string in this case
         public TextView sessionNameView, totalTimeView, totalTricksView;
         public View itemView;

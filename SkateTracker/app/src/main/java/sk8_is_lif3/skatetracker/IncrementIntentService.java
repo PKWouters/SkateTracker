@@ -2,8 +2,8 @@ package sk8_is_lif3.skatetracker;
 
 import android.app.IntentService;
 import android.content.Intent;
-import android.support.annotation.Nullable;
-import android.support.v4.content.LocalBroadcastManager;
+import androidx.annotation.Nullable;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 public class IncrementIntentService extends IntentService {
 
@@ -24,7 +24,7 @@ public class IncrementIntentService extends IntentService {
 
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
-        LocalBroadcastManager lBM = LocalBroadcastManager.getInstance(this);
+        androidx.localbroadcastmanager.content.LocalBroadcastManager lBM = LocalBroadcastManager.getInstance(this);
         intent.setAction("trick_landed");
         lBM.sendBroadcast(intent);
     }
