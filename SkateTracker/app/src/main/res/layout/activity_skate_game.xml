@@ -158,7 +158,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/ic_close_black_24dp" />
+                app:srcCompat="@drawable/ic_healing_red_24dp" />
 
             <RelativeLayout
                 android:id="@+id/roundTrickLayout"
@@ -174,7 +174,8 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.494">
 
                 <TextView
                     android:id="@+id/roundTrickText"
