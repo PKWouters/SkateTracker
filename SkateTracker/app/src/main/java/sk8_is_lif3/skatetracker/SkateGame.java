@@ -223,11 +223,12 @@ public class SkateGame extends AppCompatActivity {
         }
         //END SCREEN DIALOG
         if(playerOneScore >= 5 || playerTwoScore >= 5){
-            ResultsFragment resultsDialog = new ResultsFragment(resultsMap, p2.toString());
+            ResultsFragment resultsDialog = new ResultsFragment(resultsMap, p2.toString(), p1.toString(), p2.toString());
             if(playerOneScore < playerTwoScore){
-                resultsDialog = new ResultsFragment(resultsMap, p1.toString());
+                resultsDialog = new ResultsFragment(resultsMap, p1.toString(), p1.toString(), p2.toString());
             }
             resultsDialog.show(getSupportFragmentManager(), "resultsDialog");
+            resultsDialog.setCancelable(false);
         }
     }
 }

@@ -23,12 +23,14 @@ import java.util.Map;
 public class ResultsFragment extends DialogFragment {
 
     Map<String, String> results;
-    String winner;
+    String winner, player1, player2;
 
     @SuppressLint("ValidFragment")
-    public ResultsFragment(Map<String, String> r, String w){
+    public ResultsFragment(Map<String, String> r, String w, String p1, String p2){
         results = r;
         winner = w;
+        player1 = p1;
+        player2 = p2;
     }
 
     @Override
@@ -41,6 +43,10 @@ public class ResultsFragment extends DialogFragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         TableLayout tbl = (TableLayout) getView().findViewById(R.id.resultsTable);
+        TextView p1Name = (TextView)getView().findViewById(R.id.initName);
+        TextView p2Name = (TextView)getView().findViewById(R.id.initName2);
+        p1Name.setText(player1);
+        p2Name.setText(player2);
         int roundNum = 1;
         for(; roundNum <= results.size(); roundNum++){
             TableRow tblRow = new TableRow(getContext());
