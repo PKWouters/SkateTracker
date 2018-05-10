@@ -33,6 +33,18 @@ public class SkateHome extends Fragment {
             @Override
             public void onClick(View v) {
                 Intent gameSetup = new Intent(getActivity(), SkateSetup.class);
+                gameSetup.putExtra("gamemode", 0);
+                gameSetup.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+                startActivity(gameSetup);
+            }
+        });
+
+        Button pregenBtn = (Button)getView().findViewById(R.id.pregen_button);
+        classicBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent gameSetup = new Intent(getActivity(), SkateSetup.class);
+                gameSetup.putExtra("gamemode", 1);
                 gameSetup.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
                 startActivity(gameSetup);
             }

@@ -50,7 +50,7 @@ public class SkateGame extends AppCompatActivity {
 
         //-----------------------//
 
-        final int gameMode = 0;
+        final int gameMode = recieveIntent.getExtras().getInt("gamemode", 0);
         offPlayer = 1;
         currentPlayer = 1;
 
@@ -181,6 +181,111 @@ public class SkateGame extends AppCompatActivity {
             });
         }else if(gameMode == 1){ //---PRE-GEN SKATE---//
 
+            landBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (playerOneScore < 5 && playerTwoScore < 5) {
+                        if (currentPlayer == 1) {
+                            currentPlayer = 2;
+
+                        }else if (currentPlayer == 2) {
+                            currentPlayer = 1;
+                            roundNum++;
+
+                        }
+                        UpdateCards(gameMode);
+                    }
+                }
+            });
+            failBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (playerOneScore < 5 && playerTwoScore < 5) {
+                        if (currentPlayer == 2) {
+                                playerTwoScore++;
+                                resultsMap.put("Round: " + roundNum, "p1");
+                                roundNum++;
+                                TextView letterToChange;
+                                TransitionManager.beginDelayedTransition((ViewGroup) findViewById(R.id.p2Card));
+                                switch (playerTwoScore) {
+                                    case (1):
+                                        letterToChange = findViewById(R.id.s_TextP2);
+                                        letterToChange.setTextSize(70);
+                                        letterToChange.setTextColor(Color.WHITE);
+                                        letterToChange.setTypeface(null, Typeface.BOLD);
+                                        break;
+                                    case (2):
+                                        letterToChange = findViewById(R.id.k_TextP2);
+                                        letterToChange.setTextSize(70);
+                                        letterToChange.setTextColor(Color.WHITE);
+                                        letterToChange.setTypeface(null, Typeface.BOLD);
+                                        break;
+                                    case (3):
+                                        letterToChange = findViewById(R.id.a_TextP2);
+                                        letterToChange.setTextSize(70);
+                                        letterToChange.setTextColor(Color.WHITE);
+                                        letterToChange.setTypeface(null, Typeface.BOLD);
+                                        break;
+                                    case (4):
+                                        letterToChange = findViewById(R.id.t_TextP2);
+                                        letterToChange.setTextSize(70);
+                                        letterToChange.setTextColor(Color.WHITE);
+                                        letterToChange.setTypeface(null, Typeface.BOLD);
+                                        break;
+                                    case (5):
+                                        letterToChange = findViewById(R.id.e_TextP2);
+                                        letterToChange.setTextSize(70);
+                                        letterToChange.setTextColor(Color.WHITE);
+                                        letterToChange.setTypeface(null, Typeface.BOLD);
+                                        break;
+                                }
+
+                                currentPlayer = 1;
+                            }
+                        else if (currentPlayer == 1) {
+                            TransitionManager.beginDelayedTransition((ViewGroup) findViewById(R.id.p1Card));
+                            playerOneScore++;
+                            resultsMap.put("Round: " + roundNum, "p2");
+                            TextView letterToChange;
+                            switch (playerOneScore) {
+                                case (1):
+                                    letterToChange = findViewById(R.id.s_Text);
+                                    letterToChange.setTextSize(70);
+                                    letterToChange.setTextColor(Color.WHITE);
+                                    letterToChange.setTypeface(null, Typeface.BOLD);
+                                    break;
+                                case (2):
+                                    letterToChange = findViewById(R.id.k_Text);
+                                    letterToChange.setTextSize(70);
+                                    letterToChange.setTextColor(Color.WHITE);
+                                    letterToChange.setTypeface(null, Typeface.BOLD);
+                                    break;
+                                case (3):
+                                    letterToChange = findViewById(R.id.a_Text);
+                                    letterToChange.setTextSize(70);
+                                    letterToChange.setTextColor(Color.WHITE);
+                                    letterToChange.setTypeface(null, Typeface.BOLD);
+                                    break;
+                                case (4):
+                                    letterToChange = findViewById(R.id.t_Text);
+                                    letterToChange.setTextSize(70);
+                                    letterToChange.setTextColor(Color.WHITE);
+                                    letterToChange.setTypeface(null, Typeface.BOLD);
+                                    break;
+                                case (5):
+                                    letterToChange = findViewById(R.id.e_Text);
+                                    letterToChange.setTextSize(70);
+                                    letterToChange.setTextColor(Color.WHITE);
+                                    letterToChange.setTypeface(null, Typeface.BOLD);
+                                    break;
+                            }
+                            currentPlayer = 2;
+                        }
+                        UpdateCards(gameMode);
+                    }
+                }
+            });
+
         }
 
     }
@@ -219,6 +324,23 @@ public class SkateGame extends AppCompatActivity {
                 TextView roundNumView = findViewById(R.id.roundTrickText);
                 roundNumView.setText("Round: " + roundNum);
         }else{
+
+            if(currentPlayer == 1){
+                TransitionManager.beginDelayedTransition((ViewGroup) findViewById(R.id.p1Card));
+                CardView p1Card = findViewById(R.id.p1Card);
+                p1Card.setCardBackgroundColor(getResources().getColor(R.color.skatecolorAccent));
+                TransitionManager.beginDelayedTransition((ViewGroup) findViewById(R.id.p2Card));
+                CardView p2Card = findViewById(R.id.p2Card);
+                p2Card.setCardBackgroundColor(getResources().getColor(R.color.colorPrimaryDark));
+
+            }else if(currentPlayer == 2){
+                TransitionManager.beginDelayedTransition((ViewGroup) findViewById(R.id.p2Card));
+                CardView p2Card = findViewById(R.id.p2Card);
+                p2Card.setCardBackgroundColor(getResources().getColor(R.color.skatecolorAccent));
+                TransitionManager.beginDelayedTransition((ViewGroup) findViewById(R.id.p1Card));
+                CardView p1Card = findViewById(R.id.p1Card);
+                p1Card.setCardBackgroundColor(getResources().getColor(R.color.colorPrimaryDark));
+            }
 
         }
         //END SCREEN DIALOG

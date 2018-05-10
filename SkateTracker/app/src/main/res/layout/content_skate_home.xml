@@ -116,7 +116,7 @@
                     app:layout_constraintTop_toBottomOf="@+id/pregenTitle" />
 
                 <Button
-                    android:id="@+id/pregenStart"
+                    android:id="@+id/pregen_button"
                     style="@style/Widget.AppCompat.Button.Borderless.Colored"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
