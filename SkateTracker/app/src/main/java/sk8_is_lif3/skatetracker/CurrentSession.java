@@ -224,23 +224,23 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
                                     });
                                 }else {
                                     choiceBuilder.setMessage("No tricks containing \"" + trickName.getText().toString() + "\" found. You can still add this trick as a Custom Trick.")
-                                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
+                                            .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                                @Override
+                                                public void onClick(DialogInterface dialog, int which) {
 
-                                        }
-                                    })
-                                    .setNeutralButton("Add as Custom", new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            //Save to Trick List
-                                            tempTrickList.add(new Trick(trickName.getText().toString().toUpperCase(), "custom_" + trickName.getText().toString().replaceAll("\\s+","_").toLowerCase()));
-                                            trickAdapter.notifyDataSetChanged();
-                                            trickRecyclerView.setVisibility(View.VISIBLE);
-                                            TextView tv = (TextView) findViewById(R.id.text_View);
-                                            tv.setVisibility(View.GONE);
-                                        }
-                                    });
+                                                }
+                                            })
+                                            .setNeutralButton("Add as Custom", new DialogInterface.OnClickListener() {
+                                                @Override
+                                                public void onClick(DialogInterface dialog, int which) {
+                                                    //Save to Trick List
+                                                    tempTrickList.add(new Trick(trickName.getText().toString().toUpperCase(), "custom_" + trickName.getText().toString().replaceAll("\\s+","_").toLowerCase()));
+                                                    trickAdapter.notifyDataSetChanged();
+                                                    trickRecyclerView.setVisibility(View.VISIBLE);
+                                                    TextView tv = (TextView) findViewById(R.id.text_View);
+                                                    tv.setVisibility(View.GONE);
+                                                }
+                                            });
                                 }
                                 choiceBuilder.create();
                                 choiceBuilder.show();
@@ -312,192 +312,192 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
                         sessionNameBuilder.setView(dlgView)
                                 .setMessage("Name Your Session")
                                 .setPositiveButton("Save", new DialogInterface.OnClickListener() {
-                                            public void onClick(DialogInterface dialog, int id) {
+                                    public void onClick(DialogInterface dialog, int id) {
 
-                                                //Init Stuff
-                                                final String sessionName = sessionNameField.getText().toString();
-                                                ArrayList<String> trickIDs = new ArrayList<String>();
+                                        //Init Stuff
+                                        final String sessionName = sessionNameField.getText().toString();
+                                        ArrayList<String> trickIDs = new ArrayList<String>();
 
-                                                //Pause All Tricks
-                                                for (Trick t : tempTrickList) {
-                                                    t.PauseTracking();
-                                                    trickIDs.add(t.GetID());
-                                                }
-                                                currentSession.PauseTracking();
-
-
-                                                //--FIREBASE STUFF--//
-                                                final FirebaseFirestore db = FirebaseFirestore.getInstance();
-                                                final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-
-                                                // Create Session
-                                                final Map<String, Object> session = new HashMap<>();
-                                                session.put("date", currentSession.GetDate().toString());
-                                                session.put("id", currentSession.GetID());
-                                                session.put("totalTimeFormatted", currentSession.EllapsedTime());
-                                                session.put("name", sessionName);
-
-                                                final ProgressDialog progressDialog = ProgressDialog.show(CurrentSession.this, "",
-                                                        "Saving Session...", true);
-
-                                                ArrayList<Map<String, Object>> trickList = new ArrayList<Map<String, Object>>();
-                                                final CollectionReference colRef = db.collection("users").document(user.getUid()).collection("tricks");
-
-                                                //Set Up Trick Objects
-                                                for (final Trick t : tempTrickList) {
-                                                    // Create Trick for Session Object
-                                                    Map<String, Object> trick = new HashMap<>();
-                                                    trick.put("name", t.GetName());
-                                                    trick.put("id", t.GetID());
-                                                    trick.put("totalTimeFormatted", t.EllapsedTime());
-                                                    trick.put("ratio", t.GetRatio());
-                                                    trick.put("dbID", t.GetDBID().toLowerCase());
-                                                    trick.put("timesLanded", t.GetTimesLanded());
-                                                    trickList.add(trick);
+                                        //Pause All Tricks
+                                        for (Trick t : tempTrickList) {
+                                            t.PauseTracking();
+                                            trickIDs.add(t.GetID());
+                                        }
+                                        currentSession.PauseTracking();
 
 
-                                                    DocumentReference currDoc = colRef.document(t.GetDBID().toLowerCase());
-                                                    currDoc.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                                        @Override
-                                                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                                            if (task.isSuccessful()) {
-                                                                DocumentSnapshot document = task.getResult();
-                                                                //----IF TRICK ALREADY EXISTS----//
-                                                                if (document.exists()) {
-                                                                    Map<String, Object> existingTrick = document.getData();
+                                        //--FIREBASE STUFF--//
+                                        final FirebaseFirestore db = FirebaseFirestore.getInstance();
+                                        final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
-                                                                    //Create Trick for User Object
-                                                                    Map<String, Object> userTrick = new HashMap<>();
-                                                                    Long landings = (Long)(existingTrick.get("totalLandings"));
-                                                                    if(landings != null)
-                                                                        userTrick.put("totalLandings", landings.intValue()+t.GetTimesLanded());
-                                                                    else
-                                                                        userTrick.put("totalLandings", t.GetTimesLanded());
+                                        // Create Session
+                                        final Map<String, Object> session = new HashMap<>();
+                                        session.put("date", currentSession.GetDate().toString());
+                                        session.put("id", currentSession.GetID());
+                                        session.put("totalTimeFormatted", currentSession.EllapsedTime());
+                                        session.put("name", sessionName);
 
-                                                                    //Get Current Sessions, Create Updated Sessions
-                                                                    ArrayList<Map<String, Object>> currentTricks = (ArrayList<Map<String, Object>>)existingTrick.get("sessions");
-                                                                    ArrayList<Map<String, Object>> updatedTricks = new ArrayList<Map<String, Object>>();
-                                                                    double ratio = 0.0;
+                                        final ProgressDialog progressDialog = ProgressDialog.show(CurrentSession.this, "",
+                                                "Saving Session...", true);
 
-                                                                    if(currentTricks != null) {
-                                                                        //Add Current to Updated
-                                                                        for (Map<String, Object> currTrick : currentTricks) {
-                                                                            updatedTricks.add(currTrick);
-                                                                            double trickRatio = (double)currTrick.get("ratio");
-                                                                            ratio += trickRatio;
-                                                                        }
-                                                                    }
+                                        ArrayList<Map<String, Object>> trickList = new ArrayList<Map<String, Object>>();
+                                        final CollectionReference colRef = db.collection("users").document(user.getUid()).collection("tricks");
 
-                                                                    //Create Current Trick Session
-                                                                    Map<String, Object> userTrickSesh = new HashMap<>();
-                                                                    userTrickSesh.put("date", currentSession.GetDate().toString());
-                                                                    userTrickSesh.put("ratio", t.GetRatio());
-                                                                    userTrickSesh.put("timeSpent", t.GetTotalSecondsTracked());
-                                                                    userTrickSesh.put("totalLandings", t.GetTimesLanded());
-                                                                    userTrickSesh.put("id", t.GetID());
+                                        //Set Up Trick Objects
+                                        for (final Trick t : tempTrickList) {
+                                            // Create Trick for Session Object
+                                            Map<String, Object> trick = new HashMap<>();
+                                            trick.put("name", t.GetName());
+                                            trick.put("id", t.GetID());
+                                            trick.put("totalTimeFormatted", t.EllapsedTime());
+                                            trick.put("ratio", t.GetRatio());
+                                            trick.put("dbID", t.GetDBID().toLowerCase());
+                                            trick.put("timesLanded", t.GetTimesLanded());
+                                            trickList.add(trick);
 
-                                                                    ratio += t.GetRatio();
-                                                                    ratio = ratio / (currentTricks.size()+1);
 
-                                                                    //Add To Trick Object
-                                                                    updatedTricks.add(userTrickSesh);
-                                                                    userTrick.put("avgRatio", ratio);
-                                                                    userTrick.put("name", t.GetName().toString().toUpperCase());
-                                                                    userTrick.put("dbID", t.GetDBID().toLowerCase());
-                                                                    userTrick.put("sessions", updatedTricks);
+                                            DocumentReference currDoc = colRef.document(t.GetDBID().toLowerCase());
+                                            currDoc.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                                @Override
+                                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                                    if (task.isSuccessful()) {
+                                                        DocumentSnapshot document = task.getResult();
+                                                        //----IF TRICK ALREADY EXISTS----//
+                                                        if (document.exists()) {
+                                                            Map<String, Object> existingTrick = document.getData();
 
-                                                                    //Add to User Object
-                                                                    db.collection("users").document(user.getUid())
-                                                                            .collection("tricks")
-                                                                            .document(t.GetDBID().toLowerCase())
-                                                                            .set(userTrick)
-                                                                            .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                                                @Override
-                                                                                public void onSuccess(Void aVoid) {
+                                                            //Create Trick for User Object
+                                                            Map<String, Object> userTrick = new HashMap<>();
+                                                            Long landings = (Long)(existingTrick.get("totalLandings"));
+                                                            if(landings != null)
+                                                                userTrick.put("totalLandings", landings.intValue()+t.GetTimesLanded());
+                                                            else
+                                                                userTrick.put("totalLandings", t.GetTimesLanded());
 
-                                                                                }
-                                                                            }).addOnFailureListener(new OnFailureListener() {
-                                                                                @Override
-                                                                                public void onFailure(@NonNull Exception e) {
-                                                                                    Toast.makeText(getApplicationContext(), e.getMessage().toString(), Toast.LENGTH_SHORT).show();
-                                                                                }
-                                                                    });
-                                                                //----IF TRICK DOES NOT EXIST----//
-                                                                } else {
-                                                                    //Create Trick for User Object
-                                                                    Map<String, Object> userTrick = new HashMap<>();
-                                                                    userTrick.put("totalLandings", t.GetTimesLanded());
+                                                            //Get Current Sessions, Create Updated Sessions
+                                                            ArrayList<Map<String, Object>> currentTricks = (ArrayList<Map<String, Object>>)existingTrick.get("sessions");
+                                                            ArrayList<Map<String, Object>> updatedTricks = new ArrayList<Map<String, Object>>();
+                                                            double ratio = 0.0;
 
-                                                                    //Get Current Sessions, Create Updated Sessions
-                                                                    ArrayList<Map<String, Object>> updatedTricks = new ArrayList<Map<String, Object>>();
-
-                                                                    //Create Current Trick Session
-                                                                    Map<String, Object> userTrickSesh = new HashMap<>();
-                                                                    userTrickSesh.put("date", currentSession.GetDate().toString());
-                                                                    userTrickSesh.put("ratio", t.GetRatio());
-                                                                    userTrickSesh.put("timeSpent", t.GetTotalSecondsTracked());
-                                                                    userTrickSesh.put("id", t.GetID());
-                                                                    userTrickSesh.put("totalLandings", t.GetTimesLanded());
-
-                                                                    //Add To Trick Object
-                                                                    updatedTricks.add(userTrickSesh);
-                                                                    userTrick.put("sessions", updatedTricks);
-                                                                    userTrick.put("name", t.GetName().toString().toUpperCase());
-                                                                    userTrick.put("dbID", t.GetDBID().toLowerCase());
-
-                                                                    double ratio = (t.GetRatio()/updatedTricks.size());
-                                                                    userTrick.put("avgRatio", ratio);
-
-                                                                    //Add to User Object
-                                                                    db.collection("users").document(user.getUid())
-                                                                            .collection("tricks")
-                                                                            .document(t.GetDBID().toLowerCase())
-                                                                            .set(userTrick)
-                                                                            .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                                                @Override
-                                                                                public void onSuccess(Void aVoid) {
-
-                                                                                }
-                                                                            }).addOnFailureListener(new OnFailureListener() {
-                                                                        @Override
-                                                                        public void onFailure(@NonNull Exception e) {
-                                                                            Toast.makeText(getApplicationContext(), e.getMessage().toString(), Toast.LENGTH_SHORT).show();
-                                                                        }
-                                                                    });
+                                                            if(currentTricks != null) {
+                                                                //Add Current to Updated
+                                                                for (Map<String, Object> currTrick : currentTricks) {
+                                                                    updatedTricks.add(currTrick);
+                                                                    double trickRatio = (double)currTrick.get("ratio");
+                                                                    ratio += trickRatio;
                                                                 }
-                                                            } else {
                                                             }
+
+                                                            //Create Current Trick Session
+                                                            Map<String, Object> userTrickSesh = new HashMap<>();
+                                                            userTrickSesh.put("date", currentSession.GetDate().toString());
+                                                            userTrickSesh.put("ratio", t.GetRatio());
+                                                            userTrickSesh.put("timeSpent", t.GetTotalSecondsTracked());
+                                                            userTrickSesh.put("totalLandings", t.GetTimesLanded());
+                                                            userTrickSesh.put("id", t.GetID());
+
+                                                            ratio += t.GetRatio();
+                                                            ratio = ratio / (currentTricks.size()+1);
+
+                                                            //Add To Trick Object
+                                                            updatedTricks.add(userTrickSesh);
+                                                            userTrick.put("avgRatio", ratio);
+                                                            userTrick.put("name", t.GetName().toString().toUpperCase());
+                                                            userTrick.put("dbID", t.GetDBID().toLowerCase());
+                                                            userTrick.put("sessions", updatedTricks);
+
+                                                            //Add to User Object
+                                                            db.collection("users").document(user.getUid())
+                                                                    .collection("tricks")
+                                                                    .document(t.GetDBID().toLowerCase())
+                                                                    .set(userTrick)
+                                                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                                        @Override
+                                                                        public void onSuccess(Void aVoid) {
+
+                                                                        }
+                                                                    }).addOnFailureListener(new OnFailureListener() {
+                                                                @Override
+                                                                public void onFailure(@NonNull Exception e) {
+                                                                    Toast.makeText(getApplicationContext(), e.getMessage().toString(), Toast.LENGTH_SHORT).show();
+                                                                }
+                                                            });
+                                                            //----IF TRICK DOES NOT EXIST----//
+                                                        } else {
+                                                            //Create Trick for User Object
+                                                            Map<String, Object> userTrick = new HashMap<>();
+                                                            userTrick.put("totalLandings", t.GetTimesLanded());
+
+                                                            //Get Current Sessions, Create Updated Sessions
+                                                            ArrayList<Map<String, Object>> updatedTricks = new ArrayList<Map<String, Object>>();
+
+                                                            //Create Current Trick Session
+                                                            Map<String, Object> userTrickSesh = new HashMap<>();
+                                                            userTrickSesh.put("date", currentSession.GetDate().toString());
+                                                            userTrickSesh.put("ratio", t.GetRatio());
+                                                            userTrickSesh.put("timeSpent", t.GetTotalSecondsTracked());
+                                                            userTrickSesh.put("id", t.GetID());
+                                                            userTrickSesh.put("totalLandings", t.GetTimesLanded());
+
+                                                            //Add To Trick Object
+                                                            updatedTricks.add(userTrickSesh);
+                                                            userTrick.put("sessions", updatedTricks);
+                                                            userTrick.put("name", t.GetName().toString().toUpperCase());
+                                                            userTrick.put("dbID", t.GetDBID().toLowerCase());
+
+                                                            double ratio = (t.GetRatio()/updatedTricks.size());
+                                                            userTrick.put("avgRatio", ratio);
+
+                                                            //Add to User Object
+                                                            db.collection("users").document(user.getUid())
+                                                                    .collection("tricks")
+                                                                    .document(t.GetDBID().toLowerCase())
+                                                                    .set(userTrick)
+                                                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                                        @Override
+                                                                        public void onSuccess(Void aVoid) {
+
+                                                                        }
+                                                                    }).addOnFailureListener(new OnFailureListener() {
+                                                                @Override
+                                                                public void onFailure(@NonNull Exception e) {
+                                                                    Toast.makeText(getApplicationContext(), e.getMessage().toString(), Toast.LENGTH_SHORT).show();
+                                                                }
+                                                            });
                                                         }
-                                                    });
-
-
+                                                    } else {
+                                                    }
                                                 }
-
-                                                session.put("tricks", trickList);
-
+                                            });
 
 
-                                                //Add Session to Document
-                                                db.collection("users")
-                                                        .document(user.getUid()).collection("sessions").document(currentSession.GetID()).set(session)
-                                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                            @Override
-                                                            public void onSuccess(Void aVoid) {
-                                                                progressDialog.dismiss();
-                                                                NotificationManager mNotificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
-                                                                mNotificationManager.cancelAll();
-                                                                Toast.makeText(getApplicationContext(), "Saved Session", Toast.LENGTH_SHORT).show();
-                                                                finish();
-                                                            }
-                                                        })
-                                                        .addOnFailureListener(new OnFailureListener() {
-                                                            @Override
-                                                            public void onFailure(@NonNull Exception e) {
-                                                                Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_LONG).show();
-                                                            }
-                                                        });
-                                            }
-                                        });
+                                        }
+
+                                        session.put("tricks", trickList);
+
+
+
+                                        //Add Session to Document
+                                        db.collection("users")
+                                                .document(user.getUid()).collection("sessions").document(currentSession.GetID()).set(session)
+                                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                    @Override
+                                                    public void onSuccess(Void aVoid) {
+                                                        progressDialog.dismiss();
+                                                        NotificationManager mNotificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+                                                        mNotificationManager.cancelAll();
+                                                        Toast.makeText(getApplicationContext(), "Saved Session", Toast.LENGTH_SHORT).show();
+                                                        finish();
+                                                    }
+                                                })
+                                                .addOnFailureListener(new OnFailureListener() {
+                                                    @Override
+                                                    public void onFailure(@NonNull Exception e) {
+                                                        Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+                                                    }
+                                                });
+                                    }
+                                });
                         sessionNameBuilder.setNegativeButton("No", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
 
