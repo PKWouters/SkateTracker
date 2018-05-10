@@ -27,8 +27,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <receiver android:name=".ActionReceiver" />
 
+        <activity android:name=".SkateGame" >
+        </activity>
+        <activity android:name=".SkateSetup">
+        </activity>
     </application>
 
 </manifest>

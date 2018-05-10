@@ -3,6 +3,7 @@ package sk8_is_lif3.skatetracker;
 import android.app.Notification;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
@@ -63,6 +64,24 @@ public class MainNavigationActivity extends AppCompatActivity {
                 case R.id.navigation_learn:
                     return true;
                 case R.id.navigation_skate:
+                    setTitle("S.K.A.T.E");
+                    if(FirebaseAuth.getInstance().getCurrentUser() == null) {
+                        Intent i = AuthUI.getInstance()
+                                .createSignInIntentBuilder()
+                                .setAvailableProviders(Arrays.asList(
+                                        new AuthUI.IdpConfig.EmailBuilder().build(),
+                                        new AuthUI.IdpConfig.GoogleBuilder().build()
+                                        )
+                                )
+                                .setLogo(R.drawable.ic_account_circle)
+                                .setTheme(R.style.AppTheme)
+                                .build();
+                        startActivityForResult(i, RC_SIGN_IN);
+                    }
+                    getSupportFragmentManager()
+                            .beginTransaction()
+                            .replace(R.id.fragment, new SkateHome(), "SKATE")
+                            .commit();
                     return true;
                 case R.id.navigation_spots:
                     return true;

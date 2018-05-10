@@ -16,7 +16,7 @@
 
         <item name="android:windowSharedElementEnterTransition">@android:transition/move</item>
         <item name="android:windowSharedElementExitTransition">@android:transition/move</item>
-
+        <item name="android:navigationBarColor">@color/colorPrimaryDark</item>
 
         <item name="android:windowBackground">@color/colorBackground</item>
         <item name="android:colorBackground">@color/colorBackground</item>
