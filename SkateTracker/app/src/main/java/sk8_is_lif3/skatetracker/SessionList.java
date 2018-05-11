@@ -217,7 +217,7 @@ public class SessionList extends Fragment {
                             setReturnTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.slide_left));
                             setReenterTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.slide_left));
 
-                            TrickDetailFragment nextFrag = new TrickDetailFragment(model.getName().toUpperCase().toString(), model.getAvgRatio(), model.getSessions());
+                            TrickDetailFragment nextFrag = new TrickDetailFragment(model.getName().toUpperCase().toString(), model.getAvgRatio(), model.getDbID(), model.getSessions());
 
                             nextFrag.setSharedElementEnterTransition(tSet);
                             nextFrag.setEnterTransition(mainTransition);

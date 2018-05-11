@@ -19,6 +19,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -62,8 +63,8 @@ import java.util.Map;
 
 public class TrickDetailFragment extends Fragment{
 
-    private String mName;
-    private double mRatio, mId;
+    private String mName, mId;
+    private double mRatio;
     private ArrayList<Map<String, Object>> mSessions;
 
     private LineChart lineChart;
@@ -82,10 +83,11 @@ public class TrickDetailFragment extends Fragment{
     }
 
     @SuppressLint("ValidFragment")
-    public TrickDetailFragment(String name, double ratio, ArrayList<Map<String, Object>> sessions) {
+    public TrickDetailFragment(String name, double ratio, String id, ArrayList<Map<String, Object>> sessions) {
         mName = name;
         mRatio = ratio;
         mSessions = sessions;
+        mId = id;
     }
 
     @Override
@@ -93,7 +95,7 @@ public class TrickDetailFragment extends Fragment{
         //getView().findViewById(R.id.toolbar_title).setTransitionName("sessionNameTransition"+mId);
         final AppCompatActivity activity = (AppCompatActivity) getActivity();
         Toolbar toolbar = (Toolbar) getView().findViewById(R.id.toolbar);
-
+        final Button learnButton = getView().findViewById(R.id.learnButton);
 
         activity.setSupportActionBar(toolbar);
         activity.getSupportActionBar().setDisplayShowTitleEnabled(false);
@@ -115,14 +117,32 @@ public class TrickDetailFragment extends Fragment{
         progress.setDonut_progress(Integer.toString(ratioToInt));
         if(ratioToInt < 100){
             progressText.setText("Progress: LEARNING");
+            if(mId.contains("trick_")) {
+                TextView learnText = getView().findViewById(R.id.learningDescView);
+                learnText.setVisibility(View.VISIBLE);
+                learnButton.setVisibility(View.VISIBLE);
+            }else{
+                TextView learnText = getView().findViewById(R.id.learningDescView);
+                learnText.setVisibility(View.GONE);
+                learnButton.setVisibility(View.GONE);
+            }
             progress.setTextColor(getResources().getColor(R.color.colorAccent));
             progress.setFinishedStrokeColor(getResources().getColor(R.color.colorAccent));
         }else{
             progressText.setText("Progress: MASTERED");
             progress.setTextColor(getResources().getColor(android.R.color.holo_green_dark));
             progress.setFinishedStrokeColor(getResources().getColor(android.R.color.holo_green_dark));
-
+            TextView learnText = getView().findViewById(R.id.learningDescView);
+            learnText.setVisibility(View.GONE);
+            learnButton.setVisibility(View.GONE);
         }
+
+        learnButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //Snackbar.make(getView(), "Skate School Coming Soon :)", Snackbar.LENGTH_SHORT).show();
+            }
+        });
 
         lineChart = getView().findViewById(R.id.trickChart);
 
