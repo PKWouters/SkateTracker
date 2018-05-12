@@ -140,7 +140,13 @@ public class TrickDetailFragment extends Fragment{
         learnButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //Snackbar.make(getView(), "Skate School Coming Soon :)", Snackbar.LENGTH_SHORT).show();
+                //LearnTrick nextFrag = new LearnTrick(mName, url, mId, model.getArticle(), model.getPrevTricks());
+                /*
+                getActivity().getSupportFragmentManager().beginTransaction()
+                        .setReorderingAllowed(true)
+                        .replace(R.id.fragment, nextFrag,"LearnTrick")
+                        .addToBackStack(mName)
+                        .commit();*/
             }
         });
 

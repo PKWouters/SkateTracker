@@ -21,12 +21,19 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.github.lzyzsd.circleprogress.DonutProgress;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.squareup.picasso.Picasso;
@@ -40,6 +47,7 @@ public class LearnHome extends Fragment {
     private FirestoreRecyclerAdapter<TrickToLearn, TrickViewHolder> trickAdapter;
     private RecyclerView trickGridView;
     private LinearLayoutManager trickLayoutManager;
+    private String recentTrick;
 
     public LearnHome() {
         // Required empty public constructor
@@ -58,6 +66,7 @@ public class LearnHome extends Fragment {
         trickGridView.setHasFixedSize(false);
         trickGridView.setLayoutManager(trickLayoutManager);
         trickGridView.setAdapter(trickAdapter);
+
     }
 
     @Override
@@ -114,6 +123,56 @@ public class LearnHome extends Fragment {
             }
         };
         trickAdapter.startListening();
+        final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if(user != null) {
+            DocumentReference docRef = db.collection("users").document(user.getUid());
+            docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                    if (task.isSuccessful()) {
+                        DocumentSnapshot document = task.getResult();
+                        if (document.exists()) {
+                            if(document.getData().get("recent_trick") != null){
+                                recentTrick = document.getData().get("recent_trick").toString();
+                                DocumentReference trickRef = db.collection("users").document(user.getUid()).collection("tricks").document(recentTrick);
+                                final DonutProgress progress = (DonutProgress)getView().findViewById(R.id.trickProgress);
+                                progress.setVisibility(View.GONE);
+                                trickRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                        if (task.isSuccessful()) {
+                                            DocumentSnapshot document = task.getResult();
+                                            if (document.exists()) {
+                                                Double ratio = (Double)document.getData().get("avgRatio");
+                                                ratio *= 100;
+                                                progress.setDonut_progress(Integer.toString(ratio.intValue()));
+                                                TextView recentTrickView = (TextView)getView().findViewById(R.id.recentTrickName);
+                                                recentTrickView.setText(document.getData().get("name").toString());
+                                                if(ratio < 100){
+                                                    progress.setTextColor(getResources().getColor(R.color.colorAccent));
+                                                    progress.setFinishedStrokeColor(getResources().getColor(R.color.colorAccent));
+                                                }else{
+                                                }
+                                                progress.setVisibility(View.VISIBLE);
+                                            } else {
+
+                                            }
+                                        } else {
+
+                                        }
+                                    }
+                                });
+                            }
+                        } else {
+
+                        }
+                    } else {
+
+                    }
+                }
+            });
+
+        }
     }
 
     private class TrickViewHolder extends RecyclerView.ViewHolder {
