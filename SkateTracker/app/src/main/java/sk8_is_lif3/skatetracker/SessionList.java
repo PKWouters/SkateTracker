@@ -112,8 +112,8 @@ public class SessionList extends Fragment {
 
     }
     @Override
-    public void onPause(){
-        super.onPause();
+    public void onStop(){
+        super.onStop();
         if (adapter != null) {
             adapter.stopListening();
         }
@@ -125,6 +125,10 @@ public class SessionList extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setEnterTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
+        setExitTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
+        setReturnTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
+        setReenterTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
         sessionList = new ArrayList<String>();
         final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
@@ -170,59 +174,14 @@ public class SessionList extends Fragment {
                         @Override
                         public void onClick(View v) {
 
-                            Transition mainTransition = TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade);
-                            mainTransition.setDuration(250);
-                            mainTransition.setStartDelay(375);
-
-                            Transition textTransScale = new SessionNameTransition();
-                            textTransScale.setDuration(375);
-                            textTransScale.setInterpolator(new FastOutSlowInInterpolator());
-
-                            Transition textTransMove = new ChangeTransform();
-                            textTransMove.setDuration(375);
-                            textTransMove.setInterpolator(new FastOutSlowInInterpolator());
-
-                            Transition textTransBounds = new ChangeBounds();
-                            textTransBounds.setDuration(375);
-                            textTransBounds.setInterpolator(new FastOutSlowInInterpolator());
-
-                            long duration = 375;
-
-                            int screenSize = getView().getResources().getConfiguration().screenLayout &
-                                    Configuration.SCREENLAYOUT_SIZE_MASK;
-
-                            switch (screenSize) {
-                                case Configuration.SCREENLAYOUT_SIZE_LARGE:
-                                    duration = 390;
-                                    break;
-                                case Configuration.SCREENLAYOUT_SIZE_NORMAL:
-                                    duration = 300;
-                                    break;
-                                case Configuration.SCREENLAYOUT_SIZE_SMALL:
-                                    duration = 210;
-                                    break;
-                                default:
-                            }
-                            mainTransition.setStartDelay(duration);
-                            textTransScale.setDuration(duration);
-                            textTransMove.setDuration(duration);
-                            textTransBounds.setDuration(duration);
-
-                            TransitionSet tSet = new TransitionSet().addTransition(textTransMove).addTransition(textTransScale).addTransition(textTransBounds);
-
-                            setSharedElementReturnTransition(tSet);
-                            //setExitTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
-                            setEnterTransition(null);
-                            setExitTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
-                            setReturnTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.slide_left));
-                            setReenterTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.slide_left));
+                            setSharedElementReturnTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
 
                             TrickDetailFragment nextFrag = new TrickDetailFragment(model.getName().toUpperCase().toString(), model.getAvgRatio(), model.getDbID(), model.getSessions());
 
-                            nextFrag.setSharedElementEnterTransition(tSet);
-                            nextFrag.setEnterTransition(mainTransition);
-                            nextFrag.setExitTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.slide_right));
-                            nextFrag.setReturnTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.slide_right));
+                            nextFrag.setSharedElementEnterTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
+                            nextFrag.setEnterTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
+                            nextFrag.setExitTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
+                            nextFrag.setReturnTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
 
                             getActivity().getSupportFragmentManager().beginTransaction()
                                     .setReorderingAllowed(true)
@@ -303,17 +262,13 @@ public class SessionList extends Fragment {
 
                             setSharedElementReturnTransition(tSet);
                             //setExitTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
-                            setEnterTransition(null);
-                            setExitTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
-                            setReturnTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.slide_left));
-                            setReenterTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.slide_left));
 
                             SessionDetailFragment nextFrag = new SessionDetailFragment(model.getDate() + " - " + model.getName(), model.getTotalTimeFormatted(), model.getId(), model.getTricks());
 
                             nextFrag.setSharedElementEnterTransition(tSet);
                             nextFrag.setEnterTransition(mainTransition);
-                            nextFrag.setExitTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.slide_right));
-                            nextFrag.setReturnTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.slide_right));
+                            nextFrag.setExitTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
+                            nextFrag.setReturnTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
 
                             getActivity().getSupportFragmentManager().beginTransaction()
                                     .setReorderingAllowed(true)

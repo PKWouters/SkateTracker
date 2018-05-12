@@ -62,6 +62,24 @@ public class MainNavigationActivity extends AppCompatActivity {
                             .commit();
                     return true;
                 case R.id.navigation_learn:
+                    setTitle("Learn");
+                    if(FirebaseAuth.getInstance().getCurrentUser() == null) {
+                        Intent i = AuthUI.getInstance()
+                                .createSignInIntentBuilder()
+                                .setAvailableProviders(Arrays.asList(
+                                        new AuthUI.IdpConfig.EmailBuilder().build(),
+                                        new AuthUI.IdpConfig.GoogleBuilder().build()
+                                        )
+                                )
+                                .setLogo(R.drawable.ic_account_circle)
+                                .setTheme(R.style.AppTheme)
+                                .build();
+                        startActivityForResult(i, RC_SIGN_IN);
+                    }
+                    getSupportFragmentManager()
+                            .beginTransaction()
+                            .replace(R.id.fragment, new LearnHome(), "LEARN")
+                            .commit();
                     return true;
                 case R.id.navigation_skate:
                     setTitle("S.K.A.T.E");
