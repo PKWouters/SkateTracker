@@ -1,17 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<ScrollView
+<android.support.design.widget.CoordinatorLayout
+    android:id="@+id/main_content"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="match_parent">
 
-<android.support.constraint.ConstraintLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    tools:context=".LearnTrick">
-
+    <!-- AppBarLayout is a wrapper for a Toolbar in order to apply scrolling effects. -->
+    <!-- Note that AppBarLayout expects to be the first child nested within a CoordinatorLayout -->
     <android.support.design.widget.AppBarLayout
         android:id="@+id/appBar"
         android:layout_width="match_parent"
@@ -24,92 +20,17 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
-            app:layout_scrollFlags="scroll|enterAlways"
-            app:title="Learn" />
+            app:layout_scrollFlags="scroll|enterAlways" />
 
     </android.support.design.widget.AppBarLayout>
 
-    <TextView
-        android:id="@+id/trickName"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:text="TRICK NAME"
-        android:textAppearance="@style/TextAppearance.AppCompat.Display1"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/appBar" />
+    <!-- This could also be included from another file using the include tag -->
+    <!-- i.e `res/layout/content_main.xml` -->
+    <!-- `app:layout_behavior` is set to a pre-defined standard scrolling behavior -->
+    <include
+        layout="@layout/content_learn_trick"
+        app:layout_anchor="@+id/app_bar"
+        app:layout_anchorGravity="bottom|center"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"></include>
 
-
-    <com.pierfrancescosoffritti.youtubeplayer.player.YouTubePlayerView
-        android:id="@+id/youtube_player_view"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="16dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/trickName" />
-
-    <TextView
-        android:id="@+id/progressNum"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        android:layout_marginTop="16dp"
-        android:text="100.0%"
-        android:textAppearance="@style/TextAppearance.AppCompat.Display1"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/appBar" />
-
-    <android.support.v7.widget.CardView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/prevTricksTable">
-
-        <TextView
-            android:id="@+id/article"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/_8dp"
-            android:text="TextView" />
-    </android.support.v7.widget.CardView>
-
-    <TableLayout
-        android:id="@+id/prevTricksTable"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="8dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/youtube_player_view">
-
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Recommended Tricks"
-                android:textAppearance="@style/TextAppearance.AppCompat.Headline" />
-        </TableRow>
-
-    </TableLayout>
-
-
-</android.support.constraint.ConstraintLayout>
-
-</ScrollView>
+</android.support.design.widget.CoordinatorLayout>

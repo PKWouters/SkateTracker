@@ -55,7 +55,7 @@ public class ResultsFragment extends DialogFragment {
                 TableRow tblRow = new TableRow(getContext());
                 tblRow.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT));
                 TextView roundNumView = new TextView(getContext());
-                roundNumView.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT, 1.0f));
+                roundNumView.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT, 0.5f));
                 roundNumView.setText("Round: " + roundNum);
                 TextView p1Result = new TextView(getContext());
                 p1Result.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT, 0.5f));
@@ -81,7 +81,7 @@ public class ResultsFragment extends DialogFragment {
                 TableRow tblRow = new TableRow(getContext());
                 tblRow.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT));
                 TextView roundNumView = new TextView(getContext());
-                roundNumView.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT, 1.0f));
+                roundNumView.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT, 0.5f));
                 roundNumView.setText(trick.getKey().substring(trick.getKey().indexOf('_')+1, trick.getKey().length()));
                 TextView p1Result = new TextView(getContext());
                 p1Result.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT, 0.5f));

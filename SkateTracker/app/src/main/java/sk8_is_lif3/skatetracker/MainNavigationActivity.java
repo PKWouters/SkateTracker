@@ -22,6 +22,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.ittianyu.bottomnavigationviewex.BottomNavigationViewEx;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -101,8 +102,10 @@ public class MainNavigationActivity extends AppCompatActivity {
                             .replace(R.id.fragment, new SkateHome(), "SKATE")
                             .commit();
                     return true;
+                    /*
                 case R.id.navigation_spots:
                     return true;
+                    */
                 case R.id.navigation_profile:
                     setTitle("My Profile");
                     if(FirebaseAuth.getInstance().getCurrentUser() == null) {
@@ -141,9 +144,11 @@ public class MainNavigationActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main_navigation);
 
 
-        BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
+        BottomNavigationViewEx navigation = (BottomNavigationViewEx) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
         navigation.getMenu().getItem(2).setChecked(true);
+        navigation.enableShiftingMode(false);
+
 
 
     }

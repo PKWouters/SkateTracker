@@ -2,9 +2,9 @@
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    style="@style/AppTheme"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    style="@style/AppTheme">
+    android:layout_height="wrap_content">
 
     <TextView
         android:id="@+id/winnerName"
@@ -19,63 +19,72 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <TableLayout
-        android:id="@+id/resultsTable"
-        android:layout_width="326dp"
+    <ScrollView
+        android:id="@+id/scrollView2"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/winnerName"
-        app:layout_constraintVertical_bias="0.0">
+        tools:layout_editor_absoluteX="0dp">
 
-        <TableRow
-            android:id="@+id/initialRow"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
+        <TableLayout
+            android:id="@+id/resultsTable"
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="16dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/winnerName"
+            app:layout_constraintVertical_bias="0.0">
 
-            <TextView
-                android:id="@+id/initRoundNum"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Round Number"
-                android:textAppearance="@style/TextAppearance.AppCompat.Headline"
-                android:textSize="18sp" />
+            <TableRow
+                android:id="@+id/initialRow"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
 
-            <TextView
-                android:id="@+id/initName"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.5"
-                android:text="Player 1"
-                android:textAppearance="@style/TextAppearance.AppCompat.Headline"
-                android:textSize="18sp" />
+                <TextView
+                    android:id="@+id/initRoundNum"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.5"
+                    android:text="Round Number"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Headline"
+                    android:textSize="14sp" />
 
-            <TextView
-                android:id="@+id/initName2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.5"
-                android:text="Player 2"
-                android:textAppearance="@style/TextAppearance.AppCompat.Headline"
-                android:textSize="18sp" />
-        </TableRow>
+                <TextView
+                    android:id="@+id/initName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.5"
+                    android:text="Player 1"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Headline"
+                    android:textSize="14sp" />
 
-    </TableLayout>
+                <TextView
+                    android:id="@+id/initName2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.5"
+                    android:text="Player 2"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Headline"
+                    android:textSize="14sp" />
+            </TableRow>
+
+        </TableLayout>
+    </ScrollView>
+
 
     <Button
         android:id="@+id/quitButton"
         style="@style/Widget.AppCompat.Button.Borderless.Colored"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
         android:text="Quit"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/resultsTable" />
+        app:layout_constraintTop_toBottomOf="@+id/scrollView2" />
 </android.support.constraint.ConstraintLayout>

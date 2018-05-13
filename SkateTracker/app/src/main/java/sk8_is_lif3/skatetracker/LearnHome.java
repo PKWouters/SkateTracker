@@ -14,13 +14,19 @@ import android.support.transition.TransitionInflater;
 import android.support.transition.TransitionSet;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.animation.FastOutSlowInInterpolator;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -29,6 +35,7 @@ import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.github.lzyzsd.circleprogress.DonutProgress;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -48,6 +55,7 @@ public class LearnHome extends Fragment {
     private RecyclerView trickGridView;
     private LinearLayoutManager trickLayoutManager;
     private String recentTrick;
+    private TrickToDisplay recentTrickObj;
 
     public LearnHome() {
         // Required empty public constructor
@@ -66,6 +74,52 @@ public class LearnHome extends Fragment {
         trickGridView.setHasFixedSize(false);
         trickGridView.setLayoutManager(trickLayoutManager);
         trickGridView.setAdapter(trickAdapter);
+        final CardView recentTrickCard = (CardView) getView().findViewById(R.id.recentCard);
+        recentTrickCard.setVisibility(View.GONE);
+        final FirebaseFirestore db = FirebaseFirestore.getInstance();
+        final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if(user != null) {
+            DocumentReference docRef = db.collection("users").document(user.getUid());
+            docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                    if (task.isSuccessful()) {
+                        DocumentSnapshot document = task.getResult();
+                        if (document.exists()) {
+                            if (document.getData().get("recent_trick") != null) {
+                                recentTrick = document.getData().get("recent_trick").toString();
+                                DocumentReference trickRef = db.collection("users").document(user.getUid()).collection("tricks").document(recentTrick);
+                                trickRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                    @Override
+                                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                        recentTrickObj = documentSnapshot.toObject(TrickToDisplay.class);
+                                        final DonutProgress progress = (DonutProgress) getView().findViewById(R.id.trickProgress);
+                                        Double ratio = (Double) recentTrickObj.getAvgRatio();
+                                        ratio *= 100;
+                                        progress.setDonut_progress(Integer.toString(ratio.intValue()));
+                                        TextView recentTrickView = (TextView) getView().findViewById(R.id.recentTrickName);
+                                        recentTrickView.setText(recentTrickObj.getName());
+                                        if (ratio < 100) {
+                                            progress.setTextColor(getResources().getColor(R.color.colorAccent));
+                                            progress.setFinishedStrokeColor(getResources().getColor(R.color.colorAccent));
+                                        }
+                                        recentTrickCard.setVisibility(View.VISIBLE);
+                                        ProgressBar loading = (ProgressBar)getView().findViewById(R.id.progressBar);
+                                        loading.setVisibility(View.GONE);
+                                    }
+                                });
+                            }
+                        } else {
+
+                        }
+                    } else {
+
+                    }
+                }
+            });
+        }
+
+
 
     }
 
@@ -78,6 +132,7 @@ public class LearnHome extends Fragment {
         setReenterTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
 
         final FirebaseFirestore db = FirebaseFirestore.getInstance();
+
         Query easyTrickQuery = db.collection("tricks").whereEqualTo("difficulty", "easy").limit(10);
 
         FirestoreRecyclerOptions<TrickToLearn> trickOptions = new FirestoreRecyclerOptions.Builder<TrickToLearn>()
@@ -123,56 +178,7 @@ public class LearnHome extends Fragment {
             }
         };
         trickAdapter.startListening();
-        final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        if(user != null) {
-            DocumentReference docRef = db.collection("users").document(user.getUid());
-            docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                    if (task.isSuccessful()) {
-                        DocumentSnapshot document = task.getResult();
-                        if (document.exists()) {
-                            if(document.getData().get("recent_trick") != null){
-                                recentTrick = document.getData().get("recent_trick").toString();
-                                DocumentReference trickRef = db.collection("users").document(user.getUid()).collection("tricks").document(recentTrick);
-                                final DonutProgress progress = (DonutProgress)getView().findViewById(R.id.trickProgress);
-                                progress.setVisibility(View.GONE);
-                                trickRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                        if (task.isSuccessful()) {
-                                            DocumentSnapshot document = task.getResult();
-                                            if (document.exists()) {
-                                                Double ratio = (Double)document.getData().get("avgRatio");
-                                                ratio *= 100;
-                                                progress.setDonut_progress(Integer.toString(ratio.intValue()));
-                                                TextView recentTrickView = (TextView)getView().findViewById(R.id.recentTrickName);
-                                                recentTrickView.setText(document.getData().get("name").toString());
-                                                if(ratio < 100){
-                                                    progress.setTextColor(getResources().getColor(R.color.colorAccent));
-                                                    progress.setFinishedStrokeColor(getResources().getColor(R.color.colorAccent));
-                                                }else{
-                                                }
-                                                progress.setVisibility(View.VISIBLE);
-                                            } else {
 
-                                            }
-                                        } else {
-
-                                        }
-                                    }
-                                });
-                            }
-                        } else {
-
-                        }
-                    } else {
-
-                    }
-                }
-            });
-
-        }
     }
 
     private class TrickViewHolder extends RecyclerView.ViewHolder {
@@ -195,12 +201,22 @@ public class LearnHome extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
+
+
         return inflater.inflate(R.layout.fragment_learn_home, container, false);
     }
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
 
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if(trickAdapter != null){
+            trickAdapter.stopListening();
+        }
     }
 
     @Override
