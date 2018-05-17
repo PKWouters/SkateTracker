@@ -138,7 +138,7 @@ public class LearnHome extends Fragment {
 
         final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-        Query easyTrickQuery = db.collection("tricks").whereEqualTo("difficulty", "easy").limit(10);
+        Query easyTrickQuery = db.collection("tricks").whereEqualTo("difficulty", "easy").orderBy("order", Query.Direction.ASCENDING).limit(10);
 
         FirestoreRecyclerOptions<TrickToLearn> trickOptions = new FirestoreRecyclerOptions.Builder<TrickToLearn>()
                 .setQuery(easyTrickQuery, TrickToLearn.class)
