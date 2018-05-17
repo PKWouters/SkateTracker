@@ -103,8 +103,7 @@ public class SkateGame extends AppCompatActivity {
                             resultsMap.put("Round: " + roundNum, "p1");
                             roundNum++;
                             TextView letterToChange;
-
-                            switch (playerTwoScore) {
+                            switch (playerOneScore) {
                                 case (1):
                                     letterToChange = findViewById(R.id.s_Text);
                                     letterToChange.setTextSize(80);
@@ -172,7 +171,6 @@ public class SkateGame extends AppCompatActivity {
                             resultsMap.put("Round: " + roundNum, "p1");
                             roundNum++;
                             TextView letterToChange;
-
                             switch (playerTwoScore) {
                                 case (1):
                                     letterToChange = findViewById(R.id.s_TextP2);
@@ -331,7 +329,6 @@ public class SkateGame extends AppCompatActivity {
                                 resultsMap.put(roundNum + "_" + currTrick, "none");
                             currTrick = GetNewTrick();
                             TextView letterToChange;
-
                             switch (playerTwoScore) {
                                 case (1):
                                     letterToChange = findViewById(R.id.s_TextP2);
