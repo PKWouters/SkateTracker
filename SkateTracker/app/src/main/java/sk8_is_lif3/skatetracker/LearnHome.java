@@ -93,19 +93,21 @@ public class LearnHome extends Fragment {
                                     @Override
                                     public void onSuccess(DocumentSnapshot documentSnapshot) {
                                         recentTrickObj = documentSnapshot.toObject(TrickToDisplay.class);
-                                        final DonutProgress progress = (DonutProgress) getView().findViewById(R.id.trickProgress);
-                                        Double ratio = (Double) recentTrickObj.getAvgRatio();
-                                        ratio *= 100;
-                                        progress.setDonut_progress(Integer.toString(ratio.intValue()));
-                                        TextView recentTrickView = (TextView) getView().findViewById(R.id.recentTrickName);
-                                        recentTrickView.setText(recentTrickObj.getName());
-                                        if (ratio < 100) {
-                                            progress.setTextColor(getResources().getColor(R.color.colorAccent));
-                                            progress.setFinishedStrokeColor(getResources().getColor(R.color.colorAccent));
+                                        if(getView() != null) {
+                                            final DonutProgress progress = (DonutProgress) getView().findViewById(R.id.trickProgress);
+                                            Double ratio = (Double) recentTrickObj.getAvgRatio();
+                                            ratio *= 100;
+                                            progress.setDonut_progress(Integer.toString(ratio.intValue()));
+                                            TextView recentTrickView = (TextView) getView().findViewById(R.id.recentTrickName);
+                                            recentTrickView.setText(recentTrickObj.getName());
+                                            if (ratio < 100) {
+                                                progress.setTextColor(getResources().getColor(R.color.colorAccent));
+                                                progress.setFinishedStrokeColor(getResources().getColor(R.color.colorAccent));
+                                            }
+                                            recentTrickCard.setVisibility(View.VISIBLE);
+                                            ProgressBar loading = (ProgressBar) getView().findViewById(R.id.progressBar);
+                                            loading.setVisibility(View.GONE);
                                         }
-                                        recentTrickCard.setVisibility(View.VISIBLE);
-                                        ProgressBar loading = (ProgressBar)getView().findViewById(R.id.progressBar);
-                                        loading.setVisibility(View.GONE);
                                     }
                                 });
                             }
@@ -209,6 +211,13 @@ public class LearnHome extends Fragment {
     public void onAttach(Context context) {
         super.onAttach(context);
 
+    }
+    @Override
+    public void onResume() {
+        super.onResume();
+        if(trickAdapter != null){
+            trickAdapter.startListening();
+        }
     }
 
     @Override

@@ -121,11 +121,13 @@ public class LearnTrick extends Fragment {
                                 if (task.isSuccessful()) {
                                     DocumentSnapshot document = task.getResult();
                                     if (document.exists()) {
-                                        if((Double)(document.getData().get("avgRatio")) >= 1.0){
-                                            ImageView checkMark = new ImageView(getContext());
-                                            checkMark.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT, 0.5f));
-                                            checkMark.setImageResource(R.drawable.fui_done_check_mark);
-                                            tblRow.addView(checkMark);
+                                        if(document.getData().get("avgRatio") != null) {
+                                            if ((Double) (document.getData().get("avgRatio")) >= 1.0) {
+                                                ImageView checkMark = new ImageView(getContext());
+                                                checkMark.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT, 0.5f));
+                                                checkMark.setImageResource(R.drawable.fui_done_check_mark);
+                                                tblRow.addView(checkMark);
+                                            }
                                         }
                                     } else {
 
