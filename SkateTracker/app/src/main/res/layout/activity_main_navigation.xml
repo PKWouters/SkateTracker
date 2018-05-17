@@ -19,10 +19,10 @@
 
     </FrameLayout>
 
-    <android.support.design.widget.BottomNavigationView
+    <com.ittianyu.bottomnavigationviewex.BottomNavigationViewEx
         android:id="@+id/navigation"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="56dp"
         android:background="@color/colorPrimary"
         app:itemIconTint="@color/cardview_light_background"
         app:itemTextColor="@color/cardview_light_background"
@@ -30,7 +30,6 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:menu="@menu/navigation" >
-
-    </android.support.design.widget.BottomNavigationView>
+    </com.ittianyu.bottomnavigationviewex.BottomNavigationViewEx>
 
 </android.support.constraint.ConstraintLayout>

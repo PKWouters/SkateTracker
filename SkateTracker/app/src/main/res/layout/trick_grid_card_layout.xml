@@ -22,13 +22,10 @@
             android:id="@+id/imageView"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_marginLeft="-90dp"
-            android:layout_marginTop="-50dp"
-            android:backgroundTint="@color/colorPrimaryDarkTranslucent"
             android:clickable="false"
             android:cropToPadding="true"
-            android:scaleType="centerInside"
-            app:srcCompat="@drawable/cardbackground" />
+            android:scaleType="fitStart"
+            app:srcCompat="@drawable/kickflip" />
 
         <android.support.constraint.ConstraintLayout
             android:id="@+id/textContainer"
