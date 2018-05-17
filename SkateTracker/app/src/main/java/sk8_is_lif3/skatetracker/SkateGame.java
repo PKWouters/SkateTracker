@@ -112,31 +112,31 @@ public class SkateGame extends AppCompatActivity {
                                 switch (playerTwoScore) {
                                     case (1):
                                         letterToChange = findViewById(R.id.s_TextP2);
-                                        letterToChange.setTextSize(70);
+                                        letterToChange.setTextSize(80);
                                         letterToChange.setTextColor(Color.WHITE);
                                         letterToChange.setTypeface(null, Typeface.BOLD);
                                         break;
                                     case (2):
                                         letterToChange = findViewById(R.id.k_TextP2);
-                                        letterToChange.setTextSize(70);
+                                        letterToChange.setTextSize(80);
                                         letterToChange.setTextColor(Color.WHITE);
                                         letterToChange.setTypeface(null, Typeface.BOLD);
                                         break;
                                     case (3):
                                         letterToChange = findViewById(R.id.a_TextP2);
-                                        letterToChange.setTextSize(70);
+                                        letterToChange.setTextSize(80);
                                         letterToChange.setTextColor(Color.WHITE);
                                         letterToChange.setTypeface(null, Typeface.BOLD);
                                         break;
                                     case (4):
                                         letterToChange = findViewById(R.id.t_TextP2);
-                                        letterToChange.setTextSize(70);
+                                        letterToChange.setTextSize(80);
                                         letterToChange.setTextColor(Color.WHITE);
                                         letterToChange.setTypeface(null, Typeface.BOLD);
                                         break;
                                     case (5):
                                         letterToChange = findViewById(R.id.e_TextP2);
-                                        letterToChange.setTextSize(70);
+                                        letterToChange.setTextSize(80);
                                         letterToChange.setTextColor(Color.WHITE);
                                         letterToChange.setTypeface(null, Typeface.BOLD);
                                         break;
@@ -258,31 +258,31 @@ public class SkateGame extends AppCompatActivity {
                                 switch (playerTwoScore) {
                                     case (1):
                                         letterToChange = findViewById(R.id.s_TextP2);
-                                        letterToChange.setTextSize(70);
+                                        letterToChange.setTextSize(80);
                                         letterToChange.setTextColor(Color.WHITE);
                                         letterToChange.setTypeface(null, Typeface.BOLD);
                                         break;
                                     case (2):
                                         letterToChange = findViewById(R.id.k_TextP2);
-                                        letterToChange.setTextSize(70);
+                                        letterToChange.setTextSize(80);
                                         letterToChange.setTextColor(Color.WHITE);
                                         letterToChange.setTypeface(null, Typeface.BOLD);
                                         break;
                                     case (3):
                                         letterToChange = findViewById(R.id.a_TextP2);
-                                        letterToChange.setTextSize(70);
+                                        letterToChange.setTextSize(80);
                                         letterToChange.setTextColor(Color.WHITE);
                                         letterToChange.setTypeface(null, Typeface.BOLD);
                                         break;
                                     case (4):
                                         letterToChange = findViewById(R.id.t_TextP2);
-                                        letterToChange.setTextSize(70);
+                                        letterToChange.setTextSize(80);
                                         letterToChange.setTextColor(Color.WHITE);
                                         letterToChange.setTypeface(null, Typeface.BOLD);
                                         break;
                                     case (5):
                                         letterToChange = findViewById(R.id.e_TextP2);
-                                        letterToChange.setTextSize(70);
+                                        letterToChange.setTextSize(80);
                                         letterToChange.setTextColor(Color.WHITE);
                                         letterToChange.setTypeface(null, Typeface.BOLD);
                                         break;
@@ -298,31 +298,31 @@ public class SkateGame extends AppCompatActivity {
                             switch (playerOneScore) {
                                 case (1):
                                     letterToChange = findViewById(R.id.s_Text);
-                                    letterToChange.setTextSize(70);
+                                    letterToChange.setTextSize(80);
                                     letterToChange.setTextColor(Color.WHITE);
                                     letterToChange.setTypeface(null, Typeface.BOLD);
                                     break;
                                 case (2):
                                     letterToChange = findViewById(R.id.k_Text);
-                                    letterToChange.setTextSize(70);
+                                    letterToChange.setTextSize(80);
                                     letterToChange.setTextColor(Color.WHITE);
                                     letterToChange.setTypeface(null, Typeface.BOLD);
                                     break;
                                 case (3):
                                     letterToChange = findViewById(R.id.a_Text);
-                                    letterToChange.setTextSize(70);
+                                    letterToChange.setTextSize(80);
                                     letterToChange.setTextColor(Color.WHITE);
                                     letterToChange.setTypeface(null, Typeface.BOLD);
                                     break;
                                 case (4):
                                     letterToChange = findViewById(R.id.t_Text);
-                                    letterToChange.setTextSize(70);
+                                    letterToChange.setTextSize(80);
                                     letterToChange.setTextColor(Color.WHITE);
                                     letterToChange.setTypeface(null, Typeface.BOLD);
                                     break;
                                 case (5):
                                     letterToChange = findViewById(R.id.e_Text);
-                                    letterToChange.setTextSize(70);
+                                    letterToChange.setTextSize(80);
                                     letterToChange.setTextColor(Color.WHITE);
                                     letterToChange.setTypeface(null, Typeface.BOLD);
                                     break;
