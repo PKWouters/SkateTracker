@@ -51,7 +51,7 @@ import java.text.DecimalFormat;
 import sk8_is_lif3.skatetracker.transitions.SessionNameTransition;
 
 public class LearnHome extends Fragment {
-    private FirestoreRecyclerAdapter<TrickToLearn, TrickViewHolder> trickAdapter;
+    private FirestoreRecyclerAdapter<TrickToLearn, TrickViewHolder> easyTrickAdapter;
     private RecyclerView trickGridView;
     private LinearLayoutManager trickLayoutManager;
     private String recentTrick;
@@ -73,7 +73,7 @@ public class LearnHome extends Fragment {
         trickGridView = getView().findViewById(R.id.easyTrickRecyclerView);
         trickGridView.setHasFixedSize(false);
         trickGridView.setLayoutManager(trickLayoutManager);
-        trickGridView.setAdapter(trickAdapter);
+        trickGridView.setAdapter(easyTrickAdapter);
         final CardView recentTrickCard = (CardView) getView().findViewById(R.id.recentCard);
         recentTrickCard.setVisibility(View.GONE);
         final FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -97,13 +97,16 @@ public class LearnHome extends Fragment {
                                             final DonutProgress progress = (DonutProgress) getView().findViewById(R.id.trickProgress);
                                             Double ratio = (Double) recentTrickObj.getAvgRatio();
                                             ratio *= 100;
-                                            progress.setDonut_progress(Integer.toString(ratio.intValue()));
                                             TextView recentTrickView = (TextView) getView().findViewById(R.id.recentTrickName);
                                             recentTrickView.setText(recentTrickObj.getName());
-                                            if (ratio < 100) {
+                                            if(ratio > 100){
+                                                ratio = 100.0;
+                                            }
+                                            else if (ratio < 100) {
                                                 progress.setTextColor(getResources().getColor(R.color.colorAccent));
                                                 progress.setFinishedStrokeColor(getResources().getColor(R.color.colorAccent));
                                             }
+                                            progress.setDonut_progress(Integer.toString(ratio.intValue()));
                                             recentTrickCard.setVisibility(View.VISIBLE);
                                             ProgressBar loading = (ProgressBar) getView().findViewById(R.id.progressBar);
                                             loading.setVisibility(View.GONE);
@@ -141,7 +144,7 @@ public class LearnHome extends Fragment {
                 .setQuery(easyTrickQuery, TrickToLearn.class)
                 .build();
 
-        trickAdapter = new FirestoreRecyclerAdapter<TrickToLearn, TrickViewHolder>(trickOptions) {
+        easyTrickAdapter = new FirestoreRecyclerAdapter<TrickToLearn, TrickViewHolder>(trickOptions) {
             @NonNull
             @Override
             public TrickViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -179,7 +182,7 @@ public class LearnHome extends Fragment {
                 });
             }
         };
-        trickAdapter.startListening();
+        easyTrickAdapter.startListening();
 
     }
 
@@ -215,16 +218,16 @@ public class LearnHome extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        if(trickAdapter != null){
-            trickAdapter.startListening();
+        if(easyTrickAdapter != null){
+            easyTrickAdapter.startListening();
         }
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        if(trickAdapter != null){
-            trickAdapter.stopListening();
+        if(easyTrickAdapter != null){
+            easyTrickAdapter.stopListening();
         }
     }
 
