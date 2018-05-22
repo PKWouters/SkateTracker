@@ -555,23 +555,25 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
                                 ArrayList<Map<String, Object>> trickList = new ArrayList<Map<String, Object>>();
                                 final CollectionReference colRef = db.collection("users").document(user.getUid()).collection("tricks");
                                 Random rand = new Random();
-                                int randIndex = rand.nextInt() % (tempTrickList.size());
-                                Trick randTrick = tempTrickList.get(randIndex);
-                                //Add Session to Document
+                                if(tempTrickList.size() > 0) {
+                                    int randIndex = rand.nextInt() % (tempTrickList.size());
+                                    Trick randTrick = tempTrickList.get(randIndex);
+                                    //Add Session to Document
+                                    db.collection("users")
+                                            .document(user.getUid()).update("recent_trick", randTrick.GetDBID())
+                                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                @Override
+                                                public void onSuccess(Void aVoid) {
+                                                }
+                                            })
+                                            .addOnFailureListener(new OnFailureListener() {
+                                                @Override
+                                                public void onFailure(@NonNull Exception e) {
+                                                    Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+                                                }
+                                            });
 
-                                db.collection("users")
-                                        .document(user.getUid()).update("recent_trick", randTrick.GetDBID())
-                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                            @Override
-                                            public void onSuccess(Void aVoid) {
-                                            }
-                                        })
-                                        .addOnFailureListener(new OnFailureListener() {
-                                            @Override
-                                            public void onFailure(@NonNull Exception e) {
-                                                Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_LONG).show();
-                                            }
-                                        });
+                                }
                                 //Set Up Trick Objects
                                 for (final Trick t : tempTrickList) {
                                     // Create Trick for Session Object

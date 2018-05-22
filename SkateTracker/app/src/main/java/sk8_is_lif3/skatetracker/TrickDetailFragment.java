@@ -137,18 +137,37 @@ public class TrickDetailFragment extends Fragment{
             learnButton.setVisibility(View.GONE);
         }
 
-        learnButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //LearnTrick nextFrag = new LearnTrick(mName, url, mId, model.getArticle(), model.getPrevTricks());
-                /*
-                getActivity().getSupportFragmentManager().beginTransaction()
-                        .setReorderingAllowed(true)
-                        .replace(R.id.fragment, nextFrag,"LearnTrick")
-                        .addToBackStack(mName)
-                        .commit();*/
-            }
-        });
+        final FirebaseFirestore db = FirebaseFirestore.getInstance();
+        final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if(user != null) {
+            final DocumentReference docRef = db.collection("tricks").document(mId);
+            docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                    if (task.isSuccessful()) {
+                        DocumentSnapshot document = task.getResult();
+                        if (document.exists()) {
+                            final Map<String, Object> data = document.getData();
+
+                            learnButton.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    final String videoID = data.get("url").toString().split("v=")[1];
+
+                                    LearnTrick nextFrag = new LearnTrick(mName, videoID, mId, data.get("article").toString(), (ArrayList<String>) (data.get("prevTricks")));
+
+                                    getActivity().getSupportFragmentManager().beginTransaction()
+                                            .setReorderingAllowed(true)
+                                            .replace(R.id.fragment, nextFrag, "LearnTrick")
+                                            .addToBackStack(mName)
+                                            .commit();
+                                }
+                            });
+                        }
+                    }
+                }
+            });
+        }
 
         lineChart = getView().findViewById(R.id.trickChart);
 

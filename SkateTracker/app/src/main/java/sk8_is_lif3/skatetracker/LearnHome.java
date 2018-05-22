@@ -25,6 +25,7 @@ import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.DecelerateInterpolator;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TableRow;
@@ -79,7 +80,7 @@ public class LearnHome extends Fragment {
         final FirebaseFirestore db = FirebaseFirestore.getInstance();
         final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if(user != null) {
-            DocumentReference docRef = db.collection("users").document(user.getUid());
+            final DocumentReference docRef = db.collection("users").document(user.getUid());
             docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                 @Override
                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -110,6 +111,23 @@ public class LearnHome extends Fragment {
                                             recentTrickCard.setVisibility(View.VISIBLE);
                                             ProgressBar loading = (ProgressBar) getView().findViewById(R.id.progressBar);
                                             loading.setVisibility(View.GONE);
+                                            Button progressBtn = getView().findViewById(R.id.progressBtn);
+                                            progressBtn.setOnClickListener(new View.OnClickListener() {
+                                                @Override
+                                                public void onClick(View v) {
+                                                    TrickDetailFragment nextFrag = new TrickDetailFragment(recentTrickObj.getName().toUpperCase().toString(), recentTrickObj.getAvgRatio(), recentTrickObj.getDbID(), recentTrickObj.getSessions());
+                                                    nextFrag.setSharedElementEnterTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
+                                                    nextFrag.setEnterTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
+                                                    nextFrag.setExitTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
+                                                    nextFrag.setReturnTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
+
+                                                    getActivity().getSupportFragmentManager().beginTransaction()
+                                                            .setReorderingAllowed(true)
+                                                            .replace(R.id.fragment, nextFrag,"TrickDetailFragment")
+                                                            .addToBackStack(recentTrickObj.getName())
+                                                            .commit();
+                                                }
+                                            });
                                         }
                                     }
                                 });
