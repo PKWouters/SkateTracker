@@ -159,6 +159,8 @@ public class TrickTracker extends AppCompatActivity {
                         public void onClick(DialogInterface dialog, int id) {
                             //--FIREBASE STUFF--//
                             currentTrick.PauseTracking();
+                            NotificationManager mNotificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+                            mNotificationManager.cancelAll();
                             final FirebaseFirestore db = FirebaseFirestore.getInstance();
                             final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
                             if (user != null) {
@@ -230,6 +232,19 @@ public class TrickTracker extends AppCompatActivity {
                                                         Toast.makeText(getApplicationContext(), e.getMessage().toString(), Toast.LENGTH_SHORT).show();
                                                     }
                                                 });
+                                                db.collection("users")
+                                                        .document(user.getUid()).update("recent_trick", currentTrick.GetDBID())
+                                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                            @Override
+                                                            public void onSuccess(Void aVoid){
+                                                            }
+                                                        })
+                                                        .addOnFailureListener(new OnFailureListener() {
+                                                            @Override
+                                                            public void onFailure(@NonNull Exception e) {
+                                                                Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+                                                            }
+                                                        });
                                                 //----IF TRICK DOES NOT EXIST----//
                                             } else {
                                                 //Create Trick for User Object
@@ -272,6 +287,19 @@ public class TrickTracker extends AppCompatActivity {
                                                         Toast.makeText(getApplicationContext(), e.getMessage().toString(), Toast.LENGTH_SHORT).show();
                                                     }
                                                 });
+                                                db.collection("users")
+                                                        .document(user.getUid()).update("recent_trick", currentTrick.GetDBID())
+                                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                            @Override
+                                                            public void onSuccess(Void aVoid){
+                                                            }
+                                                        })
+                                                        .addOnFailureListener(new OnFailureListener() {
+                                                            @Override
+                                                            public void onFailure(@NonNull Exception e) {
+                                                                Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+                                                            }
+                                                        });
                                             }
                                         }
                                     }
