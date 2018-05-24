@@ -385,6 +385,7 @@ public class SkateGame extends AppCompatActivity {
 
         if(gameMode == 0) {
             if(currentPlayer == 1){
+                TransitionManager.beginDelayedTransition((ViewGroup) findViewById(R.id.p1Card));
                 CardView p1Card = findViewById(R.id.p1Card);
                 p1Card.setCardBackgroundColor(getResources().getColor(R.color.skatecolorAccent));
 
@@ -401,8 +402,8 @@ public class SkateGame extends AppCompatActivity {
                 p2Buttons.setVisibility(View.GONE);
 
 
+                TransitionManager.beginDelayedTransition((ViewGroup) findViewById(R.id.p2Card));
                 if(offPlayer == 2) {
-                    TransitionManager.beginDelayedTransition((ViewGroup) findViewById(R.id.p2Card));
                     CardView p2Card = findViewById(R.id.p2Card);
                     p2Card.setCardBackgroundColor(getResources().getColor(R.color.skatesetcolorAccent));
 
@@ -439,8 +440,9 @@ public class SkateGame extends AppCompatActivity {
                 TextView p2TrickSet = findViewById(R.id.p2TrickSet);
                 p2TrickSet.setVisibility(View.GONE);
 
+
+                TransitionManager.beginDelayedTransition((ViewGroup) findViewById(R.id.p1Card));
                 if(offPlayer == 1) {
-                    TransitionManager.beginDelayedTransition((ViewGroup) findViewById(R.id.p1Card));
                     CardView p1Card = findViewById(R.id.p1Card);
                     p1Card.setCardBackgroundColor(getResources().getColor(R.color.skatesetcolorAccent));
                     LinearLayout p1Extras = findViewById(R.id.p1ExtrasLayout);
@@ -465,6 +467,11 @@ public class SkateGame extends AppCompatActivity {
                     break;
             }
         }else{
+
+            TextView p1TrickSet = findViewById(R.id.p1TrickSet);
+            TextView p2TrickSet = findViewById(R.id.p2TrickSet);
+            p1TrickSet.setVisibility(View.GONE);
+            p2TrickSet.setVisibility(View.GONE);
 
             if(currentPlayer == 1){
 

@@ -4,9 +4,9 @@
     <color name="colorPrimaryDark">#000000</color>]
     <color name="colorPrimaryLight">#424242</color>
     <color name="colorAccent">#b71c1c</color>
-    <color name="skatecolorAccent">#a91eff</color>
-    <color name="skatesetcolorAccent">#0d5c0d</color>
-    <color name="colorAccentDark">#5c0d0d</color>
+    <color name="colorAccentDark">#7c0d0d</color>
+    <color name="skatecolorAccent">#F57F17</color>
+    <color name="skatesetcolorAccent">#2E7D32</color>
     <color name="colorBackground">#303030</color>
     <color name="colorPrimaryDarkTranslucent">#96000000</color>
 </resources>

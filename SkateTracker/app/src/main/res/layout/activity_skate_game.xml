@@ -6,15 +6,27 @@
     android:id="@+id/mainGameLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorBackground"
     tools:context=".SkateGame">
 
     <!--P1 Skate-->
+
+    <ImageView
+        android:id="@+id/imageView4"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:tint="#cf000000"
+        android:scaleType="matrix"
+        app:layout_constraintBottom_toTopOf="@+id/p1Card"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/stickerbomb" />
 
     <android.support.v7.widget.CardView
         android:id="@+id/p1Card"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        app:cardBackgroundColor="@color/skatecolorAccent"
         app:cardCornerRadius="1dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
@@ -62,8 +74,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:background="@color/colorAccentDark"
-                    app:srcCompat="@drawable/ic_healing_red_24dp" />
+                    android:background="@color/colorAccent"
+                    app:srcCompat="@drawable/ic_fail_btn" />
             </LinearLayout>
         </LinearLayout>
 
@@ -217,7 +229,7 @@
         android:id="@+id/p2Card"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:rotation="180"
+        android:rotation="0"
         app:cardCornerRadius="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -262,10 +274,10 @@
                     android:id="@+id/player2FailBtn"
                     style="@android:style/Widget.ImageButton"
                     android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
+                    android:layout_height="48dp"
                     android:layout_weight="1"
-                    android:background="@color/colorAccentDark"
-                    app:srcCompat="@drawable/ic_healing_red_24dp" />
+                    android:background="@color/colorAccent"
+                    app:srcCompat="@drawable/ic_fail_btn" />
             </LinearLayout>
         </LinearLayout>
 
@@ -357,11 +369,14 @@
                 android:layout_marginBottom="8dp"
                 android:layout_marginEnd="8dp"
                 android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
                 android:text="Player Two"
                 android:textAppearance="@style/TextAppearance.AppCompat.Caption"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent" />
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/player2SkateLayout"
+                app:layout_constraintVertical_bias="1.0" />
         </android.support.constraint.ConstraintLayout>
 
 
