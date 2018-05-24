@@ -319,7 +319,12 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
                                     public void onClick(DialogInterface dialog, int id) {
 
                                         //Init Stuff
-                                        final String sessionName = sessionNameField.getText().toString();
+
+                                        String name = "";
+                                        if(sessionNameField.getText() != ""){
+                                            name = sessionNameField.getText().toString();
+                                        }
+                                        final String sessionName = name;
                                         ArrayList<String> trickIDs = new ArrayList<String>();
 
                                         //Pause All Tricks

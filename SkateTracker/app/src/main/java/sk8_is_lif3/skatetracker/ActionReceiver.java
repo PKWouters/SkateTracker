@@ -11,7 +11,7 @@ public class ActionReceiver extends BroadcastReceiver {
     public void onReceive(final Context context,final Intent intent){
         Intent intent2 = new Intent();
         intent2.setAction("trick_landed");
-
         context.sendBroadcast(intent2);
+
     }
 }

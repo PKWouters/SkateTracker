@@ -88,4 +88,22 @@ public class Trackable {
         }
         return String.format("%d hr, %d mins, %d sec", _trackedHours, _trackedMinutes, _trackedSeconds);
     }
+
+    public void UpdateTime(){
+        if(_isTracking) {
+            int now = (int)(System.currentTimeMillis());
+            _trackedSeconds = (int)((now - _trackerStarted) / 1000.0);
+            _trackedMinutes = _trackedSeconds / 60;
+            _trackedHours = _trackedMinutes / 60;
+            _trackedMinutes = _trackedMinutes % 60;
+            _trackedSeconds = _trackedSeconds % 60;
+            //return String.format("%d", _trackerStarted);
+        }else{
+            _trackedSeconds = (int)((_trackerEnded - _trackerStarted) / 1000.0);
+            _trackedMinutes = _trackedSeconds / 60;
+            _trackedHours = _trackedMinutes / 60;
+            _trackedMinutes = _trackedMinutes % 60;
+            _trackedSeconds = _trackedSeconds % 60;
+        }
+    }
 }

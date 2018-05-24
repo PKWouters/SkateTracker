@@ -131,6 +131,9 @@ public class LearnHome extends Fragment {
                                         }
                                     }
                                 });
+                            }else{
+                                ProgressBar loading = (ProgressBar) getView().findViewById(R.id.progressBar);
+                                loading.setVisibility(View.GONE);
                             }
                         } else {
 
