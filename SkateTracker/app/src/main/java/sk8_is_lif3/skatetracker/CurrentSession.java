@@ -396,12 +396,14 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
                                                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                                                     if (task.isSuccessful()) {
                                                         DocumentSnapshot document = task.getResult();
+
+                                                        Query query = db.collection("challenges");
                                                         //----IF TRICK ALREADY EXISTS----//
                                                         if (document.exists()) {
                                                             Map<String, Object> existingTrick = document.getData();
 
                                                             //Create Trick for User Object
-                                                            Map<String, Object> userTrick = new HashMap<>();
+                                                            final Map<String, Object> userTrick = new HashMap<>();
                                                             Long landings = (Long)(existingTrick.get("totalLandings"));
                                                             if(landings != null)
                                                                 userTrick.put("totalLandings", landings.intValue()+t.GetTimesLanded());
@@ -432,7 +434,6 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
 
                                                             ratio += t.GetRatio();
                                                             ratio = ratio / (currentTricks.size()+1);
-
                                                             //Add To Trick Object
                                                             updatedTricks.add(userTrickSesh);
                                                             userTrick.put("avgRatio", ratio);
@@ -449,6 +450,77 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
                                                                         @Override
                                                                         public void onSuccess(Void aVoid) {
 
+                                                                            //------------------------------------------//
+                                                                            //------------CHECK FOR CHALLENGES----------//
+                                                                            //------------------------------------------//
+                                                                            DocumentReference docRef = db.collection("users").document(user.getUid());
+                                                                            docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                                                                @Override
+                                                                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                                                                    Query query = db.collection("challenges");
+                                                                                    System.out.println("CHECKING STARTED");
+                                                                                    if (task.isSuccessful()) {
+                                                                                        DocumentSnapshot document = task.getResult();
+                                                                                        if (document.exists()) {
+                                                                                            final Map<String, Object> userData = document.getData();
+                                                                                            query.addSnapshotListener(new EventListener<QuerySnapshot>() {
+                                                                                                @Override
+                                                                                                public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                                                                                                    List<DocumentSnapshot> docs = queryDocumentSnapshots.getDocuments();
+                                                                                                    final List<String> userChallenges = (List<String>) userData.get("challenges");
+                                                                                                    for (final Trick t : tempTrickList) {
+                                                                                                        for (DocumentSnapshot doc : docs) {
+                                                                                                            Map<String, Object> data = doc.getData();
+
+                                                                                                            //--Trick Landings--//
+                                                                                                            if (t.GetTimesLanded() >= 1) {
+                                                                                                                if (data.get("type").equals("land") && (long) data.get("requirement") <= (int)userTrick.get("totalLandings")) {
+                                                                                                                    if (userChallenges != null && !userChallenges.contains(data.get("id"))) {
+                                                                                                                        userChallenges.add((String) (data.get("id")));
+                                                                                                                        Toast.makeText(getApplicationContext(), "New Achievement: " + data.get("name").toString(), Toast.LENGTH_SHORT).show();
+                                                                                                                    }
+                                                                                                                }
+                                                                                                            }
+                                                                                                            if (t.GetRatio() > 0.0) {
+                                                                                                                if (data.get("type").equals("ratio") && (long) data.get("requirement") <= Double.valueOf((double)userTrick.get("avgRatio")).longValue()) {
+                                                                                                                    if (userChallenges != null && !userChallenges.contains(data.get("id"))) {
+                                                                                                                        userChallenges.add((String) (data.get("id")));
+                                                                                                                        Toast.makeText(getApplicationContext(), "New Achievement: " + data.get("name").toString(), Toast.LENGTH_SHORT).show();
+                                                                                                                    }
+                                                                                                                }
+                                                                                                            }
+                                                                                                        }
+                                                                                                    }
+                                                                                                    for (DocumentSnapshot doc : docs) {
+                                                                                                        Map<String, Object> data = doc.getData();
+                                                                                                        //--Amount of Tricks Practiced--//
+                                                                                                        if (tempTrickList.size() > 0) {
+                                                                                                            if (data.get("type").equals("amount") && (long) data.get("requirement") <= tempTrickList.size()) {
+                                                                                                                if (userChallenges != null && !userChallenges.contains(data.get("id"))) {
+                                                                                                                    userChallenges.add((String) (data.get("id")));
+                                                                                                                    Toast.makeText(getApplicationContext(), "New Achievement: " + data.get("name").toString(), Toast.LENGTH_SHORT).show();
+                                                                                                                }
+                                                                                                            }
+                                                                                                        }
+                                                                                                    }
+                                                                                                    db.collection("users").document(user.getUid()).update("challenges", userChallenges).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                                                                        @Override
+                                                                                                        public void onSuccess(Void aVoid) {
+
+                                                                                                        }
+                                                                                                    }).addOnFailureListener(new OnFailureListener() {
+                                                                                                        @Override
+                                                                                                        public void onFailure(@NonNull Exception e) {
+                                                                                                            Toast.makeText(getApplicationContext(), e.getMessage().toString(), Toast.LENGTH_SHORT).show();
+                                                                                                        }
+                                                                                                    });
+                                                                                                }
+                                                                                            });
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                            });
+
                                                                         }
                                                                     }).addOnFailureListener(new OnFailureListener() {
                                                                 @Override
@@ -459,7 +531,7 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
                                                             //----IF TRICK DOES NOT EXIST----//
                                                         } else {
                                                             //Create Trick for User Object
-                                                            Map<String, Object> userTrick = new HashMap<>();
+                                                            final Map<String, Object> userTrick = new HashMap<>();
                                                             userTrick.put("totalLandings", t.GetTimesLanded());
 
                                                             //Get Current Sessions, Create Updated Sessions
@@ -490,6 +562,75 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
                                                                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                                                                         @Override
                                                                         public void onSuccess(Void aVoid) {
+
+                                                                            //------------------------------------------//
+                                                                            //------------CHECK FOR CHALLENGES----------//
+                                                                            //------------------------------------------//
+                                                                            DocumentReference docRef = db.collection("users").document(user.getUid());
+                                                                            docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                                                                @Override
+                                                                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                                                                    Query query = db.collection("challenges");
+                                                                                    System.out.println("CHECKING STARTED");
+                                                                                    if (task.isSuccessful()) {
+                                                                                        DocumentSnapshot document = task.getResult();
+                                                                                        if (document.exists()) {
+                                                                                            final Map<String, Object> userData = document.getData();
+                                                                                            query.addSnapshotListener(new EventListener<QuerySnapshot>() {
+                                                                                                @Override
+                                                                                                public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                                                                                                    List<DocumentSnapshot> docs = queryDocumentSnapshots.getDocuments();
+                                                                                                    final List<String> userChallenges = (List<String>) userData.get("challenges");
+                                                                                                        for (DocumentSnapshot doc : docs) {
+                                                                                                            Map<String, Object> data = doc.getData();
+
+                                                                                                            //--Trick Landings--//
+                                                                                                            if (t.GetTimesLanded() >= 1) {
+                                                                                                                if (data.get("type").equals("land") && (long) data.get("requirement") <= (int)userTrick.get("totalLandings")) {
+                                                                                                                    if (userChallenges != null && !userChallenges.contains(data.get("id"))) {
+                                                                                                                        userChallenges.add((String) (data.get("id")));
+                                                                                                                        Toast.makeText(getApplicationContext(), "New Achievement: " + data.get("name").toString(), Toast.LENGTH_SHORT).show();
+                                                                                                                    }
+                                                                                                                }
+                                                                                                            }
+                                                                                                            if (t.GetRatio() > 0.0) {
+                                                                                                                if (data.get("type").equals("ratio") && (long) data.get("requirement") <= Double.valueOf((double)userTrick.get("avgRatio")).longValue()) {
+                                                                                                                    if (userChallenges != null && !userChallenges.contains(data.get("id"))) {
+                                                                                                                        userChallenges.add((String) (data.get("id")));
+                                                                                                                        Toast.makeText(getApplicationContext(), "New Achievement: " + data.get("name").toString(), Toast.LENGTH_SHORT).show();
+                                                                                                                    }
+                                                                                                                }
+                                                                                                            }
+                                                                                                        }
+                                                                                                    for (DocumentSnapshot doc : docs) {
+                                                                                                        Map<String, Object> data = doc.getData();
+                                                                                                        //--Amount of Tricks Practiced--//
+                                                                                                        if (tempTrickList.size() > 0) {
+                                                                                                            if (data.get("type").equals("amount") && (long) data.get("requirement") <= tempTrickList.size()) {
+                                                                                                                if (userChallenges != null && !userChallenges.contains(data.get("id"))) {
+                                                                                                                    userChallenges.add((String) (data.get("id")));
+                                                                                                                    Toast.makeText(getApplicationContext(), "New Achievement: " + data.get("name").toString(), Toast.LENGTH_SHORT).show();
+                                                                                                                }
+                                                                                                            }
+                                                                                                        }
+                                                                                                    }
+                                                                                                    db.collection("users").document(user.getUid()).update("challenges", userChallenges).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                                                                        @Override
+                                                                                                        public void onSuccess(Void aVoid) {
+
+                                                                                                        }
+                                                                                                    }).addOnFailureListener(new OnFailureListener() {
+                                                                                                        @Override
+                                                                                                        public void onFailure(@NonNull Exception e) {
+                                                                                                            Toast.makeText(getApplicationContext(), e.getMessage().toString(), Toast.LENGTH_SHORT).show();
+                                                                                                        }
+                                                                                                    });
+                                                                                                }
+                                                                                            });
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                            });
 
                                                                         }
                                                                     }).addOnFailureListener(new OnFailureListener() {
@@ -542,23 +683,26 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
 
                                                                                         //--Trick Landings--//
                                                                                         if (t.GetTimesLanded() >= 1) {
-                                                                                            if (data.get("type").equals("land") && (long) data.get("requirement") <= t.GetTimesLanded()) {
+                                                                                            if (data.get("type").equals("land_session") && (long) data.get("requirement") <= t.GetTimesLanded()) {
                                                                                                 if (userChallenges != null && !userChallenges.contains(data.get("id"))) {
                                                                                                     userChallenges.add((String) (data.get("id")));
+                                                                                                    Toast.makeText(getApplicationContext(), "New Achievement: " + data.get("name").toString(), Toast.LENGTH_SHORT).show();
                                                                                                 }
                                                                                             }
                                                                                         }
                                                                                         if (t.GetRatio() > 0.0) {
-                                                                                            if (data.get("type").equals("ratio") && (long) data.get("requirement") <= t.GetRatio()) {
+                                                                                            if (data.get("type").equals("ratio_session") && (long) data.get("requirement") <= t.GetRatio()) {
                                                                                                 if (userChallenges != null && !userChallenges.contains(data.get("id"))) {
                                                                                                     userChallenges.add((String) (data.get("id")));
+                                                                                                    Toast.makeText(getApplicationContext(), "New Achievement: " + data.get("name").toString(), Toast.LENGTH_SHORT).show();
                                                                                                 }
                                                                                             }
                                                                                         }
                                                                                         if (t.GetTotalSecondsTracked() > 0) {
-                                                                                            if (data.get("type").equals("time") && (long) data.get("requirement") <= t.GetTotalSecondsTracked()) {
+                                                                                            if (data.get("type").equals("time_session") && (long) data.get("requirement") <= t.GetTotalSecondsTracked()) {
                                                                                                 if (userChallenges != null && !userChallenges.contains(data.get("id"))) {
                                                                                                     userChallenges.add((String) (data.get("id")));
+                                                                                                    Toast.makeText(getApplicationContext(), "New Achievement: " + data.get("name").toString(), Toast.LENGTH_SHORT).show();
                                                                                                 }
 
                                                                                             }
@@ -572,6 +716,7 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
                                                                                         if (data.get("type").equals("amount_session") && (long) data.get("requirement") <= tempTrickList.size()) {
                                                                                             if (userChallenges != null && !userChallenges.contains(data.get("id"))) {
                                                                                                 userChallenges.add((String) (data.get("id")));
+                                                                                                Toast.makeText(getApplicationContext(), "New Achievement: " + data.get("name").toString(), Toast.LENGTH_SHORT).show();
                                                                                             }
                                                                                         }
                                                                                     }
@@ -651,6 +796,7 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
                                             .addOnSuccessListener(new OnSuccessListener<Void>() {
                                                 @Override
                                                 public void onSuccess(Void aVoid) {
+
                                                 }
                                             })
                                             .addOnFailureListener(new OnFailureListener() {
@@ -685,7 +831,7 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
                                                     Map<String, Object> existingTrick = document.getData();
 
                                                     //Create Trick for User Object
-                                                    Map<String, Object> userTrick = new HashMap<>();
+                                                    final Map<String, Object> userTrick = new HashMap<>();
                                                     Long landings = (Long)(existingTrick.get("totalLandings"));
                                                     if(landings != null)
                                                         userTrick.put("totalLandings", landings.intValue()+t.GetTimesLanded());
@@ -732,7 +878,74 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
                                                             .addOnSuccessListener(new OnSuccessListener<Void>() {
                                                                 @Override
                                                                 public void onSuccess(Void aVoid) {
+                                                                    //------------------------------------------//
+                                                                    //------------CHECK FOR CHALLENGES----------//
+                                                                    //------------------------------------------//
+                                                                    DocumentReference docRef = db.collection("users").document(user.getUid());
+                                                                    docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                                                        @Override
+                                                                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                                                            Query query = db.collection("challenges");
+                                                                            System.out.println("CHECKING STARTED");
+                                                                            if (task.isSuccessful()) {
+                                                                                DocumentSnapshot document = task.getResult();
+                                                                                if (document.exists()) {
+                                                                                    final Map<String, Object> userData = document.getData();
+                                                                                    query.addSnapshotListener(new EventListener<QuerySnapshot>() {
+                                                                                        @Override
+                                                                                        public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                                                                                            List<DocumentSnapshot> docs = queryDocumentSnapshots.getDocuments();
+                                                                                            final List<String> userChallenges = (List<String>) userData.get("challenges");
+                                                                                            for (DocumentSnapshot doc : docs) {
+                                                                                                Map<String, Object> data = doc.getData();
 
+                                                                                                //--Trick Landings--//
+                                                                                                if (t.GetTimesLanded() >= 1) {
+                                                                                                    if (data.get("type").equals("land") && (long) data.get("requirement") <= (int)userTrick.get("totalLandings")) {
+                                                                                                        if (userChallenges != null && !userChallenges.contains(data.get("id"))) {
+                                                                                                            userChallenges.add((String) (data.get("id")));
+                                                                                                            Toast.makeText(getApplicationContext(), "New Achievement: " + data.get("name").toString(), Toast.LENGTH_SHORT).show();
+                                                                                                        }
+                                                                                                    }
+                                                                                                }
+                                                                                                if (t.GetRatio() > 0.0) {
+                                                                                                    if (data.get("type").equals("ratio") && (long) data.get("requirement") <= Double.valueOf((double)userTrick.get("avgRatio")).longValue()) {
+                                                                                                        if (userChallenges != null && !userChallenges.contains(data.get("id"))) {
+                                                                                                            userChallenges.add((String) (data.get("id")));
+                                                                                                            Toast.makeText(getApplicationContext(), "New Achievement: " + data.get("name").toString(), Toast.LENGTH_SHORT).show();
+                                                                                                        }
+                                                                                                    }
+                                                                                                }
+                                                                                            }
+                                                                                            for (DocumentSnapshot doc : docs) {
+                                                                                                Map<String, Object> data = doc.getData();
+                                                                                                //--Amount of Tricks Practiced--//
+                                                                                                if (tempTrickList.size() > 0) {
+                                                                                                    if (data.get("type").equals("amount") && (long) data.get("requirement") <= tempTrickList.size()) {
+                                                                                                        if (userChallenges != null && !userChallenges.contains(data.get("id"))) {
+                                                                                                            userChallenges.add((String) (data.get("id")));
+                                                                                                            Toast.makeText(getApplicationContext(), "New Achievement: " + data.get("name").toString(), Toast.LENGTH_SHORT).show();
+                                                                                                        }
+                                                                                                    }
+                                                                                                }
+                                                                                            }
+                                                                                            db.collection("users").document(user.getUid()).update("challenges", userChallenges).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                                                                @Override
+                                                                                                public void onSuccess(Void aVoid) {
+
+                                                                                                }
+                                                                                            }).addOnFailureListener(new OnFailureListener() {
+                                                                                                @Override
+                                                                                                public void onFailure(@NonNull Exception e) {
+                                                                                                    Toast.makeText(getApplicationContext(), e.getMessage().toString(), Toast.LENGTH_SHORT).show();
+                                                                                                }
+                                                                                            });
+                                                                                        }
+                                                                                    });
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                    });
                                                                 }
                                                             }).addOnFailureListener(new OnFailureListener() {
                                                         @Override
@@ -743,7 +956,7 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
                                                     //----IF TRICK DOES NOT EXIST----//
                                                 } else {
                                                     //Create Trick for User Object
-                                                    Map<String, Object> userTrick = new HashMap<>();
+                                                    final Map<String, Object> userTrick = new HashMap<>();
                                                     userTrick.put("totalLandings", t.GetTimesLanded());
 
                                                     //Get Current Sessions, Create Updated Sessions
@@ -774,7 +987,74 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
                                                             .addOnSuccessListener(new OnSuccessListener<Void>() {
                                                                 @Override
                                                                 public void onSuccess(Void aVoid) {
+                                                                    //------------------------------------------//
+                                                                    //------------CHECK FOR CHALLENGES----------//
+                                                                    //------------------------------------------//
+                                                                    DocumentReference docRef = db.collection("users").document(user.getUid());
+                                                                    docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                                                        @Override
+                                                                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                                                            Query query = db.collection("challenges");
+                                                                            System.out.println("CHECKING STARTED");
+                                                                            if (task.isSuccessful()) {
+                                                                                DocumentSnapshot document = task.getResult();
+                                                                                if (document.exists()) {
+                                                                                    final Map<String, Object> userData = document.getData();
+                                                                                    query.addSnapshotListener(new EventListener<QuerySnapshot>() {
+                                                                                        @Override
+                                                                                        public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                                                                                            List<DocumentSnapshot> docs = queryDocumentSnapshots.getDocuments();
+                                                                                            final List<String> userChallenges = (List<String>) userData.get("challenges");
+                                                                                            for (DocumentSnapshot doc : docs) {
+                                                                                                Map<String, Object> data = doc.getData();
 
+                                                                                                //--Trick Landings--//
+                                                                                                if (t.GetTimesLanded() >= 1) {
+                                                                                                    if (data.get("type").equals("land") && (long) data.get("requirement") <= (int)userTrick.get("totalLandings")) {
+                                                                                                        if (userChallenges != null && !userChallenges.contains(data.get("id"))) {
+                                                                                                            userChallenges.add((String) (data.get("id")));
+                                                                                                            Toast.makeText(getApplicationContext(), "New Achievement: " + data.get("name").toString(), Toast.LENGTH_SHORT).show();
+                                                                                                        }
+                                                                                                    }
+                                                                                                }
+                                                                                                if (t.GetRatio() > 0.0) {
+                                                                                                    if (data.get("type").equals("ratio") && (long) data.get("requirement") <= Double.valueOf((double)userTrick.get("avgRatio")).longValue()) {
+                                                                                                        if (userChallenges != null && !userChallenges.contains(data.get("id"))) {
+                                                                                                            userChallenges.add((String) (data.get("id")));
+                                                                                                            Toast.makeText(getApplicationContext(), "New Achievement: " + data.get("name").toString(), Toast.LENGTH_SHORT).show();
+                                                                                                        }
+                                                                                                    }
+                                                                                                }
+                                                                                            }
+                                                                                            for (DocumentSnapshot doc : docs) {
+                                                                                                Map<String, Object> data = doc.getData();
+                                                                                                //--Amount of Tricks Practiced--//
+                                                                                                if (tempTrickList.size() > 0) {
+                                                                                                    if (data.get("type").equals("amount") && (long) data.get("requirement") <= tempTrickList.size()) {
+                                                                                                        if (userChallenges != null && !userChallenges.contains(data.get("id"))) {
+                                                                                                            userChallenges.add((String) (data.get("id")));
+                                                                                                            Toast.makeText(getApplicationContext(), "New Achievement: " + data.get("name").toString(), Toast.LENGTH_SHORT).show();
+                                                                                                        }
+                                                                                                    }
+                                                                                                }
+                                                                                            }
+                                                                                            db.collection("users").document(user.getUid()).update("challenges", userChallenges).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                                                                @Override
+                                                                                                public void onSuccess(Void aVoid) {
+
+                                                                                                }
+                                                                                            }).addOnFailureListener(new OnFailureListener() {
+                                                                                                @Override
+                                                                                                public void onFailure(@NonNull Exception e) {
+                                                                                                    Toast.makeText(getApplicationContext(), e.getMessage().toString(), Toast.LENGTH_SHORT).show();
+                                                                                                }
+                                                                                            });
+                                                                                        }
+                                                                                    });
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                    });
                                                                 }
                                                             }).addOnFailureListener(new OnFailureListener() {
                                                         @Override
@@ -823,23 +1103,26 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
 
                                                                                 //--Trick Landings--//
                                                                                 if (t.GetTimesLanded() >= 1) {
-                                                                                    if (data.get("type").equals("land") && (long) data.get("requirement") <= t.GetTimesLanded()) {
+                                                                                    if (data.get("type").equals("land_session") && (long) data.get("requirement") <= t.GetTimesLanded()) {
                                                                                         if (userChallenges != null && !userChallenges.contains(data.get("id"))) {
                                                                                             userChallenges.add((String) (data.get("id")));
+                                                                                            Toast.makeText(getApplicationContext(), "New Achievement: " + data.get("name").toString(), Toast.LENGTH_SHORT).show();
                                                                                         }
                                                                                     }
                                                                                 }
                                                                                 if (t.GetRatio() > 0.0) {
-                                                                                    if (data.get("type").equals("ratio") && (long) data.get("requirement") <= t.GetRatio()) {
+                                                                                    if (data.get("type").equals("ratio_session") && (long) data.get("requirement") <= t.GetRatio()) {
                                                                                         if (userChallenges != null && !userChallenges.contains(data.get("id"))) {
                                                                                             userChallenges.add((String) (data.get("id")));
+                                                                                            Toast.makeText(getApplicationContext(), "New Achievement: " + data.get("name").toString(), Toast.LENGTH_SHORT).show();
                                                                                         }
                                                                                     }
                                                                                 }
                                                                                 if (t.GetTotalSecondsTracked() > 0) {
-                                                                                    if (data.get("type").equals("time") && (long) data.get("requirement") <= t.GetTotalSecondsTracked()) {
+                                                                                    if (data.get("type").equals("time_session") && (long) data.get("requirement") <= t.GetTotalSecondsTracked()) {
                                                                                         if (userChallenges != null && !userChallenges.contains(data.get("id"))) {
                                                                                             userChallenges.add((String) (data.get("id")));
+                                                                                            Toast.makeText(getApplicationContext(), "New Achievement: " + data.get("name").toString(), Toast.LENGTH_SHORT).show();
                                                                                         }
                                                                                     }
                                                                                 }
@@ -849,9 +1132,10 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
                                                                             Map<String, Object> data = doc.getData();
                                                                             //--Amount of Tricks Practiced--//
                                                                             if (tempTrickList.size() > 0) {
-                                                                                if (data.get("type").equals("amount") && (long) data.get("requirement") <= tempTrickList.size()) {
+                                                                                if (data.get("type").equals("amount_session") && (long) data.get("requirement") <= tempTrickList.size()) {
                                                                                     if (userChallenges != null && !userChallenges.contains(data.get("id"))) {
                                                                                         userChallenges.add((String) (data.get("id")));
+                                                                                        Toast.makeText(getApplicationContext(), "New Achievement: " + data.get("name").toString(), Toast.LENGTH_SHORT).show();
                                                                                     }
                                                                                 }
                                                                             }
