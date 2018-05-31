@@ -50,6 +50,17 @@ public class SkateHome extends Fragment {
                 startActivity(gameSetup);
             }
         });
+
+        Button handycapBtn = (Button)getView().findViewById(R.id.handicap_button);
+        handycapBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent gameSetup = new Intent(getActivity(), SkateSetup.class);
+                gameSetup.putExtra("gamemode", 2);
+                gameSetup.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+                startActivity(gameSetup);
+            }
+        });
     }
 
 

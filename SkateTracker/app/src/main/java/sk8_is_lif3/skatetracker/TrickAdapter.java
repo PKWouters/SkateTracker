@@ -37,6 +37,7 @@ public class TrickAdapter extends RecyclerView.Adapter<TrickAdapter.ViewHolder> 
     ViewGroup recyclerView;
     private Trick currentTrick;
 
+
     public TrickAdapter(List<Trick> tricks) {
         trickSet = tricks;
     }
@@ -187,7 +188,7 @@ public class TrickAdapter extends RecyclerView.Adapter<TrickAdapter.ViewHolder> 
                     mBuilder.setSmallIcon(R.drawable.ic_healing_black_24dp);
                     mBuilder.setContentTitle("Active Session");
                     mBuilder.addAction(R.drawable.ic_plus_1, "Landed", pendingIntent);
-                    mBuilder.setContentText("Trick: " + holder.trickNameView.getText().toString());
+                    mBuilder.setContentText("Trick: " + holder.trickNameView.getText().toString() + "Time " + trickSet.get(position).EllapsedTime());
                     mBuilder.setPriority(NotificationCompat.PRIORITY_MAX);
                     mBuilder.setContentIntent(pendingSessionIntent);
                     mBuilder.setAutoCancel(false);
