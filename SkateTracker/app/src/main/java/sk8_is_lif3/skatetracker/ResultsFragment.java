@@ -100,6 +100,32 @@ public class ResultsFragment extends DialogFragment {
                 tblRow.addView(p2Result);
                 tbl.addView(tblRow, new TableLayout.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT, TableLayout.LayoutParams.WRAP_CONTENT));
             }
+        }else if(gameMode == 2){
+            TextView roundInit = (TextView) getView().findViewById(R.id.initRoundNum);
+            roundInit.setText("Handicap");
+            for(Map.Entry<String, String> trick : results.entrySet()){
+                TableRow tblRow = new TableRow(getContext());
+                tblRow.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT));
+                TextView roundNumView = new TextView(getContext());
+                roundNumView.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT, 0.5f));
+                roundNumView.setText(trick.getKey().substring(trick.getKey().indexOf('_')+1, trick.getKey().length()));
+                TextView p1Result = new TextView(getContext());
+                p1Result.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT, 0.5f));
+                if (trick.getValue() == "p1" || trick.getValue() == "both")
+                    p1Result.setText("LANDED");
+                else
+                    p1Result.setText("FAILED");
+                TextView p2Result = new TextView(getContext());
+                p2Result.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT, 0.5f));
+                if (trick.getValue() == "p2" || trick.getValue() == "both")
+                    p2Result.setText("LANDED");
+                else
+                    p2Result.setText("FAILED");
+                tblRow.addView(roundNumView);
+                tblRow.addView(p1Result);
+                tblRow.addView(p2Result);
+                tbl.addView(tblRow, new TableLayout.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT, TableLayout.LayoutParams.WRAP_CONTENT));
+            }
         }
         TextView winnerView = (TextView) getView().findViewById(R.id.winnerName);
         winnerView.setText("Winner: " +  winner);

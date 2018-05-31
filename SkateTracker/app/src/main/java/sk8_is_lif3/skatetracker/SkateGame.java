@@ -404,6 +404,7 @@ public class SkateGame extends AppCompatActivity {
                             if (offPlayer == 2) {
                                 resultsMap.put(roundNum + "_" + currTrick, "both");
                                 currTrick = GetHandicapTrick();
+                                roundNum++;
                             }
                         }
                         UpdateCards(gameMode, currTrick);
@@ -417,6 +418,7 @@ public class SkateGame extends AppCompatActivity {
                     if (playerOneScore < 5 && playerTwoScore < 5) {
                         if (offPlayer == 2) { //P2 Set trick
                             playerOneScore++;
+                            roundNum++;
                             resultsMap.put(roundNum + "_" + currTrick, "p1");
                             currTrick = GetHandicapTrick();
                             TextView letterToChange;
@@ -472,6 +474,7 @@ public class SkateGame extends AppCompatActivity {
                             if (offPlayer == 1) {
                                 resultsMap.put(roundNum + "_" + currTrick, "both");
                                 currTrick = GetHandicapTrick();
+                                roundNum++;
                             }
                         }
                         UpdateCards(gameMode, currTrick);
@@ -485,6 +488,7 @@ public class SkateGame extends AppCompatActivity {
                     if (playerOneScore < 5 && playerTwoScore < 5) {
                         if (offPlayer == 1) { //P1 Set trick
                             playerTwoScore++;
+                            roundNum++;
                             resultsMap.put(roundNum + "_" + currTrick, "p1");
                             currTrick = GetHandicapTrick();
                             TextView letterToChange;
