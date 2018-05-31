@@ -29,6 +29,7 @@ import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.NotificationCompat;
@@ -58,7 +59,11 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -512,10 +517,86 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
                                                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                                                     @Override
                                                     public void onSuccess(Void aVoid) {
+
+                                                        //------------------------------------------//
+                                                        //------------CHECK FOR CHALLENGES----------//
+                                                        //------------------------------------------//
+                                                        DocumentReference docRef = db.collection("users").document(user.getUid());
+                                                        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                                            @Override
+                                                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                                                Query query = db.collection("challenges");
+                                                                System.out.println("CHECKING STARTED");
+                                                                if (task.isSuccessful()) {
+                                                                    DocumentSnapshot document = task.getResult();
+                                                                    if (document.exists()) {
+                                                                        final Map<String, Object> userData = document.getData();
+                                                                        query.addSnapshotListener(new EventListener<QuerySnapshot>() {
+                                                                            @Override
+                                                                            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                                                                                List<DocumentSnapshot> docs = queryDocumentSnapshots.getDocuments();
+                                                                                final List<String> userChallenges = (List<String>) userData.get("challenges");
+                                                                                for (final Trick t : tempTrickList) {
+                                                                                    for (DocumentSnapshot doc : docs) {
+                                                                                        Map<String, Object> data = doc.getData();
+
+                                                                                        //--Trick Landings--//
+                                                                                        if (t.GetTimesLanded() >= 1) {
+                                                                                            if (data.get("type").equals("land") && (long) data.get("requirement") <= t.GetTimesLanded()) {
+                                                                                                if (userChallenges != null && !userChallenges.contains(data.get("id"))) {
+                                                                                                    userChallenges.add((String) (data.get("id")));
+                                                                                                }
+                                                                                            }
+                                                                                        }
+                                                                                        if (t.GetRatio() > 0.0) {
+                                                                                            if (data.get("type").equals("ratio") && (long) data.get("requirement") <= t.GetRatio()) {
+                                                                                                if (userChallenges != null && !userChallenges.contains(data.get("id"))) {
+                                                                                                    userChallenges.add((String) (data.get("id")));
+                                                                                                }
+                                                                                            }
+                                                                                        }
+                                                                                        if (t.GetTotalSecondsTracked() > 0) {
+                                                                                            if (data.get("type").equals("time") && (long) data.get("requirement") <= t.GetTotalSecondsTracked()) {
+                                                                                                if (userChallenges != null && !userChallenges.contains(data.get("id"))) {
+                                                                                                    userChallenges.add((String) (data.get("id")));
+                                                                                                }
+
+                                                                                            }
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                                for (DocumentSnapshot doc : docs) {
+                                                                                    Map<String, Object> data = doc.getData();
+                                                                                    //--Amount of Tricks Practiced--//
+                                                                                    if (tempTrickList.size() > 0) {
+                                                                                        if (data.get("type").equals("amount_session") && (long) data.get("requirement") <= tempTrickList.size()) {
+                                                                                            if (userChallenges != null && !userChallenges.contains(data.get("id"))) {
+                                                                                                userChallenges.add((String) (data.get("id")));
+                                                                                            }
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                                db.collection("users").document(user.getUid()).update("challenges", userChallenges).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                                                    @Override
+                                                                                    public void onSuccess(Void aVoid) {
+
+                                                                                    }
+                                                                                }).addOnFailureListener(new OnFailureListener() {
+                                                                                    @Override
+                                                                                    public void onFailure(@NonNull Exception e) {
+                                                                                        Toast.makeText(getApplicationContext(), e.getMessage().toString(), Toast.LENGTH_SHORT).show();
+                                                                                    }
+                                                                                });
+                                                                            }
+                                                                        });
+                                                                    }
+                                                                }
+                                                            }
+                                                        });
+                                                        Toast.makeText(getApplicationContext(), "Saved Session", Toast.LENGTH_SHORT).show();
                                                         progressDialog.dismiss();
                                                         NotificationManager mNotificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
                                                         mNotificationManager.cancelAll();
-                                                        Toast.makeText(getApplicationContext(), "Saved Session", Toast.LENGTH_SHORT).show();
                                                         finish();
                                                     }
                                                 })
@@ -525,6 +606,7 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
                                                         Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_LONG).show();
                                                     }
                                                 });
+
                                     }
                                 });
                         //---------------------------------//
@@ -717,10 +799,85 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
                                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                                             @Override
                                             public void onSuccess(Void aVoid) {
+                                                //------------------------------------------//
+                                                //------------CHECK FOR CHALLENGES----------//
+                                                //------------------------------------------//
+                                                DocumentReference docRef = db.collection("users").document(user.getUid());
+                                                docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                                    @Override
+                                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                                        Query query = db.collection("challenges");
+                                                        System.out.println("CHECKING STARTED");
+                                                        if (task.isSuccessful()) {
+                                                            DocumentSnapshot document = task.getResult();
+                                                            if (document.exists()) {
+                                                                final Map<String, Object> userData = document.getData();
+                                                                query.addSnapshotListener(new EventListener<QuerySnapshot>() {
+                                                                    @Override
+                                                                    public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                                                                        List<DocumentSnapshot> docs = queryDocumentSnapshots.getDocuments();
+                                                                        final List<String> userChallenges = (List<String>) userData.get("challenges");
+                                                                        for (final Trick t : tempTrickList) {
+                                                                            for (DocumentSnapshot doc : docs) {
+                                                                                Map<String, Object> data = doc.getData();
+
+                                                                                //--Trick Landings--//
+                                                                                if (t.GetTimesLanded() >= 1) {
+                                                                                    if (data.get("type").equals("land") && (long) data.get("requirement") <= t.GetTimesLanded()) {
+                                                                                        if (userChallenges != null && !userChallenges.contains(data.get("id"))) {
+                                                                                            userChallenges.add((String) (data.get("id")));
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                                if (t.GetRatio() > 0.0) {
+                                                                                    if (data.get("type").equals("ratio") && (long) data.get("requirement") <= t.GetRatio()) {
+                                                                                        if (userChallenges != null && !userChallenges.contains(data.get("id"))) {
+                                                                                            userChallenges.add((String) (data.get("id")));
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                                if (t.GetTotalSecondsTracked() > 0) {
+                                                                                    if (data.get("type").equals("time") && (long) data.get("requirement") <= t.GetTotalSecondsTracked()) {
+                                                                                        if (userChallenges != null && !userChallenges.contains(data.get("id"))) {
+                                                                                            userChallenges.add((String) (data.get("id")));
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                        for (DocumentSnapshot doc : docs) {
+                                                                            Map<String, Object> data = doc.getData();
+                                                                            //--Amount of Tricks Practiced--//
+                                                                            if (tempTrickList.size() > 0) {
+                                                                                if (data.get("type").equals("amount") && (long) data.get("requirement") <= tempTrickList.size()) {
+                                                                                    if (userChallenges != null && !userChallenges.contains(data.get("id"))) {
+                                                                                        userChallenges.add((String) (data.get("id")));
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                        db.collection("users").document(user.getUid()).update("challenges", userChallenges).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                                            @Override
+                                                                            public void onSuccess(Void aVoid) {
+
+                                                                            }
+                                                                        }).addOnFailureListener(new OnFailureListener() {
+                                                                            @Override
+                                                                            public void onFailure(@NonNull Exception e) {
+                                                                                Toast.makeText(getApplicationContext(), e.getMessage().toString(), Toast.LENGTH_SHORT).show();
+                                                                            }
+                                                                        });
+                                                                    }
+
+                                                                });
+                                                            }
+                                                        }
+                                                    }
+                                                });
+                                                Toast.makeText(getApplicationContext(), "Saved Session", Toast.LENGTH_SHORT).show();
                                                 progressDialog.dismiss();
                                                 NotificationManager mNotificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
                                                 mNotificationManager.cancelAll();
-                                                Toast.makeText(getApplicationContext(), "Saved Session", Toast.LENGTH_SHORT).show();
                                                 finish();
                                             }
                                         })

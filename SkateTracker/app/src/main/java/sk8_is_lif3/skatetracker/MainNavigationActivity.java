@@ -24,6 +24,8 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.ittianyu.bottomnavigationviewex.BottomNavigationViewEx;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -202,6 +204,9 @@ public class MainNavigationActivity extends AppCompatActivity {
                                 Toast.makeText(getApplicationContext(), "Signed in", Toast.LENGTH_SHORT).show();
                             } else {
                                 Map<String, Object> newUser = new HashMap<String, Object>();
+                                newUser.put("name", user.getDisplayName());
+                                newUser.put("challenges", new ArrayList<>());
+                                newUser.put("achievements", new ArrayList<>());
                                 db.collection("users").document(user.getUid()).set(newUser)
                                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                                         @Override
