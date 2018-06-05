@@ -369,7 +369,7 @@ public class SkateGame extends AppCompatActivity {
                 }
             });
 
-        }else if(gameMode == 2){
+        }else if(gameMode == 2){//---handicap--//
 
             final FirebaseFirestore db = FirebaseFirestore.getInstance();
             final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
