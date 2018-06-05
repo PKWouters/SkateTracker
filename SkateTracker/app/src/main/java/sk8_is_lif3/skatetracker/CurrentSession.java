@@ -87,6 +87,7 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
     ArrayList<String> sessionIDs;
     Session currentSession;
     Trick currentTrick;
+    ProgressDialog progressDialog;
 
 
     @Override
@@ -396,6 +397,55 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
             currentTrick.IncrementTimesLanded();
     }
 
+    private void CheckAchievements(final List<String> challenges, final List<String> userAchievements){
+        //--FIREBASE STUFF--//
+        final FirebaseFirestore db = FirebaseFirestore.getInstance();
+        final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+
+        Query query = db.collection("achievements");
+
+        query.addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                List<DocumentSnapshot> docs = queryDocumentSnapshots.getDocuments();
+                List<String> updatedAchievements = userAchievements;
+                for (DocumentSnapshot doc : docs) {
+                    Map<String, Object> data = doc.getData();
+                    List<String> reqChallenges = (List<String>)(data.get("challenges"));
+                    int found = 0;
+                    for(String c : reqChallenges){
+                        if(challenges.contains(c)){
+                            found++;
+                        }else{
+                            break;
+                        }
+                    }
+                    if(updatedAchievements == null){
+                        updatedAchievements = new ArrayList<String>();
+                    }
+                    if(found >= reqChallenges.size()){
+                        updatedAchievements.add(doc.getData().get("id").toString());
+                    }
+                }
+                db.collection("users").document(user.getUid()).update("achievements", updatedAchievements).addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        progressDialog.dismiss();
+                        NotificationManager mNotificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+                        mNotificationManager.cancelAll();
+                        finish();
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        });
+    }
+
     private void SaveSession(String name){
         final String sessionName = name;
         ArrayList<String> trickIDs = new ArrayList<String>();
@@ -419,30 +469,32 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
         session.put("totalTimeFormatted", currentSession.EllapsedTime());
         session.put("name", sessionName);
 
-        final ProgressDialog progressDialog = ProgressDialog.show(CurrentSession.this, "",
+        progressDialog = ProgressDialog.show(CurrentSession.this, "",
                 "Saving Session...", true);
 
         ArrayList<Map<String, Object>> trickList = new ArrayList<Map<String, Object>>();
         final CollectionReference colRef = db.collection("users").document(user.getUid()).collection("tricks");
 
         Random rand = new Random();
-        int randIndex = rand.nextInt() % (tempTrickList.size());
-        Trick randTrick = tempTrickList.get(randIndex);
-        //Add Session to Document
+        if(tempTrickList.size() > 0) {
+            int randIndex = rand.nextInt() % (tempTrickList.size());
+            Trick randTrick = tempTrickList.get(randIndex);
+            //Add Session to Document
 
-        db.collection("users")
-                .document(user.getUid()).update("recent_trick", randTrick.GetDBID())
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_LONG).show();
-                    }
-                });
+            db.collection("users")
+                    .document(user.getUid()).update("recent_trick", randTrick.GetDBID())
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+                        }
+                    });
+        }
 
 
         //Set Up Trick Objects
@@ -574,7 +626,7 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
                                                                     db.collection("users").document(user.getUid()).update("challenges", userChallenges).addOnSuccessListener(new OnSuccessListener<Void>() {
                                                                         @Override
                                                                         public void onSuccess(Void aVoid) {
-
+                                                                            CheckAchievements(userChallenges, (List<String>)(userData.get("achievements")));
                                                                         }
                                                                     }).addOnFailureListener(new OnFailureListener() {
                                                                         @Override
@@ -685,7 +737,7 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
                                                                     db.collection("users").document(user.getUid()).update("challenges", userChallenges).addOnSuccessListener(new OnSuccessListener<Void>() {
                                                                         @Override
                                                                         public void onSuccess(Void aVoid) {
-
+                                                                            CheckAchievements(userChallenges, (List<String>)(userData.get("achievements")));
                                                                         }
                                                                     }).addOnFailureListener(new OnFailureListener() {
                                                                         @Override
@@ -792,7 +844,7 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
                                                 db.collection("users").document(user.getUid()).update("challenges", userChallenges).addOnSuccessListener(new OnSuccessListener<Void>() {
                                                     @Override
                                                     public void onSuccess(Void aVoid) {
-
+                                                        CheckAchievements(userChallenges, (List<String>)(userData.get("achievements")));
                                                     }
                                                 }).addOnFailureListener(new OnFailureListener() {
                                                     @Override
@@ -806,11 +858,6 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
                                 }
                             }
                         });
-                        Toast.makeText(getApplicationContext(), "Saved Session", Toast.LENGTH_SHORT).show();
-                        progressDialog.dismiss();
-                        NotificationManager mNotificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
-                        mNotificationManager.cancelAll();
-                        finish();
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
