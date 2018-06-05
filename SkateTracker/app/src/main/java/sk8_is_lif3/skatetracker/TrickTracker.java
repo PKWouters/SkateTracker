@@ -5,6 +5,7 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -272,7 +273,7 @@ public class TrickTracker extends AppCompatActivity {
                                                                                         db.collection("users").document(user.getUid()).update("challenges", userChallenges).addOnSuccessListener(new OnSuccessListener<Void>() {
                                                                                             @Override
                                                                                             public void onSuccess(Void aVoid) {
-                                                                                                finish();
+                                                                                                CheckAchievements(userChallenges, (List<String>)(userData.get("achievements")));
                                                                                             }
                                                                                         }).addOnFailureListener(new OnFailureListener() {
                                                                                             @Override
@@ -382,7 +383,7 @@ public class TrickTracker extends AppCompatActivity {
                                                                                         db.collection("users").document(user.getUid()).update("challenges", userChallenges).addOnSuccessListener(new OnSuccessListener<Void>() {
                                                                                             @Override
                                                                                             public void onSuccess(Void aVoid) {
-                                                                                                finish();
+                                                                                                CheckAchievements(userChallenges, (List<String>)(userData.get("achievements")));
                                                                                             }
                                                                                         }).addOnFailureListener(new OnFailureListener() {
                                                                                             @Override
@@ -467,6 +468,53 @@ public class TrickTracker extends AppCompatActivity {
         unregisterReceiver(myReceiver);
     }
 
+    private void CheckAchievements(final List<String> challenges, final List<String> userAchievements){
+        //--FIREBASE STUFF--//
+        final FirebaseFirestore db = FirebaseFirestore.getInstance();
+        final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+
+        Query query = db.collection("achievements");
+
+        query.addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                List<DocumentSnapshot> docs = queryDocumentSnapshots.getDocuments();
+                List<String> updatedAchievements = userAchievements;
+                for (DocumentSnapshot doc : docs) {
+                    Map<String, Object> data = doc.getData();
+                    List<String> reqChallenges = (List<String>)(data.get("challenges"));
+                    int found = 0;
+                    for(String c : reqChallenges){
+                        if(challenges.contains(c)){
+                            found++;
+                        }else{
+                            break;
+                        }
+                    }
+                    if(updatedAchievements == null){
+                        updatedAchievements = new ArrayList<String>();
+                    }
+                    if(found >= reqChallenges.size()){
+                        updatedAchievements.add(doc.getData().get("id").toString());
+                    }
+                }
+                db.collection("users").document(user.getUid()).update("achievements", updatedAchievements).addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        NotificationManager mNotificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+                        mNotificationManager.cancelAll();
+                        finish();
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        });
+    }
 
 
 }
