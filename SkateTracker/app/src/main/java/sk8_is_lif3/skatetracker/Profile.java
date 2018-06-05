@@ -1,6 +1,7 @@
 package sk8_is_lif3.skatetracker;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -19,6 +20,8 @@ import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+
+import sk8_is_lif3.skatetracker.transitions.Achievement;
 
 public class Profile extends Fragment {
 
@@ -43,6 +46,15 @@ public class Profile extends Fragment {
                                 }
                             });
                 }
+            }
+        });
+        Button viewAchievements = view.findViewById(R.id.achieveButton);
+        viewAchievements.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getContext(), AchievementActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                getActivity().startActivity(intent);
             }
         });
         Toolbar toolbar = (Toolbar) getView().findViewById(R.id.toolbar);

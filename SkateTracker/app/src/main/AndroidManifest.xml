@@ -42,7 +42,7 @@
         <activity
             android:name=".TrickTracker"
             android:launchMode="singleTop" />
-        <activity android:name=".transitions.AchievementActivity"></activity>
+        <activity android:name=".AchievementActivity"></activity>
     </application>
 
 </manifest>
