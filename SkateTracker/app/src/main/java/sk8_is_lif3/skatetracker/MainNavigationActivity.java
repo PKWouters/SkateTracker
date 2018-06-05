@@ -171,7 +171,6 @@ public class MainNavigationActivity extends AppCompatActivity {
                     .build();
             startActivityForResult(i, RC_SIGN_IN);
         }
-
     }
 
     @Override
@@ -233,9 +232,7 @@ public class MainNavigationActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), response.getError().getMessage(), Toast.LENGTH_LONG).show();
                     finish();
                 }
-
             }
         }
     }
-
 }

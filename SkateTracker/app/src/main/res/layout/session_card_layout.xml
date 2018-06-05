@@ -21,7 +21,6 @@
             android:layout_marginStart="16dp"
             android:ellipsize="end"
             android:maxLines="1"
-            android:text="01/01/1999 - Orlando Skate Park"
             android:textAppearance="@style/TextAppearance.AppCompat.Display4"
             android:textColor="@android:color/white"
             android:textSize="20sp"
