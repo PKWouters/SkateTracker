@@ -495,7 +495,7 @@ public class TrickTracker extends AppCompatActivity {
                     if(updatedAchievements == null){
                         updatedAchievements = new ArrayList<String>();
                     }
-                    if(found >= reqChallenges.size()){
+                    if(found >= reqChallenges.size() && !updatedAchievements.contains(data.get("id").toString())){
                         updatedAchievements.add(doc.getData().get("id").toString());
                     }
                 }
