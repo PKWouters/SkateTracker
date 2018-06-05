@@ -415,7 +415,7 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
                     List<String> reqChallenges = (List<String>)(data.get("challenges"));
                     int found = 0;
                     for(String c : reqChallenges){
-                        if(challenges.contains(c)){
+                        if(challenges != null && challenges.contains(c)){
                             found++;
                         }else{
                             break;
@@ -587,7 +587,11 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
                                                                 @Override
                                                                 public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
                                                                     List<DocumentSnapshot> docs = queryDocumentSnapshots.getDocuments();
-                                                                    final List<String> userChallenges = (List<String>) userData.get("challenges");
+                                                                    final List<String> getUserChallenges = (List<String>) userData.get("challenges");
+                                                                    List<String> userChallenges = getUserChallenges;
+                                                                    if(userChallenges == null){
+                                                                        userChallenges = new ArrayList<String>();
+                                                                    }
                                                                     for (final Trick t : tempTrickList) {
                                                                         for (DocumentSnapshot doc : docs) {
                                                                             Map<String, Object> data = doc.getData();
@@ -623,10 +627,11 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
                                                                             }
                                                                         }
                                                                     }
+                                                                    final List<String> newUserChallenges = userChallenges;
                                                                     db.collection("users").document(user.getUid()).update("challenges", userChallenges).addOnSuccessListener(new OnSuccessListener<Void>() {
                                                                         @Override
                                                                         public void onSuccess(Void aVoid) {
-                                                                            CheckAchievements(userChallenges, (List<String>)(userData.get("achievements")));
+                                                                            CheckAchievements(newUserChallenges, (List<String>)(userData.get("achievements")));
                                                                         }
                                                                     }).addOnFailureListener(new OnFailureListener() {
                                                                         @Override
@@ -700,7 +705,11 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
                                                                 @Override
                                                                 public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
                                                                     List<DocumentSnapshot> docs = queryDocumentSnapshots.getDocuments();
-                                                                    final List<String> userChallenges = (List<String>) userData.get("challenges");
+                                                                    final List<String> getUserChallenges = (List<String>) userData.get("challenges");
+                                                                    List<String> userChallenges = getUserChallenges;
+                                                                    if(userChallenges == null){
+                                                                        userChallenges = new ArrayList<String>();
+                                                                    }
                                                                     for (DocumentSnapshot doc : docs) {
                                                                         Map<String, Object> data = doc.getData();
 
@@ -734,10 +743,11 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
                                                                             }
                                                                         }
                                                                     }
-                                                                    db.collection("users").document(user.getUid()).update("challenges", userChallenges).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                                    final List<String> newUserChallenges = userChallenges;
+                                                                    db.collection("users").document(user.getUid()).update("challenges", newUserChallenges).addOnSuccessListener(new OnSuccessListener<Void>() {
                                                                         @Override
                                                                         public void onSuccess(Void aVoid) {
-                                                                            CheckAchievements(userChallenges, (List<String>)(userData.get("achievements")));
+                                                                            CheckAchievements(newUserChallenges, (List<String>)(userData.get("achievements")));
                                                                         }
                                                                     }).addOnFailureListener(new OnFailureListener() {
                                                                         @Override
