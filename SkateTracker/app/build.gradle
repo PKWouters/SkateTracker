@@ -49,6 +49,7 @@ dependencies {
     implementation 'com.github.lzyzsd:circleprogress:1.2.1'
 
     implementation 'com.google.firebase:firebase-core:15.0.0'
+    implementation 'com.google.firebase:firebase-storage:15.0.0'
     implementation 'com.google.firebase:firebase-firestore:15.0.0'
     implementation "com.firebaseui:firebase-ui-firestore:3.3.1"
 
