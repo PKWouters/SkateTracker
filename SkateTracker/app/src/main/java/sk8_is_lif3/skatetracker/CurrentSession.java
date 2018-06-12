@@ -92,6 +92,7 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
     Session currentSession;
     Trick currentTrick;
     ProgressDialog progressDialog;
+    boolean finishedTricks = false;
 
 
     @Override
@@ -401,93 +402,106 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
             currentTrick.IncrementTimesLanded();
     }
 
-    private void CheckAchievements(final List<String> challenges, final List<String> userAchievements){
-        //--FIREBASE STUFF--//
-        final FirebaseFirestore db = FirebaseFirestore.getInstance();
-        final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        final FirebaseStorage storage = FirebaseStorage.getInstance();
+    private void CheckAchievements(final List<String> challenges, final List<String> userAchievements, final int checkTime){
+            if(checkTime >= tempTrickList.size()){
+                finishedTricks = true;
+            }
+            if(tempTrickList.size() <= 0){
+                progressDialog.dismiss();;
+                NotificationManager mNotificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+                mNotificationManager.cancelAll();
+                finish();
+                return;
+            }
+            if(finishedTricks) {
+                //--FIREBASE STUFF--//
+                final FirebaseFirestore db = FirebaseFirestore.getInstance();
+                final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                final FirebaseStorage storage = FirebaseStorage.getInstance();
 
-        Query query = db.collection("achievements");
-
-        query.addSnapshotListener(new EventListener<QuerySnapshot>() {
-            @Override
-            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
-                final List<DocumentSnapshot> docs = queryDocumentSnapshots.getDocuments();
-                final List<Map<String, Object>> achievementsInfo = new ArrayList<Map<String, Object>>();
-                List<String> updatedAchievements = userAchievements;
-                for (DocumentSnapshot doc : docs) {
-                    Map<String, Object> data = doc.getData();
-                    List<String> reqChallenges = (List<String>)(data.get("challenges"));
-                    int found = 0;
-                    for(String c : reqChallenges){
-                        if(challenges != null && challenges.contains(c)){
-                            found++;
-                        }else{
-                            break;
-                        }
-                    }
-                    if(updatedAchievements == null){
-                        updatedAchievements = new ArrayList<String>();
-                    }
-                    if(found >= reqChallenges.size() && !updatedAchievements.contains(data.get("id").toString())) {
-                        updatedAchievements.add(data.get("id").toString());
-                        achievementsInfo.add(data);
-                    }
-                }
-                final List<String> updatedAchievementsFinal = updatedAchievements;
-                db.collection("users").document(user.getUid()).update("achievements", updatedAchievementsFinal).addOnSuccessListener(new OnSuccessListener<Void>() {
+                Query query = db.collection("achievements");
+                System.out.println(Integer.toString(checkTime) + " " + Integer.toString(tempTrickList.size()));
+                query.addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
-                    public void onSuccess(Void aVoid) {
-                        if(achievementsInfo.size() > 0){
-                            for(int i = 0; i < updatedAchievementsFinal.size(); ++i){
-                                final AlertDialog.Builder builder = new AlertDialog.Builder(CurrentSession.this);
-                                final LayoutInflater inflater = getLayoutInflater();
-                                final View dlgView = inflater.inflate(R.layout.achievement_dialog, null);
-                                final TextView achievementName = (TextView) dlgView.findViewById(R.id.achievementName);
-                                achievementName.setText(achievementsInfo.get(i).get("name").toString());
-                                final TextView achievementDesc = (TextView) dlgView.findViewById(R.id.achievementDesc);
-                                achievementDesc.setText(achievementsInfo.get(i).get("description").toString());
-                                final ImageView achievementSticker = (ImageView)dlgView.findViewById(R.id.stickerImage);
-                                Picasso.get().load(achievementsInfo.get(i).get("stickerUrl").toString()).into(achievementSticker);
-                                builder.setView(dlgView);
-                                if(i < updatedAchievementsFinal.size()-1){
-                                    builder.setPositiveButton("Next", new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-
-                                        }
-                                    });
-                                }else{
-                                    builder.setPositiveButton("Done", new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            progressDialog.dismiss();
-                                            NotificationManager mNotificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
-                                            mNotificationManager.cancelAll();
-                                            finish();
-                                        }
-                                    });
+                    public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                        final List<DocumentSnapshot> docs = queryDocumentSnapshots.getDocuments();
+                        final List<Map<String, Object>> achievementsInfo = new ArrayList<Map<String, Object>>();
+                        List<String> updatedAchievements = userAchievements;
+                        for (DocumentSnapshot doc : docs) {
+                            Map<String, Object> data = doc.getData();
+                            List<String> reqChallenges = (List<String>) (data.get("challenges"));
+                            int found = 0;
+                            for (String c : reqChallenges) {
+                                if (challenges != null && challenges.contains(c)) {
+                                    found++;
+                                } else {
+                                    break;
                                 }
-                                builder.create();
-                                builder.show();
                             }
-                        }else{
-                            progressDialog.dismiss();
-                            NotificationManager mNotificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
-                            mNotificationManager.cancelAll();
-                            finish();
+                            if (updatedAchievements == null) {
+                                updatedAchievements = new ArrayList<String>();
+                            }
+                            if (found >= reqChallenges.size() && !updatedAchievements.contains(data.get("id").toString())) {
+                                updatedAchievements.add(data.get("id").toString());
+                                achievementsInfo.add(data);
+                            }
                         }
-                    }
+                        final List<String> updatedAchievementsFinal = updatedAchievements;
+                        db.collection("users").document(user.getUid()).update("achievements", updatedAchievementsFinal).addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                    if (achievementsInfo.size() > 0) {
+                                        for (int i = 0; i < updatedAchievementsFinal.size(); ++i) {
+                                            final AlertDialog.Builder builder = new AlertDialog.Builder(CurrentSession.this);
+                                            final LayoutInflater inflater = getLayoutInflater();
+                                            final View dlgView = inflater.inflate(R.layout.achievement_dialog, null);
+                                            final TextView achievementName = (TextView) dlgView.findViewById(R.id.achievementName);
+                                            achievementName.setText(achievementsInfo.get(i).get("name").toString());
+                                            final TextView achievementDesc = (TextView) dlgView.findViewById(R.id.achievementDesc);
+                                            achievementDesc.setText(achievementsInfo.get(i).get("description").toString());
+                                            final ImageView achievementSticker = (ImageView) dlgView.findViewById(R.id.stickerImage);
+                                            Picasso.get().load(achievementsInfo.get(i).get("stickerUrl").toString()).into(achievementSticker);
+                                            builder.setView(dlgView);
+                                            if (i < updatedAchievementsFinal.size() - 1) {
+                                                builder.setPositiveButton("Next", new DialogInterface.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(DialogInterface dialog, int which) {
 
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                                                    }
+                                                });
+                                            } else {
+                                                builder.setPositiveButton("Done", new DialogInterface.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(DialogInterface dialog, int which) {
+                                                        progressDialog.dismiss();
+                                                        NotificationManager mNotificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+                                                        mNotificationManager.cancelAll();
+                                                        finish();
+                                                    }
+                                                });
+                                            }
+                                            builder.create();
+                                            builder.show();
+                                        }
+                                    } else {
+                                        progressDialog.dismiss();
+                                        NotificationManager mNotificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+                                        mNotificationManager.cancelAll();
+                                        finish();
+                                    }
+
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                            }
+                        });
                     }
                 });
             }
-        });
-    }
+        }
+
 
     private void SaveSession(String name){
         final String sessionName = name;
@@ -543,7 +557,9 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
 
 
         //Set Up Trick Objects
-        for (final Trick t : tempTrickList) {
+        for (int i = 0; i < tempTrickList.size(); ++i) {
+            final Trick t = tempTrickList.get(i);
+            final int time = i;
             // Create Trick for Session Object
             Map<String, Object> trick = new HashMap<>();
             trick.put("name", t.GetName());
@@ -677,9 +693,7 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
                                                                     db.collection("users").document(user.getUid()).update("challenges", userChallenges).addOnSuccessListener(new OnSuccessListener<Void>() {
                                                                         @Override
                                                                         public void onSuccess(Void aVoid) {
-                                                                            for(String challenges: userChallenges)
-                                                                                challengesToCheck.add(challenges);
-                                                                        }
+                                                                            CheckAchievements(userChallenges, (List<String>)(userData.get("achievements")), time+1); }
                                                                     }).addOnFailureListener(new OnFailureListener() {
                                                                         @Override
                                                                         public void onFailure(@NonNull Exception e) {
@@ -795,9 +809,7 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
                                                                     db.collection("users").document(user.getUid()).update("challenges", newUserChallenges).addOnSuccessListener(new OnSuccessListener<Void>() {
                                                                         @Override
                                                                         public void onSuccess(Void aVoid) {
-
-                                                                            for(String challenges: userChallenges)
-                                                                                challengesToCheck.add(challenges);
+                                                                            CheckAchievements(userChallenges, (List<String>)(userData.get("achievements")), time+1);
                                                                         }
                                                                     }).addOnFailureListener(new OnFailureListener() {
                                                                         @Override
@@ -829,8 +841,6 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
         }
 
         session.put("tricks", trickList);
-
-
 
         //Add Session to Document
         db.collection("users")
@@ -904,8 +914,7 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
                                                 db.collection("users").document(user.getUid()).update("challenges", userChallenges).addOnSuccessListener(new OnSuccessListener<Void>() {
                                                     @Override
                                                     public void onSuccess(Void aVoid) {
-                                                        for(String challenges: userChallenges)
-                                                            challengesToCheck.add(challenges);
+                                                        CheckAchievements(userChallenges, (List<String>)(userData.get("achievements")), -1);
                                                     }
                                                 }).addOnFailureListener(new OnFailureListener() {
                                                     @Override
@@ -927,24 +936,6 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
                         Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_LONG).show();
                     }
                 });
-        //------------------------------------------//
-        //------------CHECK FOR CHALLENGES----------//
-        //------------------------------------------//
-        final boolean checkingForUpdatedChallenges = true;
-        DocumentReference docRef = db.collection("users").document(user.getUid());
-        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
-                        final Map<String, Object> userData = document.getData();
-                        List<String> challenges = (List<String>) (userData.get("challenges"));
-                        CheckAchievements((List<String>) (userData.get("challenges")), (List<String>) (userData.get("achievements")));
-                    }
-                }
-            }
-        });
     }
 
 }
