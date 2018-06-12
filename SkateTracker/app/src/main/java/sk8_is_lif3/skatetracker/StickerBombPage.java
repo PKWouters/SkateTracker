@@ -123,6 +123,8 @@ public class StickerBombPage extends AppCompatActivity {
                                                             int y_cord = y - yDelta;
                                                             layoutParams.leftMargin = x_cord;
                                                             layoutParams.topMargin = y_cord;
+                                                            layoutParams.bottomMargin = windowheight - (y_cord - sticker.getHeight());
+                                                            layoutParams.rightMargin = windowwidth - (x_cord - sticker.getWidth());
                                                             view.setLayoutParams(layoutParams);
                                                             break;
 
@@ -133,6 +135,8 @@ public class StickerBombPage extends AppCompatActivity {
                                                             y_cord = y - yDelta;
                                                             layoutParams.leftMargin = x_cord;
                                                             layoutParams.topMargin = y_cord;
+                                                            layoutParams.bottomMargin = windowheight - (y_cord - sticker.getHeight());
+                                                            layoutParams.rightMargin = windowwidth - (x_cord - sticker.getWidth());
                                                             view.setLayoutParams(layoutParams);
                                                             break;
                                                     }
