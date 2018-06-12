@@ -52,7 +52,7 @@ public class Profile extends Fragment {
         viewAchievements.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getContext(), AchievementActivity.class);
+                Intent intent = new Intent(getContext(), StickerBombPage.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 getActivity().startActivity(intent);
             }
