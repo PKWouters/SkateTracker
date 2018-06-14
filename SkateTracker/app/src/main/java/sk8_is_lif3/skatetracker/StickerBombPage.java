@@ -276,7 +276,7 @@ public class StickerBombPage extends AppCompatActivity {
                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                     // taskSnapshot.getMetadata() contains file metadata such as size, content-type, and download URL.
                     Uri downloadUrl = taskSnapshot.getDownloadUrl();
-                    db.collection("users").document(user.getUid()).update("stickerBombUrl", downloadUrl).addOnSuccessListener(new OnSuccessListener<Void>() {
+                    db.collection("users").document(user.getUid()).update("stickerBombUrl", downloadUrl.toString()).addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
                             finish();

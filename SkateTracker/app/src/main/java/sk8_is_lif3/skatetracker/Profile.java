@@ -1,5 +1,6 @@
 package sk8_is_lif3.skatetracker;
 
+import android.arch.persistence.room.PrimaryKey;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -17,17 +18,23 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.squareup.picasso.Picasso;
+
+import java.util.Map;
 
 import sk8_is_lif3.skatetracker.transitions.Achievement;
 
@@ -38,7 +45,6 @@ public class Profile extends Fragment {
     FirebaseFirestore db;
     FirebaseUser user;
     private TextView tv;
-    private String holder = "fghjfghj";
 
     public Profile() {
         // Required empty public constructor
@@ -57,6 +63,26 @@ public class Profile extends Fragment {
         setHasOptionsMenu(true);
         if(user != null) {
             tv.setText(user.getDisplayName());
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if(user != null) {
+            final ImageView bg = (ImageView) getActivity().findViewById(R.id.stickerBombImage);
+            db.collection("users").document(user.getUid()).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                @Override
+                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                    Map<String, Object> data = documentSnapshot.getData();
+                    try{
+                        String image = data.get("stickerBombUrl").toString();
+                        Picasso.get().load(image).into(bg);
+                    }catch (Exception e){
+                        Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
         }
     }
 
@@ -104,6 +130,11 @@ public class Profile extends Fragment {
                         intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                         getActivity().startActivity(intent);
                         break;
+            case R.id.sticker_bomb:
+                Intent stickerintent = new Intent(getContext(), StickerBombPage.class);
+                stickerintent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                getActivity().startActivity(stickerintent);
+                break;
             case R.id.the_sign_out:
                         if(FirebaseAuth.getInstance().getCurrentUser() != null){
                             AuthUI.getInstance()

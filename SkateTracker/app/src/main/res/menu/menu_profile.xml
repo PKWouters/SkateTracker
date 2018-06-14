@@ -8,6 +8,9 @@
         android:title="Achivments"
         app:showAsAction="never" />
     <item
+        android:id="@+id/sticker_bomb"
+        android:title="Create New Sticker Bomb" />
+    <item
         android:id="@+id/the_sign_out"
         android:title="Sign Out"
         app:showAsAction="never"/>
