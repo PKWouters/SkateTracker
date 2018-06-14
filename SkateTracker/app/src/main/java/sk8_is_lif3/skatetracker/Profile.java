@@ -46,7 +46,6 @@ public class Profile extends Fragment {
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-
         Toolbar toolbar = (Toolbar) getView().findViewById(R.id.toolbar);
         toolbar.setTitle("Profile");
         AppCompatActivity activity = (AppCompatActivity)getActivity();
