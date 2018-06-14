@@ -41,7 +41,6 @@ public class Profile extends Fragment {
                             .signOut(getActivity())
                             .addOnCompleteListener(new OnCompleteListener<Void>() {
                                 public void onComplete(@NonNull Task<Void> task) {
-                                    // ...
                                     Toast.makeText(getContext(), "Signed Out", Toast.LENGTH_SHORT).show();
                                 }
                             });
