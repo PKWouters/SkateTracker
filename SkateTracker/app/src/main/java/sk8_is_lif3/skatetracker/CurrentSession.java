@@ -451,7 +451,7 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
                             @Override
                             public void onSuccess(Void aVoid) {
                                     if (achievementsInfo.size() > 0) {
-                                        for (int i = 0; i < updatedAchievementsFinal.size(); ++i) {
+                                        for (int i = 0; i < achievementsInfo.size(); i++) {
                                             final AlertDialog.Builder builder = new AlertDialog.Builder(CurrentSession.this);
                                             final LayoutInflater inflater = getLayoutInflater();
                                             final View dlgView = inflater.inflate(R.layout.achievement_dialog, null);
@@ -660,7 +660,7 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
 
                                                                             //--Trick Landings--//
                                                                             if (t.GetTimesLanded() >= 1) {
-                                                                                if (data.get("type").equals("land") && (long) data.get("requirement") <= (int)userTrick.get("totalLandings")) {
+                                                                                if (data.get("type").equals("land") && (long) data.get("requirement") <= Integer.valueOf(userTrick.get("totalLandings").toString())) {
                                                                                     if (userChallenges != null && !userChallenges.contains(data.get("id"))) {
                                                                                         userChallenges.add((String) (data.get("id")));
                                                                                         Toast.makeText(getApplicationContext(), "New Achievement: " + data.get("name").toString(), Toast.LENGTH_SHORT).show();

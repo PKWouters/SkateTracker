@@ -41,7 +41,6 @@ public class Profile extends Fragment {
                             .signOut(getActivity())
                             .addOnCompleteListener(new OnCompleteListener<Void>() {
                                 public void onComplete(@NonNull Task<Void> task) {
-                                    // ...
                                     Toast.makeText(getContext(), "Signed Out", Toast.LENGTH_SHORT).show();
                                 }
                             });
@@ -52,7 +51,7 @@ public class Profile extends Fragment {
         viewAchievements.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getContext(), AchievementActivity.class);
+                Intent intent = new Intent(getContext(), StickerBombPage.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 getActivity().startActivity(intent);
             }
