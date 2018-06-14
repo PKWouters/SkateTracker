@@ -3,6 +3,7 @@ package sk8_is_lif3.skatetracker;
 import android.annotation.SuppressLint;
 import android.content.ClipData;
 import android.content.ClipDescription;
+import android.graphics.Matrix;
 import android.os.Build;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.CoordinatorLayout;
@@ -39,6 +40,12 @@ public class StickerBombPage extends AppCompatActivity {
     private int xDelta;
     private int yDelta;
 
+    private Matrix mImageMatrix;
+    /* Last Rotation Angle */
+    private int mLastAngle = 0;
+    /* Pivot Point for Transforms */
+    private int mPivotX, mPivotY;
+
     private final class MyTouchListener implements View.OnTouchListener {
         public boolean onTouch(View view, MotionEvent motionEvent) {
             if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
@@ -73,6 +80,8 @@ public class StickerBombPage extends AppCompatActivity {
         windowheight = layout.getHeight();
         windowwidth = layout.getWidth();
 
+        mImageMatrix = new Matrix();
+
         if(user != null){
 
             db.collection("users").document(user.getUid()).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
@@ -94,14 +103,16 @@ public class StickerBombPage extends AppCompatActivity {
                                                 new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT,
                                                         RelativeLayout.LayoutParams.WRAP_CONTENT);
                                         sticker.setLayoutParams(vp);
+                                        sticker.setScaleType(ImageView.ScaleType.MATRIX);
                                         sticker.setOnTouchListener(new View.OnTouchListener() {
                                             @Override
-                                            public boolean onTouch(View view, MotionEvent event) {
+                                            public boolean onTouch(View v, MotionEvent event) {
                                                 {
 
                                                     int x = (int) event.getRawX();
                                                     int y = (int) event.getRawY();
 
+                                                    ImageView view = (ImageView) v;
 
                                                     RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) view.getLayoutParams();
 
@@ -116,33 +127,32 @@ public class StickerBombPage extends AppCompatActivity {
                                                             break;
 
                                                         case MotionEvent.ACTION_UP:
-                                                            layoutParams = (RelativeLayout.LayoutParams) view
-                                                                    .getLayoutParams();
-
-                                                            int x_cord = x - xDelta;
-                                                            int y_cord = y - yDelta;
-                                                            layoutParams.leftMargin = x_cord;
-                                                            layoutParams.topMargin = y_cord;
-                                                            layoutParams.bottomMargin = windowheight - (y_cord - sticker.getHeight());
-                                                            layoutParams.rightMargin = windowwidth - (x_cord - sticker.getWidth());
-                                                            view.setLayoutParams(layoutParams);
                                                             break;
 
                                                         case MotionEvent.ACTION_MOVE:
-                                                            layoutParams = (RelativeLayout.LayoutParams) view
-                                                                .getLayoutParams();
-                                                            x_cord = x - xDelta;
-                                                            y_cord = y - yDelta;
-                                                            layoutParams.leftMargin = x_cord;
-                                                            layoutParams.topMargin = y_cord;
-                                                            layoutParams.bottomMargin = windowheight - (y_cord - sticker.getHeight());
-                                                            layoutParams.rightMargin = windowwidth - (x_cord - sticker.getWidth());
-                                                            view.setLayoutParams(layoutParams);
+                                                            switch (event.getPointerCount()) {
+                                                                case 2:
+                                                                    // With two fingers down, rotate the image
+                                                                    // following the fingers
+                                                                    return doRotationEvent(view, event);
+                                                                default:
+                                                                    layoutParams = (RelativeLayout.LayoutParams) view
+                                                                            .getLayoutParams();
+
+                                                                    int x_cord = x - xDelta;
+                                                                    int y_cord = y - yDelta;
+                                                                    layoutParams.leftMargin = x_cord;
+                                                                    layoutParams.topMargin = y_cord;
+                                                                    layoutParams.bottomMargin = windowheight - (y_cord - sticker.getHeight());
+                                                                    layoutParams.rightMargin = windowwidth - (x_cord - sticker.getWidth());
+                                                                    view.setLayoutParams(layoutParams);
+                                                            }
                                                             break;
                                                     }
-                                                    layout.invalidate();
-                                                    return true;
+
+
                                                 }
+                                                return true;
                                             }
                                         });
                                         Picasso.get().load(data.get("stickerUrl").toString()).into(sticker);
@@ -157,4 +167,52 @@ public class StickerBombPage extends AppCompatActivity {
             });
         }
     }
+    private boolean doRotationEvent(ImageView view, MotionEvent event) {
+        //Calculate the angle between the two fingers
+        float deltaX = event.getX(0) - event.getX(1);
+        float deltaY = event.getY(0) - event.getY(1);
+        double radians = Math.atan(deltaY / deltaX);
+        //Convert to degrees
+        int degrees = (int)(radians * 180 / Math.PI);
+
+        float midX = event.getX(0) + event.getX(1);
+        float midY = event.getY(0) + event.getY(1);
+        /*
+         * Must use getActionMasked() for switching to pick up pointer events.
+         * These events have the pointer index encoded in them so the return
+         * from getAction() won't match the exact action constant.
+         */
+        switch (event.getActionMasked()) {
+            case MotionEvent.ACTION_DOWN:
+            case MotionEvent.ACTION_POINTER_DOWN:
+            case MotionEvent.ACTION_POINTER_UP:
+                //Mark the initial angle
+                mLastAngle = degrees;
+                break;
+            case MotionEvent.ACTION_MOVE:
+                // ATAN returns a converted value between -90deg and +90deg
+                // which creates a point when two fingers are vertical where the
+                // angle flips sign.  We handle this case by rotating a small amount
+                // (5 degrees) in the direction we were traveling
+                if ((degrees - mLastAngle) > 45) {
+                    //Going CCW across the boundary
+                    mImageMatrix.postRotate(-5, view.getWidth()/2, view.getHeight()/2);
+                } else if ((degrees - mLastAngle) < -45) {
+                    //Going CW across the boundary
+                    mImageMatrix.postRotate(5, view.getWidth()/2, view.getHeight()/2);
+                } else {
+                    //Normal rotation, rotate the difference
+                    mImageMatrix.postRotate(degrees - mLastAngle, view.getWidth()/2, view.getHeight()/2);
+                }
+                //Post the rotation to the image
+                view.setImageMatrix(mImageMatrix);
+                //Save the current angle
+                mLastAngle = degrees;
+
+                break;
+        }
+
+        return true;
+    }
+
 }
