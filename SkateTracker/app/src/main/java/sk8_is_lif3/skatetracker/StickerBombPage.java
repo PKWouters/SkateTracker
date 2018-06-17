@@ -1,8 +1,10 @@
 package sk8_is_lif3.skatetracker;
 
 import android.annotation.SuppressLint;
+import android.app.ProgressDialog;
 import android.content.ClipData;
 import android.content.ClipDescription;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.net.Uri;
@@ -13,6 +15,7 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.DisplayMetrics;
 import android.view.DragEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -39,6 +42,8 @@ import com.squareup.picasso.Picasso;
 import java.io.ByteArrayOutputStream;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class StickerBombPage extends AppCompatActivity {
 
@@ -56,6 +61,7 @@ public class StickerBombPage extends AppCompatActivity {
     private int mLastAngle = 0;
     /* Pivot Point for Transforms */
     private int mPivotX, mPivotY;
+    ProgressDialog progressDialog;
 
     private final class MyTouchListener implements View.OnTouchListener {
         public boolean onTouch(View view, MotionEvent motionEvent) {
@@ -78,22 +84,23 @@ public class StickerBombPage extends AppCompatActivity {
         setContentView(R.layout.activity_sticker_bomb_page);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 
+        final Random rnd = new Random();
+
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
-        getSupportActionBar().setHomeButtonEnabled(true);
 
         db = FirebaseFirestore.getInstance();
         user = FirebaseAuth.getInstance().getCurrentUser();
         final RelativeLayout layout = findViewById(R.id.layout);
 
-        windowheight = layout.getHeight();
-        windowwidth = layout.getWidth();
+        DisplayMetrics displaymetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
+        final int windowwidth = displaymetrics.widthPixels;
+        final int windowheight = displaymetrics.heightPixels;
 
         mImageMatrix = new Matrix();
 
-        if(user != null){
+        if(user != null && layout != null){
 
             db.collection("users").document(user.getUid()).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                 @Override
@@ -113,6 +120,13 @@ public class StickerBombPage extends AppCompatActivity {
                                         RelativeLayout.LayoutParams vp =
                                                 new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT,
                                                         RelativeLayout.LayoutParams.WRAP_CONTENT);
+                                        int randomX = rnd.nextInt(windowwidth)/2;
+                                        int randomY = rnd.nextInt(windowheight)/2;
+                                        System.out.println(randomX + ": " + windowwidth);
+                                        System.out.println(randomY + ": " + windowheight);
+
+                                        vp.topMargin = randomY;
+                                        vp.leftMargin = randomX;
                                         sticker.setLayoutParams(vp);
                                         sticker.setScaleType(ImageView.ScaleType.MATRIX);
                                         sticker.setOnTouchListener(new View.OnTouchListener() {
@@ -247,6 +261,9 @@ public class StickerBombPage extends AppCompatActivity {
     }
 
     public Bitmap takeScreenshot() {
+
+        progressDialog = ProgressDialog.show(StickerBombPage.this, "",
+                "Saving Sticker Bomb...", true);
         View rootView = findViewById(R.id.layout);
         rootView.setDrawingCacheEnabled(true);
         return rootView.getDrawingCache();
@@ -279,6 +296,7 @@ public class StickerBombPage extends AppCompatActivity {
                     db.collection("users").document(user.getUid()).update("stickerBombUrl", downloadUrl.toString()).addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
+                            progressDialog.dismiss();
                             finish();
                         }
                     });
@@ -288,6 +306,13 @@ public class StickerBombPage extends AppCompatActivity {
 
 
 
+    }
+    public static int getScreenWidth() {
+        return Resources.getSystem().getDisplayMetrics().widthPixels;
+    }
+
+    public static int getScreenHeight() {
+        return Resources.getSystem().getDisplayMetrics().heightPixels;
     }
 
 }
