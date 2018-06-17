@@ -43,6 +43,7 @@ public class LearnTrick extends Fragment {
     String mName, mUrl, mDBID, mArticle;
     ArrayList<String> mPrevTricks;
     YouTubePlayerView youTubePlayerView;
+    YouTubePlayer youTubePlayer;
 
     public LearnTrick() {
         // Required empty public constructor
@@ -104,8 +105,10 @@ public class LearnTrick extends Fragment {
                 initializedYouTubePlayer.addListener(new AbstractYouTubePlayerListener() {
                     @Override
                     public void onReady() {
+                        youTubePlayer = initializedYouTubePlayer;
                         String videoId = mUrl;
-                        initializedYouTubePlayer.loadVideo(videoId, 0);
+                        youTubePlayer.cueVideo(videoId, 0);
+
                     }
                 });
             }
@@ -216,7 +219,19 @@ public class LearnTrick extends Fragment {
     @Override
     public void onPause(){
         super.onPause();
-        youTubePlayerView.release();
+        if(youTubePlayer != null) {
+            youTubePlayer.pause();
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        if(youTubePlayer != null){
+            youTubePlayer.cueVideo(mUrl, 0);
+        }
+
     }
 
 
