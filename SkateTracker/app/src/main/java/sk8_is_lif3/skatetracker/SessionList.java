@@ -114,8 +114,8 @@ public class SessionList extends Fragment {
 
     }
     @Override
-    public void onStop(){
-        super.onStop();
+    public void onPause(){
+        super.onPause();
         if (adapter != null) {
             adapter.stopListening();
         }
@@ -131,6 +131,9 @@ public class SessionList extends Fragment {
         setExitTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
         setReturnTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
         setReenterTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
+
+        System.out.println("FIRST TIME OPENING SESSIONS");
+
         sessionList = new ArrayList<String>();
         final FirebaseFirestore db = FirebaseFirestore.getInstance();
 

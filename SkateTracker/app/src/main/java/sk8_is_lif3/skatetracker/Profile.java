@@ -97,6 +97,8 @@ public class Profile extends Fragment {
         db = FirebaseFirestore.getInstance();
         user = FirebaseAuth.getInstance().getCurrentUser();
 
+        System.out.println("NEW FRAGMENT");
+
     }
 
 

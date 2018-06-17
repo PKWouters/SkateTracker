@@ -6,6 +6,8 @@ import android.os.Bundle;
 import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.widget.TextView;
@@ -37,6 +39,7 @@ public class MainNavigationActivity extends AppCompatActivity {
     private FirebaseAuth.AuthStateListener mAuthStateListener;
     private static final int RC_SIGN_IN = 123;
     private TextView mTextMessage;
+    private Fragment[] fragments = new Fragment[4];
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -59,9 +62,17 @@ public class MainNavigationActivity extends AppCompatActivity {
                                 .build();
                         startActivityForResult(i, RC_SIGN_IN);
                     }
+                    Bundle sArgs = new Bundle();
+                    sArgs.putString("tag", "SESSIONS");
+                    SessionList sessions = (SessionList) getSupportFragmentManager().findFragmentByTag("SESSIONS");
+                    if(sessions == null) {
+                        sessions = new SessionList();
+                        sessions.setArguments(sArgs);
+                    }
                     getSupportFragmentManager()
                             .beginTransaction()
-                            .replace(R.id.fragment, new SessionList(), "SessionsList")
+                            .replace(R.id.fragment, sessions, "SESSIONS")
+                            .addToBackStack(null)
                             .commit();
                     return true;
                 case R.id.navigation_learn:
@@ -79,9 +90,17 @@ public class MainNavigationActivity extends AppCompatActivity {
                                 .build();
                         startActivityForResult(i, RC_SIGN_IN);
                     }
+                    Bundle lArgs = new Bundle();
+                    lArgs.putString("tag", "LEARN");
+                    LearnHome learn = (LearnHome) getSupportFragmentManager().findFragmentByTag("LEARN");
+                    if(learn == null) {
+                        learn = new LearnHome();
+                        learn.setArguments(lArgs);
+                    }
                     getSupportFragmentManager()
                             .beginTransaction()
-                            .replace(R.id.fragment, new LearnHome(), "LEARN")
+                            .replace(R.id.fragment, learn, "LEARN")
+                            .addToBackStack(null)
                             .commit();
                     return true;
                 case R.id.navigation_skate:
@@ -99,9 +118,17 @@ public class MainNavigationActivity extends AppCompatActivity {
                                 .build();
                         startActivityForResult(i, RC_SIGN_IN);
                     }
+                    Bundle skArgs = new Bundle();
+                    skArgs.putString("tag", "SKATE");
+                    SkateHome skate = (SkateHome) getSupportFragmentManager().findFragmentByTag("SKATE");
+                    if(skate == null) {
+                        skate = new SkateHome();
+                        skate.setArguments(skArgs);
+                    }
                     getSupportFragmentManager()
                             .beginTransaction()
-                            .replace(R.id.fragment, new SkateHome(), "SKATE")
+                            .replace(R.id.fragment, skate, "SKATE")
+                            .addToBackStack(null)
                             .commit();
                     return true;
                     /*
@@ -123,9 +150,17 @@ public class MainNavigationActivity extends AppCompatActivity {
                                 .build();
                         startActivityForResult(i, RC_SIGN_IN);
                     }
+                    Bundle pArgs = new Bundle();
+                    pArgs.putString("tag", "PROFILE");
+                    Profile profile = (Profile) getSupportFragmentManager().findFragmentByTag("PROFILE");
+                    if(profile == null) {
+                        profile = new Profile();
+                        profile.setArguments(pArgs);
+                    }
                     getSupportFragmentManager()
                             .beginTransaction()
-                            .replace(R.id.fragment, new Profile(), "Profile")
+                            .replace(R.id.fragment, profile, "PROFILE")
+                            .addToBackStack(null)
                             .commit();
                     return true;
             }
@@ -139,12 +174,10 @@ public class MainNavigationActivity extends AppCompatActivity {
 
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.fragment, new SessionList(), "SessionsList")
+                .replace(R.id.fragment, new SessionList(), "SESSIONS")
                 .commit();
 
-
         setContentView(R.layout.activity_main_navigation);
-
 
         BottomNavigationViewEx navigation = (BottomNavigationViewEx) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
@@ -235,4 +268,7 @@ public class MainNavigationActivity extends AppCompatActivity {
             }
         }
     }
+
+
+
 }
