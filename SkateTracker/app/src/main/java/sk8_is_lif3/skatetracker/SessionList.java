@@ -1,5 +1,6 @@
 package sk8_is_lif3.skatetracker;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Color;
@@ -35,6 +36,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.squareup.picasso.Picasso;
 
 import java.lang.reflect.Type;
 import java.math.RoundingMode;
@@ -166,6 +168,12 @@ public class SessionList extends Fragment {
                     holder.trickNameView.setMaxLines(1);
                     holder.trickNameView.setTransitionName("trickNameTransition" + Integer.toString(position));
                     holder.trickNameView.setTextColor(Color.WHITE);
+                    holder.trickPicture.setImageDrawable
+                            (
+                                    getResources().getDrawable(getResourceID("trick_" + Integer.toString(position+1), "drawable",
+                                            getContext()), null)
+                            );
+
                     DecimalFormat df = new DecimalFormat("#.##");
                     df.setRoundingMode(RoundingMode.CEILING);
                     double val = Double.valueOf(df.format(model.getAvgRatio()));
@@ -324,11 +332,13 @@ public class SessionList extends Fragment {
 
         // each data item is just a string in this case
         public TextView trickNameView, trickRatioView;
+        public ImageView trickPicture;
         public View itemView;
         public ImageView removeButton;
         public TrickViewHolder(View v) {
             super(v);
             itemView = v;
+            trickPicture = (ImageView)v.findViewById(R.id.imageView);
             trickNameView = v.findViewById(R.id.trickName);
             trickRatioView = v.findViewById(R.id.trickRatio);
         }
@@ -349,6 +359,24 @@ public class SessionList extends Fragment {
             outRect.bottom = space/2;
             outRect.top = space;
 
+        }
+    }
+    protected final static int getResourceID
+            (final String resName, final String resType, final Context ctx)
+    {
+        final int ResourceID =
+                ctx.getResources().getIdentifier(resName, resType,
+                        ctx.getApplicationInfo().packageName);
+        if (ResourceID == 0)
+        {
+            throw new IllegalArgumentException
+                    (
+                            "No resource string found with name " + resName
+                    );
+        }
+        else
+        {
+            return ResourceID;
         }
     }
 
