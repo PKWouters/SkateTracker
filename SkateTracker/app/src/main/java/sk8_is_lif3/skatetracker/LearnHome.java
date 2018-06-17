@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -201,12 +202,58 @@ public class LearnHome extends Fragment {
                     public void onClick(View v) {
 
                         LearnTrick nextFrag = new LearnTrick(model.getName(), videoID, model.getId(), model.getArticle(), model.getPrevTricks());
+                        holder.background.setTransitionName("sessionNameTransition" + model.getId());
 
-                        getActivity().getSupportFragmentManager().beginTransaction()
-                                .setReorderingAllowed(true)
-                                .replace(R.id.fragment, nextFrag,"LearnTrick")
-                                .addToBackStack(model.getName())
-                                .commit();
+                        Transition mainTransition = TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade);
+                        mainTransition.setDuration(250);
+
+                        Transition textTransMove = new ChangeTransform();
+                        textTransMove.setInterpolator(new FastOutSlowInInterpolator());
+
+                        Transition textTransBounds = new ChangeBounds();
+                        textTransBounds.setInterpolator(new FastOutSlowInInterpolator());
+
+                        Transition fadeOutTrans = TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade);
+                        fadeOutTrans.setDuration(250);
+
+                        long duration = 375;
+
+                        int screenSize = getView().getResources().getConfiguration().screenLayout &
+                                Configuration.SCREENLAYOUT_SIZE_MASK;
+
+                        switch (screenSize) {
+                            case Configuration.SCREENLAYOUT_SIZE_LARGE:
+                                duration = 390;
+                                break;
+                            case Configuration.SCREENLAYOUT_SIZE_NORMAL:
+                                duration = 300;
+                                break;
+                            case Configuration.SCREENLAYOUT_SIZE_SMALL:
+                                duration = 210;
+                                break;
+                            default:
+                        }
+                        mainTransition.setStartDelay(duration);
+                        fadeOutTrans.setStartDelay(duration);
+                        textTransMove.setDuration(duration);
+                        textTransBounds.setDuration(duration);
+
+                        TransitionSet tSet = new TransitionSet().addTransition(textTransMove).addTransition(fadeOutTrans).addTransition(textTransBounds);
+
+                        setSharedElementReturnTransition(tSet);
+                        //setExitTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
+
+                        nextFrag.setSharedElementEnterTransition(tSet);
+                        nextFrag.setEnterTransition(mainTransition);
+                        nextFrag.setExitTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
+                        nextFrag.setReturnTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
+
+                            getActivity().getSupportFragmentManager().beginTransaction()
+                                    .setReorderingAllowed(true)
+                                    .replace(R.id.fragment, nextFrag, "LearnTrick")
+                                    .addToBackStack(null)
+                                    .addSharedElement(holder.background, holder.background.getTransitionName())
+                                    .commit();
                     }
                 });
             }
@@ -252,11 +299,57 @@ public class LearnHome extends Fragment {
                     public void onClick(View v) {
 
                         LearnTrick nextFrag = new LearnTrick(model.getName(), videoID, model.getId(), model.getArticle(), model.getPrevTricks());
+                        holder.background.setTransitionName("sessionNameTransition" + model.getId());
+
+                        Transition mainTransition = TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade);
+                        mainTransition.setDuration(250);
+
+                        Transition textTransMove = new ChangeTransform();
+                        textTransMove.setInterpolator(new FastOutSlowInInterpolator());
+
+                        Transition textTransBounds = new ChangeBounds();
+                        textTransBounds.setInterpolator(new FastOutSlowInInterpolator());
+
+                        Transition fadeOutTrans = TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade);
+                        fadeOutTrans.setDuration(250);
+
+                        long duration = 375;
+
+                        int screenSize = getView().getResources().getConfiguration().screenLayout &
+                                Configuration.SCREENLAYOUT_SIZE_MASK;
+
+                        switch (screenSize) {
+                            case Configuration.SCREENLAYOUT_SIZE_LARGE:
+                                duration = 390;
+                                break;
+                            case Configuration.SCREENLAYOUT_SIZE_NORMAL:
+                                duration = 300;
+                                break;
+                            case Configuration.SCREENLAYOUT_SIZE_SMALL:
+                                duration = 210;
+                                break;
+                            default:
+                        }
+                        mainTransition.setStartDelay(duration);
+                        fadeOutTrans.setStartDelay(duration);
+                        textTransMove.setDuration(duration);
+                        textTransBounds.setDuration(duration);
+
+                        TransitionSet tSet = new TransitionSet().addTransition(textTransMove).addTransition(fadeOutTrans).addTransition(textTransBounds);
+
+                        setSharedElementReturnTransition(tSet);
+                        //setExitTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
+
+                        nextFrag.setSharedElementEnterTransition(tSet);
+                        nextFrag.setEnterTransition(mainTransition);
+                        nextFrag.setExitTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
+                        nextFrag.setReturnTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
 
                         getActivity().getSupportFragmentManager().beginTransaction()
                                 .setReorderingAllowed(true)
-                                .replace(R.id.fragment, nextFrag,"LearnTrick")
-                                .addToBackStack(model.getName())
+                                .replace(R.id.fragment, nextFrag, "LearnTrick")
+                                .addToBackStack(null)
+                                .addSharedElement(holder.background, holder.background.getTransitionName())
                                 .commit();
                     }
                 });
