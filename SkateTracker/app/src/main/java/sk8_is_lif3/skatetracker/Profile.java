@@ -79,7 +79,7 @@ public class Profile extends Fragment {
                         String image = data.get("stickerBombUrl").toString();
                         Picasso.get().load(image).into(bg);
                     }catch (Exception e){
-                        Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+
                     }
                 }
             });
@@ -139,8 +139,9 @@ public class Profile extends Fragment {
                                     .signOut(getActivity())
                                     .addOnCompleteListener(new OnCompleteListener<Void>() {
                                         public void onComplete(@NonNull Task<Void> task) {
-                                            // ...
+                                            startActivity(new Intent(getContext(), LoginActivity.class));
                                             Toast.makeText(getContext(), "Signed Out", Toast.LENGTH_SHORT).show();
+                                            getActivity().finish();
                                         }
                                     });
                         }
