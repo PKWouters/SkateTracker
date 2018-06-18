@@ -177,6 +177,7 @@ public class MainNavigationActivity extends AppCompatActivity {
                 .replace(R.id.fragment, new SessionList(), "SESSIONS")
                 .commit();
 
+
         setContentView(R.layout.activity_main_navigation);
 
         BottomNavigationViewEx navigation = (BottomNavigationViewEx) findViewById(R.id.navigation);

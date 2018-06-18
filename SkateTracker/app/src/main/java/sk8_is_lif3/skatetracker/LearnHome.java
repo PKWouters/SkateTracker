@@ -12,6 +12,7 @@ import android.support.transition.ChangeBounds;
 import android.support.transition.ChangeTransform;
 import android.support.transition.Transition;
 import android.support.transition.TransitionInflater;
+import android.support.transition.TransitionManager;
 import android.support.transition.TransitionSet;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.animation.FastOutSlowInInterpolator;
@@ -82,89 +83,13 @@ public class LearnHome extends Fragment {
         trickGridView2.setHasFixedSize(false);
         trickGridView2.setLayoutManager(trickLayoutManager2);
         trickGridView2.setAdapter(mediumTrickAdapter);
-        final CardView recentTrickCard = (CardView) getView().findViewById(R.id.recentCard);
-        recentTrickCard.setVisibility(View.GONE);
-        final FirebaseFirestore db = FirebaseFirestore.getInstance();
-        final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        if(user != null) {
-            final DocumentReference docRef = db.collection("users").document(user.getUid());
-            docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                    if (task.isSuccessful()) {
-                        DocumentSnapshot document = task.getResult();
-                        if (document.exists()) {
-                            if (document.getData().get("recent_trick") != null) {
-                                recentTrick = document.getData().get("recent_trick").toString();
-                                DocumentReference trickRef = db.collection("users").document(user.getUid()).collection("tricks").document(recentTrick);
-                                trickRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                                    @Override
-                                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-                                        recentTrickObj = documentSnapshot.toObject(TrickToDisplay.class);
-                                        if(getView() != null) {
-                                            final DonutProgress progress = (DonutProgress) getView().findViewById(R.id.trickProgress);
-                                            Double ratio = (Double) recentTrickObj.getAvgRatio();
-                                            ratio *= 100;
-                                            TextView recentTrickView = (TextView) getView().findViewById(R.id.recentTrickName);
-                                            recentTrickView.setText(recentTrickObj.getName());
-                                            if(ratio > 100){
-                                                ratio = 100.0;
-                                            }
-                                            else if (ratio < 100) {
-                                                progress.setTextColor(getResources().getColor(R.color.colorAccent));
-                                                progress.setFinishedStrokeColor(getResources().getColor(R.color.colorAccent));
-                                            }
-                                            progress.setDonut_progress(Integer.toString(ratio.intValue()));
-                                            recentTrickCard.setVisibility(View.VISIBLE);
-                                            ProgressBar loading = (ProgressBar) getView().findViewById(R.id.progressBar);
-                                            loading.setVisibility(View.GONE);
-                                            Button progressBtn = getView().findViewById(R.id.progressBtn);
-                                            progressBtn.setOnClickListener(new View.OnClickListener() {
-                                                @Override
-                                                public void onClick(View v) {
-                                                    TrickDetailFragment nextFrag = new TrickDetailFragment(recentTrickObj.getName().toUpperCase().toString(), recentTrickObj.getAvgRatio(), recentTrickObj.getDbID(), recentTrickObj.getSessions());
-                                                    nextFrag.setSharedElementEnterTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
-                                                    nextFrag.setEnterTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
-                                                    nextFrag.setExitTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
-                                                    nextFrag.setReturnTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
-
-                                                    getActivity().getSupportFragmentManager().beginTransaction()
-                                                            .setReorderingAllowed(true)
-                                                            .replace(R.id.fragment, nextFrag,"TrickDetailFragment")
-                                                            .addToBackStack(recentTrickObj.getName())
-                                                            .commit();
-                                                }
-                                            });
-                                        }
-                                    }
-                                });
-                            }else{
-                                if(getView() != null) {
-                                    ProgressBar loading = (ProgressBar) getView().findViewById(R.id.progressBar);
-                                    loading.setVisibility(View.GONE);
-                                }
-                            }
-                        } else {
-
-                        }
-                    } else {
-
-                    }
-                }
-            });
-        }
-
-
 
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setEnterTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
-        setExitTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
-        setReturnTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
-        setReenterTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
+
 
         final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
@@ -396,6 +321,78 @@ public class LearnHome extends Fragment {
         }
         if(mediumTrickAdapter != null){
             mediumTrickAdapter.startListening();
+        }
+
+        final CardView recentTrickCard = (CardView) getView().findViewById(R.id.recentCard);
+        recentTrickCard.setVisibility(View.GONE);
+        final FirebaseFirestore db = FirebaseFirestore.getInstance();
+        final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if(user != null) {
+            final DocumentReference docRef = db.collection("users").document(user.getUid());
+            docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                    if (task.isSuccessful()) {
+                        DocumentSnapshot document = task.getResult();
+                        if (document.exists()) {
+                            if (document.getData().get("recent_trick") != null) {
+                                recentTrick = document.getData().get("recent_trick").toString();
+                                DocumentReference trickRef = db.collection("users").document(user.getUid()).collection("tricks").document(recentTrick);
+                                trickRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                    @Override
+                                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                        recentTrickObj = documentSnapshot.toObject(TrickToDisplay.class);
+                                        if(getView() != null) {
+                                            final DonutProgress progress = (DonutProgress) getView().findViewById(R.id.trickProgress);
+                                            Double ratio = (Double) recentTrickObj.getAvgRatio();
+                                            ratio *= 100;
+                                            TextView recentTrickView = (TextView) getView().findViewById(R.id.recentTrickName);
+                                            recentTrickView.setText(recentTrickObj.getName());
+                                            if(ratio > 100){
+                                                ratio = 100.0;
+                                            }
+                                            else if (ratio < 100) {
+                                                progress.setTextColor(getResources().getColor(R.color.colorAccent));
+                                                progress.setFinishedStrokeColor(getResources().getColor(R.color.colorAccent));
+                                            }
+                                            progress.setDonut_progress(Integer.toString(ratio.intValue()));
+                                            recentTrickCard.setVisibility(View.VISIBLE);
+                                            ProgressBar loading = (ProgressBar) getView().findViewById(R.id.progressBar);
+                                            loading.setVisibility(View.GONE);
+                                            Button progressBtn = getView().findViewById(R.id.progressBtn);
+                                            progressBtn.setOnClickListener(new View.OnClickListener() {
+                                                @Override
+                                                public void onClick(View v) {
+                                                    TrickDetailFragment nextFrag = new TrickDetailFragment(recentTrickObj.getName().toUpperCase().toString(), recentTrickObj.getAvgRatio(), recentTrickObj.getDbID(), recentTrickObj.getSessions());
+                                                    nextFrag.setSharedElementEnterTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
+                                                    nextFrag.setEnterTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
+                                                    nextFrag.setExitTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
+                                                    nextFrag.setReturnTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
+
+                                                    getActivity().getSupportFragmentManager().beginTransaction()
+                                                            .setReorderingAllowed(true)
+                                                            .replace(R.id.fragment, nextFrag,"TrickDetailFragment")
+                                                            .addToBackStack(recentTrickObj.getName())
+                                                            .commit();
+                                                }
+                                            });
+                                        }
+                                    }
+                                });
+                            }else{
+                                if(getView() != null) {
+                                    ProgressBar loading = (ProgressBar) getView().findViewById(R.id.progressBar);
+                                    loading.setVisibility(View.GONE);
+                                }
+                            }
+                        } else {
+
+                        }
+                    } else {
+
+                    }
+                }
+            });
         }
     }
 

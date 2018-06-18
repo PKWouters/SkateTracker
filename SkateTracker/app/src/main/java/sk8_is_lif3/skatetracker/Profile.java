@@ -89,10 +89,6 @@ public class Profile extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setEnterTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
-        setExitTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
-        setReturnTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
-        setReenterTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
 
         db = FirebaseFirestore.getInstance();
         user = FirebaseAuth.getInstance().getCurrentUser();

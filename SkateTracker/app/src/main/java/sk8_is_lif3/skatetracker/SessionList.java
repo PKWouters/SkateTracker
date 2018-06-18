@@ -127,10 +127,7 @@ public class SessionList extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setEnterTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
-        setExitTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
-        setReturnTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
-        setReenterTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
+
 
         System.out.println("FIRST TIME OPENING SESSIONS");
 
@@ -179,8 +176,9 @@ public class SessionList extends Fragment {
 
                     DecimalFormat df = new DecimalFormat("#.##");
                     df.setRoundingMode(RoundingMode.CEILING);
-                    double val = Double.valueOf(df.format(model.getAvgRatio()));
-                    holder.trickRatioView.setText(Double.toString(val*100) + "%");
+                    double val = Double.valueOf(df.format(model.getAvgRatio())) * 100;
+                    int value = (int) val;
+                    holder.trickRatioView.setText(Integer.toString(value) + "%");
                     holder.itemView.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
@@ -189,7 +187,7 @@ public class SessionList extends Fragment {
 
                             TrickDetailFragment nextFrag = new TrickDetailFragment(model.getName().toUpperCase().toString(), model.getAvgRatio(), model.getDbID(), model.getSessions());
 
-                            nextFrag.setSharedElementEnterTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
+                            nextFrag.setSharedElementEnterTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.move));
                             nextFrag.setEnterTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
                             nextFrag.setExitTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
                             nextFrag.setReturnTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));

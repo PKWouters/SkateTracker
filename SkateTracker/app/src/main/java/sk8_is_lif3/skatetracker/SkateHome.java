@@ -67,10 +67,7 @@ public class SkateHome extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setEnterTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
-        setExitTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
-        setReturnTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
-        setReenterTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
+
     }
 
     @Override
