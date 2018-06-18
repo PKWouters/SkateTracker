@@ -30,8 +30,6 @@
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
@@ -43,7 +41,20 @@
             android:name=".TrickTracker"
             android:launchMode="singleTop" />
         <activity android:name=".AchievementActivity" />
-        <activity android:name=".StickerBombPage"></activity>
+        <activity android:name=".StickerBombPage" />
+
+        <activity
+
+            android:name=".SplashScreen"
+
+            android:theme="@style/AppTheme.Launcher">
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+        </activity>
     </application>
 
 </manifest>

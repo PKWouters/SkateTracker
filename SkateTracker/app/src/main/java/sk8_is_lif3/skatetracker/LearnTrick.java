@@ -17,6 +17,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TableLayout;
 import android.widget.TableRow;
@@ -35,14 +37,18 @@ import com.pierfrancescosoffritti.youtubeplayer.player.YouTubePlayer;
 import com.pierfrancescosoffritti.youtubeplayer.player.YouTubePlayerFullScreenListener;
 import com.pierfrancescosoffritti.youtubeplayer.player.YouTubePlayerInitListener;
 import com.pierfrancescosoffritti.youtubeplayer.player.YouTubePlayerView;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+
+import static com.firebase.ui.auth.AuthUI.getApplicationContext;
 
 public class LearnTrick extends Fragment {
 
     String mName, mUrl, mDBID, mArticle;
     ArrayList<String> mPrevTricks;
     YouTubePlayerView youTubePlayerView;
+    YouTubePlayer youTubePlayer;
 
     public LearnTrick() {
         // Required empty public constructor
@@ -58,12 +64,19 @@ public class LearnTrick extends Fragment {
     }
 
     @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(final View view, @Nullable Bundle savedInstanceState) {
         final AppCompatActivity activity = (AppCompatActivity) getActivity();
-
         TextView trickName = (TextView) getView().findViewById(R.id.trickName);
+
+        youTubePlayerView = getView().findViewById(R.id.youtube_player_view);
         trickName.setText(mName);
         Toolbar toolbar = (Toolbar) getView().findViewById(R.id.toolbar);
+
+        final ImageView thumbnail = view.findViewById(R.id.thumbnail);
+        final String thumb = "http://img.youtube.com/vi/" + mUrl + "/mqdefault.jpg";
+        Picasso.get().load(thumb).into(thumbnail);
+
+        thumbnail.setTransitionName("sessionNameTransition" + mDBID);
 
         activity.setSupportActionBar(toolbar);
         activity.getSupportActionBar().setDisplayShowTitleEnabled(false);
@@ -82,7 +95,7 @@ public class LearnTrick extends Fragment {
                     if (task.isSuccessful()) {
                         DocumentSnapshot document = task.getResult();
                         if (document.exists()) {
-                            TextView progress = (TextView) getView().findViewById(R.id.progressNum);
+                            TextView progress = (TextView) view.findViewById(R.id.progressNum);
                             Double ratio = (Double)document.getData().get("avgRatio") * 100;
                             progress.setText(ratio.intValue() + ".0%");
                         } else {
@@ -97,15 +110,17 @@ public class LearnTrick extends Fragment {
         }
 
         TableLayout tbl = (TableLayout)getView().findViewById(R.id.prevTricksTable);
-        youTubePlayerView = getView().findViewById(R.id.youtube_player_view);
         youTubePlayerView.initialize(new YouTubePlayerInitListener() {
             @Override
             public void onInitSuccess(final YouTubePlayer initializedYouTubePlayer) {
                 initializedYouTubePlayer.addListener(new AbstractYouTubePlayerListener() {
                     @Override
                     public void onReady() {
+                        youTubePlayer = initializedYouTubePlayer;
                         String videoId = mUrl;
-                        initializedYouTubePlayer.loadVideo(videoId, 0);
+                        thumbnail.setMinimumHeight(youTubePlayerView.getHeight());
+                        youTubePlayer.cueVideo(videoId, 0);
+
                     }
                 });
             }
@@ -216,7 +231,19 @@ public class LearnTrick extends Fragment {
     @Override
     public void onPause(){
         super.onPause();
-        youTubePlayerView.release();
+        if(youTubePlayer != null) {
+            youTubePlayer.pause();
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        if(youTubePlayer != null){
+            youTubePlayer.cueVideo(mUrl, 0);
+        }
+
     }
 
 

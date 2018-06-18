@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -11,6 +12,7 @@ import android.support.transition.ChangeBounds;
 import android.support.transition.ChangeTransform;
 import android.support.transition.Transition;
 import android.support.transition.TransitionInflater;
+import android.support.transition.TransitionManager;
 import android.support.transition.TransitionSet;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.animation.FastOutSlowInInterpolator;
@@ -81,6 +83,246 @@ public class LearnHome extends Fragment {
         trickGridView2.setHasFixedSize(false);
         trickGridView2.setLayoutManager(trickLayoutManager2);
         trickGridView2.setAdapter(mediumTrickAdapter);
+
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+
+        final FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        Query easyTrickQuery = db.collection("tricks").whereEqualTo("difficulty", "easy").orderBy("order", Query.Direction.ASCENDING).limit(10);
+
+        FirestoreRecyclerOptions<TrickToLearn> trickOptions = new FirestoreRecyclerOptions.Builder<TrickToLearn>()
+                .setQuery(easyTrickQuery, TrickToLearn.class)
+                .build();
+
+        easyTrickAdapter = new FirestoreRecyclerAdapter<TrickToLearn, TrickViewHolder>(trickOptions) {
+            @NonNull
+            @Override
+            public TrickViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                // create a new view
+                View v = (View) LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.trick_learn_card_layout, parent, false);
+                final TrickViewHolder vh = new TrickViewHolder(v);
+
+                return vh;
+            }
+
+            @Override
+            protected void onBindViewHolder(@NonNull final TrickViewHolder holder, final int position, @NonNull final TrickToLearn model) {
+                //final CardView cardView = holder.itemView.findViewById(R.id.card_view);
+                holder.trickNameView.setText(model.getName());
+                holder.trickNameView.setMaxLines(1);
+                holder.trickNameView.setTextColor(Color.WHITE);
+                final String videoID = model.getUrl().split("v=")[1];
+                String thumbnail = "http://img.youtube.com/vi/" + videoID + "/mqdefault.jpg";
+                Picasso.get().load(thumbnail).into(holder.background);
+
+
+                holder.itemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                        LearnTrick nextFrag = new LearnTrick(model.getName(), videoID, model.getId(), model.getArticle(), model.getPrevTricks());
+                        holder.background.setTransitionName("sessionNameTransition" + model.getId());
+
+                        Transition mainTransition = TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade);
+                        mainTransition.setDuration(250);
+
+                        Transition textTransMove = new ChangeTransform();
+                        textTransMove.setInterpolator(new FastOutSlowInInterpolator());
+
+                        Transition textTransBounds = new ChangeBounds();
+                        textTransBounds.setInterpolator(new FastOutSlowInInterpolator());
+
+                        Transition fadeOutTrans = TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade);
+                        fadeOutTrans.setDuration(250);
+
+                        long duration = 375;
+
+                        int screenSize = getView().getResources().getConfiguration().screenLayout &
+                                Configuration.SCREENLAYOUT_SIZE_MASK;
+
+                        switch (screenSize) {
+                            case Configuration.SCREENLAYOUT_SIZE_LARGE:
+                                duration = 390;
+                                break;
+                            case Configuration.SCREENLAYOUT_SIZE_NORMAL:
+                                duration = 300;
+                                break;
+                            case Configuration.SCREENLAYOUT_SIZE_SMALL:
+                                duration = 210;
+                                break;
+                            default:
+                        }
+                        mainTransition.setStartDelay(duration);
+                        fadeOutTrans.setStartDelay(duration);
+                        textTransMove.setDuration(duration);
+                        textTransBounds.setDuration(duration);
+
+                        TransitionSet tSet = new TransitionSet().addTransition(textTransMove).addTransition(fadeOutTrans).addTransition(textTransBounds);
+
+                        setSharedElementReturnTransition(tSet);
+                        //setExitTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
+
+                        nextFrag.setSharedElementEnterTransition(tSet);
+                        nextFrag.setEnterTransition(mainTransition);
+                        nextFrag.setExitTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
+                        nextFrag.setReturnTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
+
+                            getActivity().getSupportFragmentManager().beginTransaction()
+                                    .setReorderingAllowed(true)
+                                    .replace(R.id.fragment, nextFrag, "LearnTrick")
+                                    .addToBackStack(null)
+                                    .addSharedElement(holder.background, holder.background.getTransitionName())
+                                    .commit();
+                    }
+                });
+            }
+        };
+        easyTrickAdapter.startListening();
+
+        Query mediumTrickQuery = db.collection("tricks").whereEqualTo("difficulty", "intermediate").orderBy("order", Query.Direction.ASCENDING).limit(10);
+
+        FirestoreRecyclerOptions<TrickToLearn> trickOptions2 = new FirestoreRecyclerOptions.Builder<TrickToLearn>()
+                .setQuery(mediumTrickQuery, TrickToLearn.class)
+                .build();
+
+        mediumTrickAdapter = new FirestoreRecyclerAdapter<TrickToLearn, TrickViewHolder>(trickOptions2) {
+            @NonNull
+            @Override
+            public TrickViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                // create a new view
+                View v = (View) LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.trick_learn_card_layout, parent, false);
+                final TrickViewHolder vh = new TrickViewHolder(v);
+
+                return vh;
+            }
+
+            @Override
+            protected void onBindViewHolder(@NonNull final TrickViewHolder holder, final int position, @NonNull final TrickToLearn model) {
+                //final CardView cardView = holder.itemView.findViewById(R.id.card_view);
+                holder.trickNameView.setText(model.getName());
+                holder.trickNameView.setMaxLines(1);
+                holder.trickNameView.setTextColor(Color.WHITE);
+                String[] tempVideo = model.getUrl().split("v=");
+                String tempVideoId = "";
+                if(tempVideo.length > 1) {
+                    tempVideoId = tempVideo[1];
+                    String thumbnail = "http://img.youtube.com/vi/" + tempVideoId + "/mqdefault.jpg";
+                    Picasso.get().load(thumbnail).into(holder.background);
+                }
+
+                final String videoID = tempVideoId;
+
+                holder.itemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                        LearnTrick nextFrag = new LearnTrick(model.getName(), videoID, model.getId(), model.getArticle(), model.getPrevTricks());
+                        holder.background.setTransitionName("sessionNameTransition" + model.getId());
+
+                        Transition mainTransition = TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade);
+                        mainTransition.setDuration(250);
+
+                        Transition textTransMove = new ChangeTransform();
+                        textTransMove.setInterpolator(new FastOutSlowInInterpolator());
+
+                        Transition textTransBounds = new ChangeBounds();
+                        textTransBounds.setInterpolator(new FastOutSlowInInterpolator());
+
+                        Transition fadeOutTrans = TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade);
+                        fadeOutTrans.setDuration(250);
+
+                        long duration = 375;
+
+                        int screenSize = getView().getResources().getConfiguration().screenLayout &
+                                Configuration.SCREENLAYOUT_SIZE_MASK;
+
+                        switch (screenSize) {
+                            case Configuration.SCREENLAYOUT_SIZE_LARGE:
+                                duration = 390;
+                                break;
+                            case Configuration.SCREENLAYOUT_SIZE_NORMAL:
+                                duration = 300;
+                                break;
+                            case Configuration.SCREENLAYOUT_SIZE_SMALL:
+                                duration = 210;
+                                break;
+                            default:
+                        }
+                        mainTransition.setStartDelay(duration);
+                        fadeOutTrans.setStartDelay(duration);
+                        textTransMove.setDuration(duration);
+                        textTransBounds.setDuration(duration);
+
+                        TransitionSet tSet = new TransitionSet().addTransition(textTransMove).addTransition(fadeOutTrans).addTransition(textTransBounds);
+
+                        setSharedElementReturnTransition(tSet);
+                        //setExitTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
+
+                        nextFrag.setSharedElementEnterTransition(tSet);
+                        nextFrag.setEnterTransition(mainTransition);
+                        nextFrag.setExitTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
+                        nextFrag.setReturnTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
+
+                        getActivity().getSupportFragmentManager().beginTransaction()
+                                .setReorderingAllowed(true)
+                                .replace(R.id.fragment, nextFrag, "LearnTrick")
+                                .addToBackStack(null)
+                                .addSharedElement(holder.background, holder.background.getTransitionName())
+                                .commit();
+                    }
+                });
+            }
+        };
+        mediumTrickAdapter.startListening();
+
+    }
+
+    private class TrickViewHolder extends RecyclerView.ViewHolder {
+        private View view;
+
+        // each data item is just a string in this case
+        public TextView trickNameView;
+        public View itemView;
+        public ImageView background;
+        public TrickViewHolder(View v) {
+            super(v);
+            itemView = v;
+            trickNameView = v.findViewById(R.id.trickName);
+            background = v.findViewById(R.id.trickBackground);
+
+        }
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+
+
+        return inflater.inflate(R.layout.fragment_learn_home, container, false);
+    }
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+    }
+    @Override
+    public void onResume() {
+        super.onResume();
+        if(easyTrickAdapter != null){
+            easyTrickAdapter.startListening();
+        }
+        if(mediumTrickAdapter != null){
+            mediumTrickAdapter.startListening();
+        }
+
         final CardView recentTrickCard = (CardView) getView().findViewById(R.id.recentCard);
         recentTrickCard.setVisibility(View.GONE);
         final FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -151,158 +393,6 @@ public class LearnHome extends Fragment {
                     }
                 }
             });
-        }
-
-
-
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setEnterTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
-        setExitTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
-        setReturnTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
-        setReenterTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
-
-        final FirebaseFirestore db = FirebaseFirestore.getInstance();
-
-        Query easyTrickQuery = db.collection("tricks").whereEqualTo("difficulty", "easy").orderBy("order", Query.Direction.ASCENDING).limit(10);
-
-        FirestoreRecyclerOptions<TrickToLearn> trickOptions = new FirestoreRecyclerOptions.Builder<TrickToLearn>()
-                .setQuery(easyTrickQuery, TrickToLearn.class)
-                .build();
-
-        easyTrickAdapter = new FirestoreRecyclerAdapter<TrickToLearn, TrickViewHolder>(trickOptions) {
-            @NonNull
-            @Override
-            public TrickViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-                // create a new view
-                View v = (View) LayoutInflater.from(parent.getContext())
-                        .inflate(R.layout.trick_learn_card_layout, parent, false);
-                final TrickViewHolder vh = new TrickViewHolder(v);
-
-                return vh;
-            }
-
-            @Override
-            protected void onBindViewHolder(@NonNull final TrickViewHolder holder, final int position, @NonNull final TrickToLearn model) {
-                //final CardView cardView = holder.itemView.findViewById(R.id.card_view);
-                holder.trickNameView.setText(model.getName());
-                holder.trickNameView.setMaxLines(1);
-                holder.trickNameView.setTextColor(Color.WHITE);
-                final String videoID = model.getUrl().split("v=")[1];
-                String thumbnail = "http://img.youtube.com/vi/" + videoID + "/mqdefault.jpg";
-                Picasso.get().load(thumbnail).into(holder.background);
-
-
-                holder.itemView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-
-                        LearnTrick nextFrag = new LearnTrick(model.getName(), videoID, model.getId(), model.getArticle(), model.getPrevTricks());
-
-                        getActivity().getSupportFragmentManager().beginTransaction()
-                                .setReorderingAllowed(true)
-                                .replace(R.id.fragment, nextFrag,"LearnTrick")
-                                .addToBackStack(model.getName())
-                                .commit();
-                    }
-                });
-            }
-        };
-        easyTrickAdapter.startListening();
-
-        Query mediumTrickQuery = db.collection("tricks").whereEqualTo("difficulty", "intermediate").orderBy("order", Query.Direction.ASCENDING).limit(10);
-
-        FirestoreRecyclerOptions<TrickToLearn> trickOptions2 = new FirestoreRecyclerOptions.Builder<TrickToLearn>()
-                .setQuery(mediumTrickQuery, TrickToLearn.class)
-                .build();
-
-        mediumTrickAdapter = new FirestoreRecyclerAdapter<TrickToLearn, TrickViewHolder>(trickOptions2) {
-            @NonNull
-            @Override
-            public TrickViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-                // create a new view
-                View v = (View) LayoutInflater.from(parent.getContext())
-                        .inflate(R.layout.trick_learn_card_layout, parent, false);
-                final TrickViewHolder vh = new TrickViewHolder(v);
-
-                return vh;
-            }
-
-            @Override
-            protected void onBindViewHolder(@NonNull final TrickViewHolder holder, final int position, @NonNull final TrickToLearn model) {
-                //final CardView cardView = holder.itemView.findViewById(R.id.card_view);
-                holder.trickNameView.setText(model.getName());
-                holder.trickNameView.setMaxLines(1);
-                holder.trickNameView.setTextColor(Color.WHITE);
-                String[] tempVideo = model.getUrl().split("v=");
-                String tempVideoId = "";
-                if(tempVideo.length > 1) {
-                    tempVideoId = tempVideo[1];
-                    String thumbnail = "http://img.youtube.com/vi/" + tempVideoId + "/mqdefault.jpg";
-                    Picasso.get().load(thumbnail).into(holder.background);
-                }
-
-                final String videoID = tempVideoId;
-
-                holder.itemView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-
-                        LearnTrick nextFrag = new LearnTrick(model.getName(), videoID, model.getId(), model.getArticle(), model.getPrevTricks());
-
-                        getActivity().getSupportFragmentManager().beginTransaction()
-                                .setReorderingAllowed(true)
-                                .replace(R.id.fragment, nextFrag,"LearnTrick")
-                                .addToBackStack(model.getName())
-                                .commit();
-                    }
-                });
-            }
-        };
-        mediumTrickAdapter.startListening();
-
-    }
-
-    private class TrickViewHolder extends RecyclerView.ViewHolder {
-        private View view;
-
-        // each data item is just a string in this case
-        public TextView trickNameView;
-        public View itemView;
-        public ImageView background;
-        public TrickViewHolder(View v) {
-            super(v);
-            itemView = v;
-            trickNameView = v.findViewById(R.id.trickName);
-            background = v.findViewById(R.id.trickBackground);
-
-        }
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-
-
-        return inflater.inflate(R.layout.fragment_learn_home, container, false);
-    }
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-
-    }
-    @Override
-    public void onResume() {
-        super.onResume();
-        if(easyTrickAdapter != null){
-            easyTrickAdapter.startListening();
-        }
-        if(mediumTrickAdapter != null){
-            mediumTrickAdapter.startListening();
         }
     }
 

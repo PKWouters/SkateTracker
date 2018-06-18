@@ -1,5 +1,6 @@
 package sk8_is_lif3.skatetracker;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Color;
@@ -35,6 +36,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.squareup.picasso.Picasso;
 
 import java.lang.reflect.Type;
 import java.math.RoundingMode;
@@ -112,8 +114,8 @@ public class SessionList extends Fragment {
 
     }
     @Override
-    public void onStop(){
-        super.onStop();
+    public void onPause(){
+        super.onPause();
         if (adapter != null) {
             adapter.stopListening();
         }
@@ -125,10 +127,10 @@ public class SessionList extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setEnterTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
-        setExitTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
-        setReturnTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
-        setReenterTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
+
+
+        System.out.println("FIRST TIME OPENING SESSIONS");
+
         sessionList = new ArrayList<String>();
         final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
@@ -166,10 +168,17 @@ public class SessionList extends Fragment {
                     holder.trickNameView.setMaxLines(1);
                     holder.trickNameView.setTransitionName("trickNameTransition" + Integer.toString(position));
                     holder.trickNameView.setTextColor(Color.WHITE);
+                    holder.trickPicture.setImageDrawable
+                            (
+                                    getResources().getDrawable(getResourceID("trick_" + Integer.toString(position+1), "drawable",
+                                            getContext()), null)
+                            );
+
                     DecimalFormat df = new DecimalFormat("#.##");
                     df.setRoundingMode(RoundingMode.CEILING);
-                    double val = Double.valueOf(df.format(model.getAvgRatio()));
-                    holder.trickRatioView.setText(Double.toString(val*100) + "%");
+                    double val = Double.valueOf(df.format(model.getAvgRatio())) * 100;
+                    int value = (int) val;
+                    holder.trickRatioView.setText(Integer.toString(value) + "%");
                     holder.itemView.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
@@ -178,7 +187,7 @@ public class SessionList extends Fragment {
 
                             TrickDetailFragment nextFrag = new TrickDetailFragment(model.getName().toUpperCase().toString(), model.getAvgRatio(), model.getDbID(), model.getSessions());
 
-                            nextFrag.setSharedElementEnterTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
+                            nextFrag.setSharedElementEnterTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.move));
                             nextFrag.setEnterTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
                             nextFrag.setExitTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
                             nextFrag.setReturnTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
@@ -324,11 +333,13 @@ public class SessionList extends Fragment {
 
         // each data item is just a string in this case
         public TextView trickNameView, trickRatioView;
+        public ImageView trickPicture;
         public View itemView;
         public ImageView removeButton;
         public TrickViewHolder(View v) {
             super(v);
             itemView = v;
+            trickPicture = (ImageView)v.findViewById(R.id.imageView);
             trickNameView = v.findViewById(R.id.trickName);
             trickRatioView = v.findViewById(R.id.trickRatio);
         }
@@ -349,6 +360,24 @@ public class SessionList extends Fragment {
             outRect.bottom = space/2;
             outRect.top = space;
 
+        }
+    }
+    protected final static int getResourceID
+            (final String resName, final String resType, final Context ctx)
+    {
+        final int ResourceID =
+                ctx.getResources().getIdentifier(resName, resType,
+                        ctx.getApplicationInfo().packageName);
+        if (ResourceID == 0)
+        {
+            throw new IllegalArgumentException
+                    (
+                            "No resource string found with name " + resName
+                    );
+        }
+        else
+        {
+            return ResourceID;
         }
     }
 
