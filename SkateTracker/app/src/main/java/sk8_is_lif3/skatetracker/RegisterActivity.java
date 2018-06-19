@@ -93,6 +93,7 @@ public class RegisterActivity extends AppCompatActivity {
                                     @Override
                                     public void onSuccess(AuthResult authResult) {
                                         final FirebaseUser user = mAuth.getCurrentUser();
+                                        final boolean isNewUser = authResult.getAdditionalUserInfo().isNewUser();
                                         UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
                                                 .setDisplayName(name)
                                                 .build();
@@ -107,14 +108,21 @@ public class RegisterActivity extends AppCompatActivity {
                                                             newUser.put("name", user.getDisplayName());
                                                             newUser.put("challenges", new ArrayList<>());
                                                             newUser.put("achievements", new ArrayList<>());
+                                                            newUser.put("newUser", true);
                                                             db.collection("users").document(user.getUid()).set(newUser)
                                                                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                                                                         @Override
                                                                         public void onSuccess(Void aVoid) {
-                                                                            Toast.makeText(getApplicationContext(), "Successfully Registered", Toast.LENGTH_SHORT).show();
-                                                                            progressDialog.dismiss();
-                                                                            startActivity(new Intent(RegisterActivity.this, MainNavigationActivity.class));
-                                                                            finish();
+                                                                            if(isNewUser) {
+                                                                                progressDialog.dismiss();
+                                                                                startActivity(new Intent(RegisterActivity.this, OnboardingActivity.class));
+                                                                                finish();
+                                                                            }else{
+                                                                                Toast.makeText(getApplicationContext(), "Successfully Registered", Toast.LENGTH_SHORT).show();
+                                                                                progressDialog.dismiss();
+                                                                                startActivity(new Intent(RegisterActivity.this, MainNavigationActivity.class));
+                                                                                finish();
+                                                                            }
                                                                         }
                                                                     })
                                                                     .addOnFailureListener(new OnFailureListener() {
@@ -124,6 +132,9 @@ public class RegisterActivity extends AppCompatActivity {
                                                                             Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
                                                                         }
                                                                     });
+                                                        }else{
+                                                            progressDialog.dismiss();
+                                                            Toast.makeText(getApplicationContext(), task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                                                         }
                                                     }
                                                 });
@@ -132,13 +143,16 @@ public class RegisterActivity extends AppCompatActivity {
                                 .addOnFailureListener(new OnFailureListener() {
                                     @Override
                                     public void onFailure(@NonNull Exception e) {
-
+                                        progressDialog.dismiss();
+                                        Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
                                     }
                                 });
                     }else{
+                        progressDialog.dismiss();
                         Toast.makeText(getApplicationContext(), "Both Password Fields Must Match", Toast.LENGTH_SHORT).show();
                     }
                 }else{
+                    progressDialog.dismiss();
                     Toast.makeText(getApplicationContext(), "Make Sure All Fields Are Filled In", Toast.LENGTH_SHORT).show();
                 }
             }
@@ -185,9 +199,8 @@ public class RegisterActivity extends AppCompatActivity {
                 GoogleSignInAccount account = task.getResult(ApiException.class);
                 firebaseAuthWithGoogle(account);
             } catch (ApiException e) {
-                // Google Sign In failed, update UI appropriately
-                Log.w(TAG, "Google sign in failed", e);
-                // ...
+                progressDialog.dismiss();
+                Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -201,30 +214,40 @@ public class RegisterActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
+                            final boolean isNewUser = task.getResult().getAdditionalUserInfo().isNewUser();
                             final FirebaseUser user = mAuth.getCurrentUser();
                             FirebaseFirestore db = FirebaseFirestore.getInstance();
                             Map<String, Object> newUser = new HashMap<String, Object>();
                             newUser.put("name", user.getDisplayName());
                             newUser.put("challenges", new ArrayList<>());
                             newUser.put("achievements", new ArrayList<>());
+                            newUser.put("newUser", true);
                             db.collection("users").document(user.getUid()).set(newUser)
                                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                                         @Override
                                         public void onSuccess(Void aVoid) {
-                                            Toast.makeText(getApplicationContext(), "Successfully Registered", Toast.LENGTH_SHORT).show();
-                                            startActivity(new Intent(RegisterActivity.this, MainNavigationActivity.class));
-                                            finish();
+                                            if(isNewUser) {
+                                                progressDialog.dismiss();
+                                                startActivity(new Intent(RegisterActivity.this, OnboardingActivity.class));
+                                                finish();
+                                            }else{
+                                                Toast.makeText(getApplicationContext(), "Successfully Registered", Toast.LENGTH_SHORT).show();
+                                                progressDialog.dismiss();
+                                                startActivity(new Intent(RegisterActivity.this, MainNavigationActivity.class));
+                                                finish();
+                                            }
                                         }
                                     })
                                     .addOnFailureListener(new OnFailureListener() {
                                         @Override
                                         public void onFailure(@NonNull Exception e) {
-
+                                            progressDialog.dismiss();
+                                            Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
                                         }
                                     });
                         } else {
-                            // If sign in fails, display a message to the user.
-                            Log.w(TAG, "signInWithCredential:failure", task.getException());
+                            progressDialog.dismiss();
+                            Toast.makeText(getApplicationContext(), task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                         }
 
                         // ...

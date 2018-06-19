@@ -94,6 +94,7 @@ public class LoginActivity extends AppCompatActivity {
                                 }
                             });
                 }else{
+                    progressDialog.dismiss();
                     Toast.makeText(getApplicationContext(), "Make Sure All Fields Are Filled Out", Toast.LENGTH_SHORT).show();
                 }
             }

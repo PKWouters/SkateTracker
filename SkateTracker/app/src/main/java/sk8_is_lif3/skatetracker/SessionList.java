@@ -22,6 +22,7 @@ import android.support.v7.widget.Toolbar;
 import android.support.transition.Transition;
 import android.support.transition.TransitionSet;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -30,8 +31,10 @@ import android.widget.Toast;
 
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.gson.Gson;
@@ -43,8 +46,10 @@ import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import sk8_is_lif3.skatetracker.transitions.SessionNameTransition;
+import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt;
 
 
 /**
@@ -65,6 +70,7 @@ public class SessionList extends Fragment {
     List<String> sessionList;
     private FirestoreRecyclerAdapter<SessionToDisplay, SessionViewHolder> adapter;
     private FirestoreRecyclerAdapter<TrickToDisplay, TrickViewHolder> trickAdapter;
+    private boolean isNewUser;
 
     public SessionList() {
         // Required empty public constructor
@@ -96,6 +102,8 @@ public class SessionList extends Fragment {
         trickGridView.setNestedScrollingEnabled(true);
 
 
+
+
         final FloatingActionButton floatingActionButton = (FloatingActionButton)getView().findViewById(R.id.newSessionFab);
         floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -106,6 +114,8 @@ public class SessionList extends Fragment {
                 getActivity().startActivity(intent);
             }
         });
+
+
         Toolbar toolbar = (Toolbar) getView().findViewById(R.id.toolbar);
         toolbar.setTitle("My Activity");
         AppCompatActivity activity = (AppCompatActivity)getActivity();
@@ -128,9 +138,6 @@ public class SessionList extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-
-        System.out.println("FIRST TIME OPENING SESSIONS");
-
         sessionList = new ArrayList<String>();
         final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
@@ -140,6 +147,36 @@ public class SessionList extends Fragment {
             Query query = db.collection("users").document(user.getUid()).collection("sessions").orderBy("date", Query.Direction.DESCENDING).limit(4);
             Query trickQuery = db.collection("users").document(user.getUid()).collection("tricks").whereGreaterThanOrEqualTo("avgRatio", 0.0).orderBy("avgRatio", Query.Direction.DESCENDING).limit(4);
 
+            db.collection("users").document(user.getUid()).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                @Override
+                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                    if(documentSnapshot.exists()) {
+                        Map<String, Object> data = documentSnapshot.getData();
+                        if (data != null && data.get("newUser") != null && getView() != null) {
+                            isNewUser = (boolean) (data.get("newUser"));
+                            if (isNewUser) {
+                                new MaterialTapTargetPrompt.Builder(getActivity())
+                                        .setTarget(getView().findViewById(R.id.newSessionFab))
+                                        .setPrimaryText("Start a new session here")
+                                        .setSecondaryText("Sessions are a primary way you can track your progress")
+                                        .setOnHidePromptListener(new MaterialTapTargetPrompt.OnHidePromptListener() {
+                                            @Override
+                                            public void onHidePrompt(MotionEvent event, boolean tappedTarget) {
+
+                                            }
+
+                                            @Override
+                                            public void onHidePromptComplete() {
+
+                                            }
+                                        })
+                                        .setBackgroundColour(getResources().getColor(R.color.colorAccent))
+                                        .show();
+                            }
+                        }
+                    }
+                }
+            });
 
             FirestoreRecyclerOptions<SessionToDisplay> options = new FirestoreRecyclerOptions.Builder<SessionToDisplay>()
                     .setQuery(query, SessionToDisplay.class)
