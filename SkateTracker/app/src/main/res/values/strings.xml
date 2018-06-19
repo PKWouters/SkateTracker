@@ -22,4 +22,8 @@
         completions."
     </string>
     <string name="auth_client_id">110513143140-l885r0ba3e122t4pa2uikeq10lgtiadg.apps.googleusercontent.com"</string>
+
+    <string name="title_activity_onboarding">OnboardingActivity</string>
+    <string name="section_format">Hello World from section: %1$d</string>
+
 </resources>

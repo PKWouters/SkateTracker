@@ -43,6 +43,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
@@ -77,6 +78,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 import java.util.Map;
+
+import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt;
 
 
 public class CurrentSession extends AppCompatActivity /*implements SensorEventListener*/ {
@@ -169,6 +172,40 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
         };
         handler.postDelayed(rn, 0);
 
+
+        db.collection("users").document(user.getUid()).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                Map<String, Object> data = documentSnapshot.getData();
+                if(data.get("newUser") != null){
+                    boolean isNewUser = (boolean)(data.get("newUser"));
+                    if(isNewUser) {
+                        new MaterialTapTargetPrompt.Builder(CurrentSession.this)
+                                .setTarget(findViewById(R.id.fab))
+                                .setPrimaryText("Add A New Trick")
+                                .setSecondaryText("You can track multiple tricks per session")
+                                .setOnHidePromptListener(new MaterialTapTargetPrompt.OnHidePromptListener() {
+                                    @Override
+                                    public void onHidePrompt(MotionEvent event, boolean tappedTarget) {
+                                        db.collection("users").document(user.getUid()).update("newUser", false).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void aVoid) {
+
+                                            }
+                                        });
+                                    }
+
+                                    @Override
+                                    public void onHidePromptComplete() {
+
+                                    }
+                                })
+                                .setBackgroundColour(getResources().getColor(R.color.colorAccent))
+                                .show();
+                    }
+                }
+            }
+        });
 
         //ADD NEW TRICK BUTTON
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -495,6 +532,7 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
                             @Override
                             public void onFailure(@NonNull Exception e) {
                                 Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                                finish();
                             }
                         });
                     }
@@ -865,63 +903,65 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
                                         query.addSnapshotListener(new EventListener<QuerySnapshot>() {
                                             @Override
                                             public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
-                                                List<DocumentSnapshot> docs = queryDocumentSnapshots.getDocuments();
-                                                final List<String> userChallenges = (List<String>) userData.get("challenges");
-                                                for (final Trick t : tempTrickList) {
+                                                if(queryDocumentSnapshots != null) {
+                                                    List<DocumentSnapshot> docs = queryDocumentSnapshots.getDocuments();
+                                                    final List<String> userChallenges = (List<String>) userData.get("challenges");
+                                                    for (final Trick t : tempTrickList) {
+                                                        for (DocumentSnapshot doc : docs) {
+                                                            Map<String, Object> data = doc.getData();
+
+                                                            //--Trick Landings--//
+                                                            if (t.GetTimesLanded() >= 1) {
+                                                                if (data.get("type").equals("land_session") && (long) data.get("requirement") <= t.GetTimesLanded()) {
+                                                                    if (userChallenges != null && !userChallenges.contains(data.get("id"))) {
+                                                                        userChallenges.add((String) (data.get("id")));
+                                                                        Toast.makeText(getApplicationContext(), "New Achievement: " + data.get("name").toString(), Toast.LENGTH_SHORT).show();
+                                                                    }
+                                                                }
+                                                            }
+                                                            if (t.GetRatio() > 0.0) {
+                                                                if (data.get("type").equals("ratio_session") && (long) data.get("requirement") <= t.GetRatio()) {
+                                                                    if (userChallenges != null && !userChallenges.contains(data.get("id"))) {
+                                                                        userChallenges.add((String) (data.get("id")));
+                                                                        Toast.makeText(getApplicationContext(), "New Achievement: " + data.get("name").toString(), Toast.LENGTH_SHORT).show();
+                                                                    }
+                                                                }
+                                                            }
+                                                            if (t.GetTotalSecondsTracked() > 0) {
+                                                                if (data.get("type").equals("time_session") && (long) data.get("requirement") <= t.GetTotalSecondsTracked()) {
+                                                                    if (userChallenges != null && !userChallenges.contains(data.get("id"))) {
+                                                                        userChallenges.add((String) (data.get("id")));
+                                                                        Toast.makeText(getApplicationContext(), "New Achievement: " + data.get("name").toString(), Toast.LENGTH_SHORT).show();
+                                                                    }
+
+                                                                }
+                                                            }
+                                                        }
+                                                    }
                                                     for (DocumentSnapshot doc : docs) {
                                                         Map<String, Object> data = doc.getData();
-
-                                                        //--Trick Landings--//
-                                                        if (t.GetTimesLanded() >= 1) {
-                                                            if (data.get("type").equals("land_session") && (long) data.get("requirement") <= t.GetTimesLanded()) {
+                                                        //--Amount of Tricks Practiced--//
+                                                        if (tempTrickList.size() > 0) {
+                                                            if (data.get("type").equals("amount_session") && (long) data.get("requirement") <= tempTrickList.size()) {
                                                                 if (userChallenges != null && !userChallenges.contains(data.get("id"))) {
                                                                     userChallenges.add((String) (data.get("id")));
                                                                     Toast.makeText(getApplicationContext(), "New Achievement: " + data.get("name").toString(), Toast.LENGTH_SHORT).show();
                                                                 }
-                                                            }
-                                                        }
-                                                        if (t.GetRatio() > 0.0) {
-                                                            if (data.get("type").equals("ratio_session") && (long) data.get("requirement") <= t.GetRatio()) {
-                                                                if (userChallenges != null && !userChallenges.contains(data.get("id"))) {
-                                                                    userChallenges.add((String) (data.get("id")));
-                                                                    Toast.makeText(getApplicationContext(), "New Achievement: " + data.get("name").toString(), Toast.LENGTH_SHORT).show();
-                                                                }
-                                                            }
-                                                        }
-                                                        if (t.GetTotalSecondsTracked() > 0) {
-                                                            if (data.get("type").equals("time_session") && (long) data.get("requirement") <= t.GetTotalSecondsTracked()) {
-                                                                if (userChallenges != null && !userChallenges.contains(data.get("id"))) {
-                                                                    userChallenges.add((String) (data.get("id")));
-                                                                    Toast.makeText(getApplicationContext(), "New Achievement: " + data.get("name").toString(), Toast.LENGTH_SHORT).show();
-                                                                }
-
                                                             }
                                                         }
                                                     }
+                                                    db.collection("users").document(user.getUid()).update("challenges", userChallenges).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                        @Override
+                                                        public void onSuccess(Void aVoid) {
+                                                            CheckAchievements(userChallenges, (List<String>) (userData.get("achievements")), -1);
+                                                        }
+                                                    }).addOnFailureListener(new OnFailureListener() {
+                                                        @Override
+                                                        public void onFailure(@NonNull Exception e) {
+                                                            Toast.makeText(getApplicationContext(), e.getMessage().toString(), Toast.LENGTH_SHORT).show();
+                                                        }
+                                                    });
                                                 }
-                                                for (DocumentSnapshot doc : docs) {
-                                                    Map<String, Object> data = doc.getData();
-                                                    //--Amount of Tricks Practiced--//
-                                                    if (tempTrickList.size() > 0) {
-                                                        if (data.get("type").equals("amount_session") && (long) data.get("requirement") <= tempTrickList.size()) {
-                                                            if (userChallenges != null && !userChallenges.contains(data.get("id"))) {
-                                                                userChallenges.add((String) (data.get("id")));
-                                                                Toast.makeText(getApplicationContext(), "New Achievement: " + data.get("name").toString(), Toast.LENGTH_SHORT).show();
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                                db.collection("users").document(user.getUid()).update("challenges", userChallenges).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                    @Override
-                                                    public void onSuccess(Void aVoid) {
-                                                        CheckAchievements(userChallenges, (List<String>)(userData.get("achievements")), -1);
-                                                    }
-                                                }).addOnFailureListener(new OnFailureListener() {
-                                                    @Override
-                                                    public void onFailure(@NonNull Exception e) {
-                                                        Toast.makeText(getApplicationContext(), e.getMessage().toString(), Toast.LENGTH_SHORT).show();
-                                                    }
-                                                });
                                             }
                                         });
                                     }
