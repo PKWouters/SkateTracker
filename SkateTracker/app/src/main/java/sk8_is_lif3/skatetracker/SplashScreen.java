@@ -37,84 +37,16 @@ public class SplashScreen extends AppCompatActivity {
         if(FirebaseAuth.getInstance().getCurrentUser() != null) {
             startActivity(new Intent(SplashScreen.this, MainNavigationActivity.class));
             finish();
+        }else{
+            startActivity(new Intent(SplashScreen.this, LoginActivity.class));
+            finish();
         }
     }
 
     @Override
     public void onStart(){
         super.onStart();
-        // Choose authentication providers
-        if(FirebaseAuth.getInstance().getCurrentUser() == null) {
-            Intent i = AuthUI.getInstance()
-                    .createSignInIntentBuilder()
-                    .setAvailableProviders(Arrays.asList(
-                            new AuthUI.IdpConfig.EmailBuilder().build(),
-                            new AuthUI.IdpConfig.GoogleBuilder().build()
-                            )
-                    )
-                    .setLogo(R.drawable.ic_account_circle)
-                    .setTheme(R.style.AppTheme)
-                    .build();
-            startActivityForResult(i, RC_SIGN_IN);
-        }
     }
 
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == RC_SIGN_IN) {
-            IdpResponse response = IdpResponse.fromResultIntent(data);
-
-            if (resultCode == RESULT_OK) {
-                // Successfully signed in
-                final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-
-                final FirebaseFirestore db = FirebaseFirestore.getInstance();
-
-                DocumentReference docRef = db.collection("users").document(user.getUid());
-                docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if (task.isSuccessful()) {
-                            DocumentSnapshot document = task.getResult();
-                            if (document.exists()) {
-                                Toast.makeText(getApplicationContext(), "Signed in", Toast.LENGTH_SHORT).show();
-                            } else {
-                                Map<String, Object> newUser = new HashMap<String, Object>();
-                                newUser.put("name", user.getDisplayName());
-                                newUser.put("challenges", new ArrayList<>());
-                                newUser.put("achievements", new ArrayList<>());
-                                db.collection("users").document(user.getUid()).set(newUser)
-                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                            @Override
-                                            public void onSuccess(Void aVoid) {
-                                                Toast.makeText(getApplicationContext(), "Successfully Registered", Toast.LENGTH_SHORT).show();
-                                                startActivity(new Intent(SplashScreen.this, MainNavigationActivity.class));
-                                                finish();
-
-                                            }
-                                        })
-                                        .addOnFailureListener(new OnFailureListener() {
-                                            @Override
-                                            public void onFailure(@NonNull Exception e) {
-
-                                            }
-                                        });
-                            }
-                        } else {
-
-                        }
-                    }
-                });
-                // ...
-            } else {
-                if (response.getError() != null) {
-                    Toast.makeText(getApplicationContext(), response.getError().getMessage(), Toast.LENGTH_LONG).show();
-                    finish();
-                }
-            }
-        }
-    }
 }

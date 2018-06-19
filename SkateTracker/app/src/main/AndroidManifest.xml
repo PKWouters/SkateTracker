@@ -6,6 +6,8 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+    <uses-permission android:name="android.permission.READ_PROFILE" />
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
 
     <application
         android:allowBackup="true"
@@ -42,19 +44,17 @@
             android:launchMode="singleTop" />
         <activity android:name=".AchievementActivity" />
         <activity android:name=".StickerBombPage" />
-
         <activity
-
             android:name=".SplashScreen"
-
             android:theme="@style/AppTheme.Launcher">
-
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
         </activity>
+        <activity android:name=".LoginActivity" />
+        <activity android:name=".RegisterActivity"></activity>
     </application>
 
 </manifest>

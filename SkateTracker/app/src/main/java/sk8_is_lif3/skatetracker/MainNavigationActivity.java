@@ -9,6 +9,7 @@ import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -50,17 +51,8 @@ public class MainNavigationActivity extends AppCompatActivity {
                 case R.id.navigation_sessions:
                     setTitle("My Sessions");
                     if(FirebaseAuth.getInstance().getCurrentUser() == null) {
-                        Intent i = AuthUI.getInstance()
-                                .createSignInIntentBuilder()
-                                .setAvailableProviders(Arrays.asList(
-                                        new AuthUI.IdpConfig.EmailBuilder().build(),
-                                        new AuthUI.IdpConfig.GoogleBuilder().build()
-                                        )
-                                )
-                                .setLogo(R.drawable.ic_account_circle)
-                                .setTheme(R.style.AppTheme)
-                                .build();
-                        startActivityForResult(i, RC_SIGN_IN);
+                        startActivity(new Intent(MainNavigationActivity.this, LoginActivity.class));
+                        finish();
                     }
                     Bundle sArgs = new Bundle();
                     sArgs.putString("tag", "SESSIONS");
@@ -78,17 +70,8 @@ public class MainNavigationActivity extends AppCompatActivity {
                 case R.id.navigation_learn:
                     setTitle("Learn");
                     if(FirebaseAuth.getInstance().getCurrentUser() == null) {
-                        Intent i = AuthUI.getInstance()
-                                .createSignInIntentBuilder()
-                                .setAvailableProviders(Arrays.asList(
-                                        new AuthUI.IdpConfig.EmailBuilder().build(),
-                                        new AuthUI.IdpConfig.GoogleBuilder().build()
-                                        )
-                                )
-                                .setLogo(R.drawable.ic_account_circle)
-                                .setTheme(R.style.AppTheme)
-                                .build();
-                        startActivityForResult(i, RC_SIGN_IN);
+                        startActivity(new Intent(MainNavigationActivity.this, LoginActivity.class));
+                        finish();
                     }
                     Bundle lArgs = new Bundle();
                     lArgs.putString("tag", "LEARN");
@@ -106,17 +89,8 @@ public class MainNavigationActivity extends AppCompatActivity {
                 case R.id.navigation_skate:
                     setTitle("S.K.A.T.E");
                     if(FirebaseAuth.getInstance().getCurrentUser() == null) {
-                        Intent i = AuthUI.getInstance()
-                                .createSignInIntentBuilder()
-                                .setAvailableProviders(Arrays.asList(
-                                        new AuthUI.IdpConfig.EmailBuilder().build(),
-                                        new AuthUI.IdpConfig.GoogleBuilder().build()
-                                        )
-                                )
-                                .setLogo(R.drawable.ic_account_circle)
-                                .setTheme(R.style.AppTheme)
-                                .build();
-                        startActivityForResult(i, RC_SIGN_IN);
+                        startActivity(new Intent(MainNavigationActivity.this, LoginActivity.class));
+                        finish();
                     }
                     Bundle skArgs = new Bundle();
                     skArgs.putString("tag", "SKATE");
@@ -138,17 +112,8 @@ public class MainNavigationActivity extends AppCompatActivity {
                 case R.id.navigation_profile:
                     setTitle("My Profile");
                     if(FirebaseAuth.getInstance().getCurrentUser() == null) {
-                        Intent i = AuthUI.getInstance()
-                                .createSignInIntentBuilder()
-                                .setAvailableProviders(Arrays.asList(
-                                        new AuthUI.IdpConfig.EmailBuilder().build(),
-                                        new AuthUI.IdpConfig.GoogleBuilder().build()
-                                        )
-                                )
-                                .setLogo(R.drawable.ic_account_circle)
-                                .setTheme(R.style.AppTheme)
-                                .build();
-                        startActivityForResult(i, RC_SIGN_IN);
+                        startActivity(new Intent(MainNavigationActivity.this, LoginActivity.class));
+                        finish();
                     }
                     Bundle pArgs = new Bundle();
                     pArgs.putString("tag", "PROFILE");
@@ -193,17 +158,8 @@ public class MainNavigationActivity extends AppCompatActivity {
         super.onStart();
         // Choose authentication providers
         if(FirebaseAuth.getInstance().getCurrentUser() == null) {
-            Intent i = AuthUI.getInstance()
-                    .createSignInIntentBuilder()
-                    .setAvailableProviders(Arrays.asList(
-                            new AuthUI.IdpConfig.EmailBuilder().build(),
-                            new AuthUI.IdpConfig.GoogleBuilder().build()
-                            )
-                    )
-                    .setLogo(R.drawable.ic_account_circle)
-                    .setTheme(R.style.AppTheme)
-                    .build();
-            startActivityForResult(i, RC_SIGN_IN);
+            startActivity(new Intent(MainNavigationActivity.this, LoginActivity.class));
+            finish();
         }
     }
 
