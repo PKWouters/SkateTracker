@@ -355,7 +355,7 @@ public class SessionDetailFragment extends Fragment{
                                                         for (Map<String, Object> currTrick : currentTricks) {
                                                             if(!currTrick.get("id").toString().equals(t.get("id").toString())){
                                                                 updatedTricks.add(currTrick);
-                                                                double trickRatio = (double)currTrick.get("ratio");
+                                                                double trickRatio = Double.parseDouble(currTrick.get("ratio").toString());
                                                                 ratio += trickRatio;
                                                             }
                                                         }

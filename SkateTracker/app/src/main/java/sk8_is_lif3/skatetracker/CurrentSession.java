@@ -228,12 +228,14 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
                                 String tName = trickName.getText().toString().replaceAll("\\s+","_").toLowerCase();
                                 final ArrayList<String> foundTrickIDs = new ArrayList<>();
                                 final CharSequence[] foundTrickNames;
-                                for(int i = 0; i < trickList.size(); i++){
-                                    if(trickList.get(i).contains(tName) && foundTrickIDs.size() < 5){
-                                        foundTrickIDs.add(trickList.get(i).toString());
-                                    }
-                                    if(foundTrickIDs.size() >= 5){
-                                        break;
+                                if(trickList != null) {
+                                    for (int i = 0; i < trickList.size(); i++) {
+                                        if (trickList.get(i).contains(tName) && foundTrickIDs.size() < 5) {
+                                            foundTrickIDs.add(trickList.get(i).toString());
+                                        }
+                                        if (foundTrickIDs.size() >= 5) {
+                                            break;
+                                        }
                                     }
                                 }
                                 foundTrickNames = new CharSequence[foundTrickIDs.size()];
@@ -514,6 +516,7 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
                                                         NotificationManager mNotificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
                                                         mNotificationManager.cancelAll();
                                                         finish();
+                                                        return;
                                                     }
                                                 });
                                             }
@@ -525,6 +528,7 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
                                         NotificationManager mNotificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
                                         mNotificationManager.cancelAll();
                                         finish();
+                                        return;
                                     }
 
                             }
@@ -533,6 +537,7 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
                             public void onFailure(@NonNull Exception e) {
                                 Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
                                 finish();
+                                return;
                             }
                         });
                     }
@@ -547,6 +552,7 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
 
         //Pause All Tricks
         for (Trick t : tempTrickList) {
+            System.out.println(t.GetName());
             t.PauseTracking();
             trickIDs.add(t.GetID());
         }
@@ -574,7 +580,7 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
 
         Random rand = new Random();
         if(tempTrickList.size() > 0) {
-            int randIndex = rand.nextInt() % (tempTrickList.size());
+            int randIndex = Math.abs(rand.nextInt() % (tempTrickList.size()));
             Trick randTrick = tempTrickList.get(randIndex);
             //Add Session to Document
 
@@ -638,7 +644,7 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
                                 //Add Current to Updated
                                 for (Map<String, Object> currTrick : currentTricks) {
                                     updatedTricks.add(currTrick);
-                                    double trickRatio = (double)currTrick.get("ratio");
+                                    double trickRatio = Double.parseDouble(currTrick.get("ratio").toString());
                                     ratio += trickRatio;
                                 }
                             }
