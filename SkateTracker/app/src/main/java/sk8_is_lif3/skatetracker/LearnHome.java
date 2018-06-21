@@ -126,7 +126,7 @@ public class LearnHome extends Fragment {
                     @Override
                     public void onClick(View v) {
 
-                        LearnTrick nextFrag = new LearnTrick(model.getName(), videoID, model.getId(), model.getArticle(), model.getPrevTricks());
+                        LearnTrick nextFrag = new LearnTrick(model.getName(), videoID, model.getId(), model.getArticle(), model.getCredits(), model.getPrevTricks());
                         holder.background.setTransitionName("sessionNameTransition" + model.getId());
 
                         Transition mainTransition = TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade);
@@ -223,7 +223,7 @@ public class LearnHome extends Fragment {
                     @Override
                     public void onClick(View v) {
 
-                        LearnTrick nextFrag = new LearnTrick(model.getName(), videoID, model.getId(), model.getArticle(), model.getPrevTricks());
+                        LearnTrick nextFrag = new LearnTrick(model.getName(), videoID, model.getId(), model.getArticle(),model.getCredits(), model.getPrevTricks());
                         holder.background.setTransitionName("sessionNameTransition" + model.getId());
 
                         Transition mainTransition = TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade);

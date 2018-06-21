@@ -154,7 +154,7 @@ public class TrickDetailFragment extends Fragment{
                                 public void onClick(View v) {
                                     final String videoID = data.get("url").toString().split("v=")[1];
 
-                                    LearnTrick nextFrag = new LearnTrick(mName, videoID, mId, data.get("article").toString(), (ArrayList<String>) (data.get("prevTricks")));
+                                    LearnTrick nextFrag = new LearnTrick(mName, videoID, mId, data.get("article").toString(), data.get("credits").toString(), (ArrayList<String>) (data.get("prevTricks")));
 
                                     getActivity().getSupportFragmentManager().beginTransaction()
                                             .setReorderingAllowed(true)

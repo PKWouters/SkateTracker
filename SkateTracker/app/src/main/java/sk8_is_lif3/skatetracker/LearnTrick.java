@@ -45,7 +45,7 @@ import static com.firebase.ui.auth.AuthUI.getApplicationContext;
 
 public class LearnTrick extends Fragment {
 
-    String mName, mUrl, mDBID, mArticle;
+    String mName, mUrl, mDBID, mArticle, mCredits;
     ArrayList<String> mPrevTricks;
     YouTubePlayerView youTubePlayerView;
     YouTubePlayer youTubePlayer;
@@ -55,11 +55,12 @@ public class LearnTrick extends Fragment {
     }
 
     @SuppressLint("ValidFragment")
-    public LearnTrick(String name, String url, String dbID, String article, ArrayList<String> prevTricks) {
+    public LearnTrick(String name, String url, String dbID, String article, String credits, ArrayList<String> prevTricks) {
         mName = name;
         mUrl = url;
         mDBID = dbID;
         mArticle = article;
+        mCredits = credits;
         mPrevTricks = prevTricks;
     }
 
@@ -187,6 +188,9 @@ public class LearnTrick extends Fragment {
         }
         TextView article = (TextView) getView().findViewById(R.id.article);
         article.setText(mArticle);
+
+        TextView credits = (TextView) getView().findViewById(R.id.credit);
+        credits.setText(mCredits);
     }
 
     @Override
