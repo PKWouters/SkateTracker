@@ -56,8 +56,9 @@ import sk8_is_lif3.skatetracker.transitions.SessionNameTransition;
 public class LearnHome extends Fragment {
     private FirestoreRecyclerAdapter<TrickToLearn, TrickViewHolder> easyTrickAdapter;
     private FirestoreRecyclerAdapter<TrickToLearn, TrickViewHolder> mediumTrickAdapter;
-    private RecyclerView trickGridView, trickGridView2;
-    private LinearLayoutManager trickLayoutManager, trickLayoutManager2;
+    private FirestoreRecyclerAdapter<TrickToLearn, TrickViewHolder> hardTrickAdapter;
+    private RecyclerView trickGridView, trickGridView2, trickGridView3;
+    private LinearLayoutManager trickLayoutManager, trickLayoutManager2, trickLayoutManager3;
     private String recentTrick;
     private TrickToDisplay recentTrickObj;
 
@@ -75,14 +76,21 @@ public class LearnHome extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         trickLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
         trickLayoutManager2 = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
+        trickLayoutManager3 = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
         trickGridView = getView().findViewById(R.id.easyTrickRecyclerView);
         trickGridView.setHasFixedSize(false);
         trickGridView.setLayoutManager(trickLayoutManager);
         trickGridView.setAdapter(easyTrickAdapter);
+
         trickGridView2 = getView().findViewById(R.id.mediumTrickRecyclerView);
         trickGridView2.setHasFixedSize(false);
         trickGridView2.setLayoutManager(trickLayoutManager2);
         trickGridView2.setAdapter(mediumTrickAdapter);
+
+        trickGridView3 = getView().findViewById(R.id.hardTrickRecyclerView);
+        trickGridView3.setHasFixedSize(false);
+        trickGridView3.setLayoutManager(trickLayoutManager3);
+        trickGridView3.setAdapter(hardTrickAdapter);
 
     }
 
@@ -282,6 +290,103 @@ public class LearnHome extends Fragment {
         };
         mediumTrickAdapter.startListening();
 
+        Query hardTrickQuery = db.collection("tricks").whereEqualTo("difficulty", "difficult").orderBy("order", Query.Direction.ASCENDING).limit(10);
+
+        FirestoreRecyclerOptions<TrickToLearn> trickOptions3 = new FirestoreRecyclerOptions.Builder<TrickToLearn>()
+                .setQuery(hardTrickQuery, TrickToLearn.class)
+                .build();
+
+        hardTrickAdapter = new FirestoreRecyclerAdapter<TrickToLearn, TrickViewHolder>(trickOptions3) {
+            @NonNull
+            @Override
+            public TrickViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                // create a new view
+                View v = (View) LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.trick_learn_card_layout, parent, false);
+                final TrickViewHolder vh = new TrickViewHolder(v);
+
+                return vh;
+            }
+
+            @Override
+            protected void onBindViewHolder(@NonNull final TrickViewHolder holder, final int position, @NonNull final TrickToLearn model) {
+                //final CardView cardView = holder.itemView.findViewById(R.id.card_view);
+                holder.trickNameView.setText(model.getName());
+                holder.trickNameView.setMaxLines(1);
+                holder.trickNameView.setTextColor(Color.WHITE);
+                String[] tempVideo = model.getUrl().split("v=");
+                String tempVideoId = "";
+                if(tempVideo.length > 1) {
+                    tempVideoId = tempVideo[1];
+                    String thumbnail = "http://img.youtube.com/vi/" + tempVideoId + "/mqdefault.jpg";
+                    Picasso.get().load(thumbnail).into(holder.background);
+                }
+
+                final String videoID = tempVideoId;
+
+                holder.itemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                        LearnTrick nextFrag = new LearnTrick(model.getName(), videoID, model.getId(), model.getArticle(),model.getCredits(), model.getPrevTricks());
+                        holder.background.setTransitionName("sessionNameTransition" + model.getId());
+
+                        Transition mainTransition = TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade);
+                        mainTransition.setDuration(250);
+
+                        Transition textTransMove = new ChangeTransform();
+                        textTransMove.setInterpolator(new FastOutSlowInInterpolator());
+
+                        Transition textTransBounds = new ChangeBounds();
+                        textTransBounds.setInterpolator(new FastOutSlowInInterpolator());
+
+                        Transition fadeOutTrans = TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade);
+                        fadeOutTrans.setDuration(250);
+
+                        long duration = 375;
+
+                        int screenSize = getView().getResources().getConfiguration().screenLayout &
+                                Configuration.SCREENLAYOUT_SIZE_MASK;
+
+                        switch (screenSize) {
+                            case Configuration.SCREENLAYOUT_SIZE_LARGE:
+                                duration = 390;
+                                break;
+                            case Configuration.SCREENLAYOUT_SIZE_NORMAL:
+                                duration = 300;
+                                break;
+                            case Configuration.SCREENLAYOUT_SIZE_SMALL:
+                                duration = 210;
+                                break;
+                            default:
+                        }
+                        mainTransition.setStartDelay(duration);
+                        fadeOutTrans.setStartDelay(duration);
+                        textTransMove.setDuration(duration);
+                        textTransBounds.setDuration(duration);
+
+                        TransitionSet tSet = new TransitionSet().addTransition(textTransMove).addTransition(fadeOutTrans).addTransition(textTransBounds);
+
+                        setSharedElementReturnTransition(tSet);
+                        //setExitTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
+
+                        nextFrag.setSharedElementEnterTransition(tSet);
+                        nextFrag.setEnterTransition(mainTransition);
+                        nextFrag.setExitTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
+                        nextFrag.setReturnTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
+
+                        getActivity().getSupportFragmentManager().beginTransaction()
+                                .setReorderingAllowed(true)
+                                .replace(R.id.fragment, nextFrag, "LearnTrick")
+                                .addToBackStack(null)
+                                .addSharedElement(holder.background, holder.background.getTransitionName())
+                                .commit();
+                    }
+                });
+            }
+        };
+        hardTrickAdapter.startListening();
+
     }
 
     private class TrickViewHolder extends RecyclerView.ViewHolder {
@@ -350,6 +455,8 @@ public class LearnHome extends Fragment {
                                             recentTrickView.setText(recentTrickObj.getName());
                                             if(ratio > 100){
                                                 ratio = 100.0;
+                                                progress.setTextColor(getResources().getColor(R.color.skatesetcolorAccent));
+                                                progress.setFinishedStrokeColor(getResources().getColor(R.color.skatesetcolorAccent));
                                             }
                                             else if (ratio < 100) {
                                                 progress.setTextColor(getResources().getColor(R.color.colorAccent));

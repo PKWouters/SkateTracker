@@ -8,5 +8,7 @@
     <color name="skatecolorAccent">#F57F17</color>
     <color name="skatesetcolorAccent">#2E7D32</color>
     <color name="colorBackground">#303030</color>
+    <color name="textDarkTranslucent">#22FFFFFF</color>
+    <color name="textDark">#CCCCCC</color>
     <color name="colorPrimaryDarkTranslucent">#96000000</color>
 </resources>

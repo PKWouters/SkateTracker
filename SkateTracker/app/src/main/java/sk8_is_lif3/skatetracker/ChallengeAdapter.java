@@ -34,6 +34,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.List;
 import java.util.Map;
@@ -41,28 +42,35 @@ import java.util.Random;
 
 public class ChallengeAdapter extends RecyclerView.Adapter<ChallengeAdapter.ViewHolder> {
 
-    private List<String> challenges;
+    private List<Map<String, Object>> challenges;
+    private List<String> userChallenges;
     private int _expandedPosition = -1, _previousExpandedPosition = -1;
     ViewGroup recyclerView;
     FirebaseFirestore db;
     FirebaseUser user;
 
 
-    public ChallengeAdapter(List<String> challenges) {
+    public ChallengeAdapter(final List<Map<String, Object>> challenges, final List<String> userChallenges) {
         this.challenges = challenges;
-    }
+        this.userChallenges = userChallenges;
+        db = FirebaseFirestore.getInstance();
+        user = FirebaseAuth.getInstance().getCurrentUser();
 
+    }
 
     //VIEW HOLDER STUFF
     public static class ViewHolder extends RecyclerView.ViewHolder {
         // each data item is just a string in this case
-        public TextView challengeNameView;
+        public TextView challengeNameView, challengeDescriptionView;
+        public ImageView hasLandedView;
         public View itemView;
         public LinearLayout linearLayout;
         public ViewHolder(View v) {
             super(v);
             itemView = v;
             challengeNameView = v.findViewById(R.id.trickName);
+            challengeDescriptionView = v.findViewById(R.id.description);
+            hasLandedView = v.findViewById(R.id.hasLanded);
             linearLayout = v.findViewById(R.id.linearlayout);
         }
     }
@@ -71,11 +79,10 @@ public class ChallengeAdapter extends RecyclerView.Adapter<ChallengeAdapter.View
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         // create a new view
         View v = (View) LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.session_card_layout, parent, false);
+                .inflate(R.layout.achievment_card_layout, parent, false);
         recyclerView = parent;
         ViewHolder vh = new ViewHolder(v);
-        db = FirebaseFirestore.getInstance();
-        user = FirebaseAuth.getInstance().getCurrentUser();
+
         return vh;
 
     }
@@ -83,22 +90,31 @@ public class ChallengeAdapter extends RecyclerView.Adapter<ChallengeAdapter.View
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
         if(user != null){
-            db.collection("challenges").document(challenges.get(position)).get()
-                    .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                        @Override
-                        public void onSuccess(DocumentSnapshot documentSnapshot) {
-                            TransitionManager.beginDelayedTransition(recyclerView);
-                            Map<String, Object> data = documentSnapshot.getData();
-                            holder.challengeNameView.setText(data.get("name").toString());
-                            holder.itemView.setVisibility(View.VISIBLE);
-                            notifyDataSetChanged();
-                        }
-                    }).addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            holder.itemView.setVisibility(View.GONE);
-                        }
-                    });
+            final boolean isExpanded = position == _expandedPosition;
+            boolean hasEarned = false;
+            if(userChallenges != null) {
+                for (int i = 0; i < userChallenges.size(); i++) {
+                    if (userChallenges.get(i).equals(challenges.get(position).get("id").toString())) {
+                        hasEarned = true;
+                    }
+                }
+            }
+            if(isExpanded)
+                _previousExpandedPosition = position;
+            String id = challenges.get(position).get("id").toString();
+            holder.challengeNameView.setText(challenges.get(position).get("name").toString());
+            holder.challengeDescriptionView.setText(challenges.get(position).get("description").toString());
+            holder.challengeDescriptionView.setVisibility(isExpanded?View.VISIBLE:View.GONE);
+            holder.hasLandedView.setVisibility(hasEarned?View.VISIBLE:View.GONE);
+            holder.itemView.setVisibility(View.VISIBLE);
+            holder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    _expandedPosition = isExpanded ? -1:position;
+                    notifyItemChanged(_previousExpandedPosition);
+                    notifyItemChanged(position);
+                }
+            });
         }
     }
 

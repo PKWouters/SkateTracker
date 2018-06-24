@@ -79,9 +79,9 @@ public class OnboardingActivity extends AppCompatActivity {
         mViewPager.setCurrentItem(page);
         updateIndicators(page);
 
-        final int color1 = ContextCompat.getColor(this, R.color.colorPrimaryLight);
+        final int color1 = ContextCompat.getColor(this, R.color.colorPrimary);
         final int color2 = ContextCompat.getColor(this, R.color.colorAccent);
-        final int color3 = ContextCompat.getColor(this, R.color.colorPrimaryLight);
+        final int color3 = ContextCompat.getColor(this, R.color.colorPrimary);
 
         final int[] colorList = new int[]{color1, color2, color3};
 

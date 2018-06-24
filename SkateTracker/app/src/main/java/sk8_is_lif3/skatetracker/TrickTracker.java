@@ -23,10 +23,12 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -46,6 +48,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.squareup.picasso.Picasso;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -58,6 +61,7 @@ import java.util.Map;
 public class TrickTracker extends AppCompatActivity {
 
     Trick currentTrick;
+    ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -156,6 +160,8 @@ public class TrickTracker extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if(currentTrick.IsTracking()){
+                    progressDialog = ProgressDialog.show(TrickTracker.this, "",
+                            "Saving Trick...", true);
                     AlertDialog.Builder builder = new AlertDialog.Builder(TrickTracker.this);
                     // Add the buttons
                     // 2. Chain together various setter methods to set the dialog characteristics
@@ -252,21 +258,47 @@ public class TrickTracker extends AppCompatActivity {
                                                                                         for (DocumentSnapshot doc : docs) {
                                                                                             Map<String, Object> data = doc.getData();
 
-                                                                                            //--Trick Landings--//
                                                                                             if (currentTrick.GetTimesLanded() >= 1) {
-                                                                                                if (data.get("type").equals("land") && (long) data.get("requirement") <= (int)userTrick.get("totalLandings")) {
+                                                                                                if (data.get("type").equals("land") && (long) data.get("requirement") <= Integer.valueOf(userTrick.get("totalLandings").toString())) {
                                                                                                     if (userChallenges != null && !userChallenges.contains(data.get("id"))) {
                                                                                                         userChallenges.add((String) (data.get("id")));
-                                                                                                        Toast.makeText(getApplicationContext(), "New Achievement: " + data.get("name").toString(), Toast.LENGTH_SHORT).show();
+                                                                                                        Toast.makeText(getApplicationContext(), "Challenge Completed: " + data.get("name").toString(), Toast.LENGTH_SHORT).show();
                                                                                                     }
                                                                                                 }
                                                                                             }
                                                                                             if (currentTrick.GetRatio() > 0.0) {
-                                                                                                if (data.get("type").equals("ratio") && (long) data.get("requirement") <= Double.valueOf((double)userTrick.get("avgRatio")).longValue()) {
+                                                                                                if (data.get("type").equals("ratio") && Double.valueOf(data.get("requirement").toString()) <= Double.valueOf(userTrick.get("avgRatio").toString())) {
                                                                                                     if (userChallenges != null && !userChallenges.contains(data.get("id"))) {
                                                                                                         userChallenges.add((String) (data.get("id")));
-                                                                                                        Toast.makeText(getApplicationContext(), "New Achievement: " + data.get("name").toString(), Toast.LENGTH_SHORT).show();
+                                                                                                        Toast.makeText(getApplicationContext(), "Challenge Completed: " + data.get("name").toString(), Toast.LENGTH_SHORT).show();
                                                                                                     }
+                                                                                                }
+                                                                                            }
+
+                                                                                            //--Trick Landings--//
+                                                                                            if (currentTrick.GetTimesLanded() >= 1) {
+                                                                                                if (data.get("type").equals("land_session") && (long) data.get("requirement") <= currentTrick.GetTimesLanded()) {
+                                                                                                    if (userChallenges != null && !userChallenges.contains(data.get("id"))) {
+                                                                                                        userChallenges.add((String) (data.get("id")));
+                                                                                                        Toast.makeText(getApplicationContext(), "Challenge Completed: " + data.get("name").toString(), Toast.LENGTH_SHORT).show();
+                                                                                                    }
+                                                                                                }
+                                                                                            }
+                                                                                            if (currentTrick.GetRatio() > 0.0) {
+                                                                                                if (data.get("type").equals("ratio_session") && Double.valueOf(data.get("requirement").toString()) <= currentTrick.GetRatio()) {
+                                                                                                    if (userChallenges != null && !userChallenges.contains(data.get("id"))) {
+                                                                                                        userChallenges.add((String) (data.get("id")));
+                                                                                                        Toast.makeText(getApplicationContext(), "Challenge Completed: " + data.get("name").toString(), Toast.LENGTH_SHORT).show();
+                                                                                                    }
+                                                                                                }
+                                                                                            }
+                                                                                            if (currentTrick.GetTotalSecondsTracked() > 0) {
+                                                                                                if (data.get("type").equals("time_session") && (long) data.get("requirement") <= currentTrick.GetTotalSecondsTracked()) {
+                                                                                                    if (userChallenges != null && !userChallenges.contains(data.get("id"))) {
+                                                                                                        userChallenges.add((String) (data.get("id")));
+                                                                                                        Toast.makeText(getApplicationContext(), "Challenge Completed: " + data.get("name").toString(), Toast.LENGTH_SHORT).show();
+                                                                                                    }
+
                                                                                                 }
                                                                                             }
                                                                                         }
@@ -362,21 +394,47 @@ public class TrickTracker extends AppCompatActivity {
                                                                                             for (DocumentSnapshot doc : docs) {
                                                                                                 Map<String, Object> data = doc.getData();
 
-                                                                                                //--Trick Landings--//
                                                                                                 if (currentTrick.GetTimesLanded() >= 1) {
-                                                                                                    if (data.get("type").equals("land") && (long) data.get("requirement") <= (int)userTrick.get("totalLandings")) {
+                                                                                                    if (data.get("type").equals("land") && (long) data.get("requirement") <= Integer.valueOf(userTrick.get("totalLandings").toString())) {
                                                                                                         if (userChallenges != null && !userChallenges.contains(data.get("id"))) {
                                                                                                             userChallenges.add((String) (data.get("id")));
-                                                                                                            Toast.makeText(getApplicationContext(), "New Achievement: " + data.get("name").toString(), Toast.LENGTH_SHORT).show();
+                                                                                                            Toast.makeText(getApplicationContext(), "Challenge Completed: " + data.get("name").toString(), Toast.LENGTH_SHORT).show();
                                                                                                         }
                                                                                                     }
                                                                                                 }
                                                                                                 if (currentTrick.GetRatio() > 0.0) {
-                                                                                                    if (data.get("type").equals("ratio") && (long) data.get("requirement") <= Double.valueOf((double)userTrick.get("avgRatio")).longValue()) {
+                                                                                                    if (data.get("type").equals("ratio") && Double.valueOf(data.get("requirement").toString()) <= Double.valueOf(userTrick.get("avgRatio").toString())) {
                                                                                                         if (userChallenges != null && !userChallenges.contains(data.get("id"))) {
                                                                                                             userChallenges.add((String) (data.get("id")));
-                                                                                                            Toast.makeText(getApplicationContext(), "New Achievement: " + data.get("name").toString(), Toast.LENGTH_SHORT).show();
+                                                                                                            Toast.makeText(getApplicationContext(), "Challenge Completed: " + data.get("name").toString(), Toast.LENGTH_SHORT).show();
                                                                                                         }
+                                                                                                    }
+                                                                                                }
+
+                                                                                                //--Trick Landings--//
+                                                                                                if (currentTrick.GetTimesLanded() >= 1) {
+                                                                                                    if (data.get("type").equals("land_session") && (long) data.get("requirement") <= currentTrick.GetTimesLanded()) {
+                                                                                                        if (userChallenges != null && !userChallenges.contains(data.get("id"))) {
+                                                                                                            userChallenges.add((String) (data.get("id")));
+                                                                                                            Toast.makeText(getApplicationContext(), "Challenge Completed: " + data.get("name").toString(), Toast.LENGTH_SHORT).show();
+                                                                                                        }
+                                                                                                    }
+                                                                                                }
+                                                                                                if (currentTrick.GetRatio() > 0.0) {
+                                                                                                    if (data.get("type").equals("ratio_session") && Double.valueOf(data.get("requirement").toString()) <= currentTrick.GetRatio()) {
+                                                                                                        if (userChallenges != null && !userChallenges.contains(data.get("id"))) {
+                                                                                                            userChallenges.add((String) (data.get("id")));
+                                                                                                            Toast.makeText(getApplicationContext(), "Challenge Completed: " + data.get("name").toString(), Toast.LENGTH_SHORT).show();
+                                                                                                        }
+                                                                                                    }
+                                                                                                }
+                                                                                                if (currentTrick.GetTotalSecondsTracked() > 0) {
+                                                                                                    if (data.get("type").equals("time_session") && (long) data.get("requirement") <= currentTrick.GetTotalSecondsTracked()) {
+                                                                                                        if (userChallenges != null && !userChallenges.contains(data.get("id"))) {
+                                                                                                            userChallenges.add((String) (data.get("id")));
+                                                                                                            Toast.makeText(getApplicationContext(), "Challenge Completed: " + data.get("name").toString(), Toast.LENGTH_SHORT).show();
+                                                                                                        }
+
                                                                                                     }
                                                                                                 }
                                                                                             }
@@ -479,37 +537,88 @@ public class TrickTracker extends AppCompatActivity {
         query.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
-                List<DocumentSnapshot> docs = queryDocumentSnapshots.getDocuments();
+                if(queryDocumentSnapshots == null) return;
+                final List<DocumentSnapshot> docs = queryDocumentSnapshots.getDocuments();
+                final List<Map<String, Object>> achievementsInfo = new ArrayList<Map<String, Object>>();
                 List<String> updatedAchievements = userAchievements;
                 for (DocumentSnapshot doc : docs) {
                     Map<String, Object> data = doc.getData();
-                    List<String> reqChallenges = (List<String>)(data.get("challenges"));
+                    List<String> reqChallenges = (List<String>) (data.get("challenges"));
                     int found = 0;
-                    for(String c : reqChallenges){
-                        if(challenges.contains(c)){
+                    for (String c : reqChallenges) {
+                        if (challenges != null && challenges.contains(c)) {
                             found++;
-                        }else{
+                        } else {
                             break;
                         }
                     }
-                    if(updatedAchievements == null){
+                    if (updatedAchievements == null) {
                         updatedAchievements = new ArrayList<String>();
                     }
-                    if(found >= reqChallenges.size() && !updatedAchievements.contains(data.get("id").toString())){
-                        updatedAchievements.add(doc.getData().get("id").toString());
+                    if (found >= reqChallenges.size() && !updatedAchievements.contains(data.get("id").toString())) {
+                        updatedAchievements.add(data.get("id").toString());
+                        achievementsInfo.add(data);
                     }
                 }
-                db.collection("users").document(user.getUid()).update("achievements", updatedAchievements).addOnSuccessListener(new OnSuccessListener<Void>() {
+                final List<String> updatedAchievementsFinal = updatedAchievements;
+                db.collection("users").document(user.getUid()).update("achievements", updatedAchievementsFinal).addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        NotificationManager mNotificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
-                        mNotificationManager.cancelAll();
-                        finish();
+                        if (achievementsInfo.size() > 0) {
+                            for (int i = 0; i < achievementsInfo.size(); i++) {
+                                final AlertDialog.Builder builder = new AlertDialog.Builder(TrickTracker.this);
+                                final LayoutInflater inflater = getLayoutInflater();
+                                final View dlgView = inflater.inflate(R.layout.achievement_dialog, null);
+                                final TextView achievementName = (TextView) dlgView.findViewById(R.id.achievementName);
+                                achievementName.setText(achievementsInfo.get(i).get("name").toString());
+                                final TextView achievementDesc = (TextView) dlgView.findViewById(R.id.achievementDesc);
+                                achievementDesc.setText(achievementsInfo.get(i).get("description").toString());
+                                final ImageView achievementSticker = (ImageView) dlgView.findViewById(R.id.stickerImage);
+                                if(achievementsInfo.get(i).get("stickerUrl") != null && achievementsInfo.get(i).get("stickerUrl").toString() != "") {
+                                    Picasso.get().load(achievementsInfo.get(i).get("stickerUrl").toString()).into(achievementSticker);
+                                }
+                                builder.setView(dlgView);
+                                if (i < updatedAchievementsFinal.size() - 1) {
+                                    builder.setPositiveButton("Next", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            progressDialog.dismiss();
+                                            NotificationManager mNotificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+                                            mNotificationManager.cancelAll();
+                                            finish();
+                                            return;
+                                        }
+                                    });
+                                } else {
+                                    builder.setPositiveButton("Done", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            progressDialog.dismiss();
+                                            NotificationManager mNotificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+                                            mNotificationManager.cancelAll();
+                                            finish();
+                                            return;
+                                        }
+                                    });
+                                }
+                                builder.create();
+                                builder.show();
+                            }
+                        } else {
+                            progressDialog.dismiss();
+                            NotificationManager mNotificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+                            mNotificationManager.cancelAll();
+                            finish();
+                            return;
+                        }
+
                     }
                 }).addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                        finish();
+                        return;
                     }
                 });
             }

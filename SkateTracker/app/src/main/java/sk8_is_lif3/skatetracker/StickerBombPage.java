@@ -83,6 +83,7 @@ public class StickerBombPage extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sticker_bomb_page);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar.setBackgroundColor(getResources().getColor(R.color.colorBackground));
 
         final Random rnd = new Random();
 
@@ -96,7 +97,7 @@ public class StickerBombPage extends AppCompatActivity {
         DisplayMetrics displaymetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
         final int windowwidth = displaymetrics.widthPixels;
-        final int windowheight = displaymetrics.heightPixels;
+        final int windowheight = displaymetrics.heightPixels-32;
 
         mImageMatrix = new Matrix();
 
@@ -180,7 +181,9 @@ public class StickerBombPage extends AppCompatActivity {
                                                 return true;
                                             }
                                         });
-                                        Picasso.get().load(data.get("stickerUrl").toString()).into(sticker);
+                                        if(data.get("stickerUrl") != null && data.get("stickerUrl").toString() != "") {
+                                            Picasso.get().load(data.get("stickerUrl").toString()).into(sticker);
+                                        }
                                         layout.addView(sticker);
                                     }
                                 }

@@ -26,6 +26,12 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -34,6 +40,7 @@ public class LoginActivity extends AppCompatActivity {
     private int RC_SIGN_IN = 123;
     private GoogleSignInClient mGoogleSignInClient;
     ProgressDialog progressDialog;
+    private boolean isNewUser;
 
 
 
@@ -41,6 +48,7 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+        isNewUser = false;
 
         mAuth = FirebaseAuth.getInstance();
 
@@ -160,17 +168,57 @@ public class LoginActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            progressDialog.dismiss();
-                            startActivity(new Intent(LoginActivity.this, MainNavigationActivity.class));
-                            finish();
-                        } else {
-                            // If sign in fails, display a message to the user.
-                            progressDialog.dismiss();
-                            Toast.makeText(getApplicationContext(), task.getException().getMessage(), Toast.LENGTH_SHORT).show();
-                            Log.w(TAG, "signInWithCredential:failure", task.getException());
-                        }
+                            final FirebaseUser user = mAuth.getCurrentUser();
+                            final FirebaseFirestore db = FirebaseFirestore.getInstance();
+                            db.collection("users").document(user.getUid()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                    if(task.isSuccessful()){
+                                        DocumentSnapshot document = task.getResult();
+                                        if(document.exists()){
+                                            isNewUser = false;
+                                            progressDialog.dismiss();
+                                            startActivity(new Intent(LoginActivity.this, MainNavigationActivity.class));
+                                            finish();
+                                            return;
+                                        }else{
+                                            isNewUser = true;
+                                            Map<String, Object> newUser = new HashMap<String, Object>();
+                                            newUser.put("name", user.getDisplayName());
+                                            newUser.put("challenges", new ArrayList<>());
+                                            newUser.put("achievements", new ArrayList<>());
+                                            newUser.put("newUser", true);
+                                            db.collection("users").document(user.getUid()).set(newUser)
+                                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                        @Override
+                                                        public void onSuccess(Void aVoid) {
+                                                            if (isNewUser) {
+                                                                progressDialog.dismiss();
+                                                                startActivity(new Intent(LoginActivity.this, OnboardingActivity.class));
+                                                                finish();
+                                                                return;
+                                                            } else {
+                                                                Toast.makeText(getApplicationContext(), "Successfully Registered", Toast.LENGTH_SHORT).show();
+                                                                progressDialog.dismiss();
+                                                                startActivity(new Intent(LoginActivity.this, MainNavigationActivity.class));
+                                                                finish();
+                                                                return;
+                                                            }
+                                                        }
+                                                    })
+                                                    .addOnFailureListener(new OnFailureListener() {
+                                                        @Override
+                                                        public void onFailure(@NonNull Exception e) {
+                                                            progressDialog.dismiss();
+                                                            Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                                                        }
+                                                    });
 
-                        // ...
+                                        }
+                                    }
+                                }
+                            });
+                        }
                     }
                 });
     }

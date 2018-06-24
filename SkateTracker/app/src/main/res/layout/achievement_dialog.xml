@@ -19,7 +19,7 @@
         android:cropToPadding="false"
         android:foregroundGravity="center"
         android:scaleType="fitCenter"
-        app:srcCompat="@drawable/fui_ic_googleg_color_24dp" />
+        app:srcCompat="@drawable/ic_launcher" />
 
     <TextView
         android:id="@+id/achievementName"

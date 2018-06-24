@@ -161,6 +161,8 @@ public class RegisterActivity extends AppCompatActivity {
         googleBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                progressDialog = ProgressDialog.show(RegisterActivity.this, "",
+                        "Creating Account...", true);
                 if(mGoogleSignInClient != null){
                     signIn();
                 }
@@ -199,7 +201,8 @@ public class RegisterActivity extends AppCompatActivity {
                 GoogleSignInAccount account = task.getResult(ApiException.class);
                 firebaseAuthWithGoogle(account);
             } catch (ApiException e) {
-                progressDialog.dismiss();
+                if(progressDialog != null)
+                    progressDialog.dismiss();
                 Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
             }
         }

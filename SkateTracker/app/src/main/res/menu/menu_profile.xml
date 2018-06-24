@@ -5,7 +5,7 @@
 
     <item
         android:id="@+id/the_achivements"
-        android:title="Achievements"
+        android:title="Challenges"
         app:showAsAction="never" />
     <item
         android:id="@+id/sticker_bomb"
