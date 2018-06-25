@@ -103,7 +103,7 @@ public class Profile extends Fragment {
             tv.setTextColor(getResources().getColor(R.color.textDark));
         }
         bg = (ImageView) getActivity().findViewById(R.id.stickerBombImage);
-        bg.setAlpha(0.5f);
+        bg.setAlpha(0.25f);
         bg.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -116,7 +116,7 @@ public class Profile extends Fragment {
                         tv.setTextColor(getResources().getColor(R.color.textDarkTranslucent));
                         return true;
                     case (MotionEvent.ACTION_UP):
-                        bg.setAlpha(0.5f);
+                        bg.setAlpha(0.25f);
                         cardView.setAlpha(1f);
                         tv.setTextColor(getResources().getColor(R.color.textDark));
                         return true;
