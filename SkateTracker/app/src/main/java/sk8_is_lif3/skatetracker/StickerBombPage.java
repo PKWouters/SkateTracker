@@ -97,7 +97,7 @@ public class StickerBombPage extends AppCompatActivity {
         DisplayMetrics displaymetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
         final int windowwidth = displaymetrics.widthPixels;
-        final int windowheight = displaymetrics.heightPixels;
+        final int windowheight = displaymetrics.heightPixels-32;
 
         mImageMatrix = new Matrix();
 
@@ -220,10 +220,11 @@ public class StickerBombPage extends AppCompatActivity {
         float deltaX = event.getX(0) - event.getX(1);
         float deltaY = event.getY(0) - event.getY(1);
         double radians = Math.atan(deltaY / deltaX);
-        view.setPivotX(view.getWidth() / 2);
-        view.setPivotY(view.getHeight() / 2);
         //Convert to degrees
         int degrees = (int)(radians * 180 / Math.PI);
+
+        float midX = event.getX(0) + event.getX(1);
+        float midY = event.getY(0) + event.getY(1);
         /*
          * Must use getActionMasked() for switching to pick up pointer events.
          * These events have the pointer index encoded in them so the return
