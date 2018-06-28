@@ -6,7 +6,7 @@ android {
         applicationId "sk8_is_lif3.skatetracker"
         minSdkVersion 22
         targetSdkVersion 26
-        versionCode 9
+        versionCode 10
         versionName "0.1"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }

@@ -244,7 +244,7 @@ public class TrickTracker extends AppCompatActivity {
                                                                 docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                                                     @Override
                                                                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                                                        Query query = db.collection("challenges");
+                                                                        final Query query = db.collection("challenges");
                                                                         System.out.println("CHECKING STARTED");
                                                                         if (task.isSuccessful()) {
                                                                             DocumentSnapshot document = task.getResult();
@@ -253,6 +253,7 @@ public class TrickTracker extends AppCompatActivity {
                                                                                 query.addSnapshotListener(new EventListener<QuerySnapshot>() {
                                                                                     @Override
                                                                                     public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                                                                                        if(queryDocumentSnapshots == null) return;
                                                                                         List<DocumentSnapshot> docs = queryDocumentSnapshots.getDocuments();
                                                                                         final List<String> userChallenges = (List<String>) userData.get("challenges");
                                                                                         for (DocumentSnapshot doc : docs) {
@@ -389,6 +390,7 @@ public class TrickTracker extends AppCompatActivity {
                                                                                 query.addSnapshotListener(new EventListener<QuerySnapshot>() {
                                                                                     @Override
                                                                                     public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                                                                                        if(queryDocumentSnapshots == null) return;
                                                                                         List<DocumentSnapshot> docs = queryDocumentSnapshots.getDocuments();
                                                                                         final List<String> userChallenges = (List<String>) userData.get("challenges");
                                                                                             for (DocumentSnapshot doc : docs) {
@@ -565,45 +567,30 @@ public class TrickTracker extends AppCompatActivity {
                     @Override
                     public void onSuccess(Void aVoid) {
                         if (achievementsInfo.size() > 0) {
-                            for (int i = 0; i < achievementsInfo.size(); i++) {
-                                final AlertDialog.Builder builder = new AlertDialog.Builder(TrickTracker.this);
-                                final LayoutInflater inflater = getLayoutInflater();
-                                final View dlgView = inflater.inflate(R.layout.achievement_dialog, null);
-                                final TextView achievementName = (TextView) dlgView.findViewById(R.id.achievementName);
-                                achievementName.setText(achievementsInfo.get(i).get("name").toString());
-                                final TextView achievementDesc = (TextView) dlgView.findViewById(R.id.achievementDesc);
-                                achievementDesc.setText(achievementsInfo.get(i).get("description").toString());
-                                final ImageView achievementSticker = (ImageView) dlgView.findViewById(R.id.stickerImage);
-                                if(achievementsInfo.get(i).get("stickerUrl") != null && achievementsInfo.get(i).get("stickerUrl").toString() != "") {
-                                    Picasso.get().load(achievementsInfo.get(i).get("stickerUrl").toString()).into(achievementSticker);
+                            final AlertDialog.Builder builder = new AlertDialog.Builder(TrickTracker.this);
+                            final LayoutInflater inflater = getLayoutInflater();
+                            builder.setTitle("New Stickers Avaliable");
+                            builder.setPositiveButton("View", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    progressDialog.dismiss();
+                                    NotificationManager mNotificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+                                    mNotificationManager.cancelAll();
+                                    startActivity(new Intent(TrickTracker.this, StickerBombPage.class));
+                                    finish();
                                 }
-                                builder.setView(dlgView);
-                                if (i < updatedAchievementsFinal.size() - 1) {
-                                    builder.setPositiveButton("Next", new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            progressDialog.dismiss();
-                                            NotificationManager mNotificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
-                                            mNotificationManager.cancelAll();
-                                            finish();
-                                            return;
-                                        }
-                                    });
-                                } else {
-                                    builder.setPositiveButton("Done", new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            progressDialog.dismiss();
-                                            NotificationManager mNotificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
-                                            mNotificationManager.cancelAll();
-                                            finish();
-                                            return;
-                                        }
-                                    });
+                            });
+                            builder.setNegativeButton("Ok", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    progressDialog.dismiss();
+                                    NotificationManager mNotificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+                                    mNotificationManager.cancelAll();
+                                    finish();
                                 }
-                                builder.create();
-                                builder.show();
-                            }
+                            });
+                            builder.create();
+                            builder.show();
                         } else {
                             progressDialog.dismiss();
                             NotificationManager mNotificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);

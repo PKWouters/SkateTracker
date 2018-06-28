@@ -278,6 +278,7 @@ public class LearnHome extends Fragment {
                         nextFrag.setExitTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
                         nextFrag.setReturnTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
 
+                        LimitNumberOfFragments();
                         getActivity().getSupportFragmentManager().beginTransaction()
                                 .setReorderingAllowed(true)
                                 .replace(R.id.fragment, nextFrag, "LearnTrick")
@@ -375,6 +376,7 @@ public class LearnHome extends Fragment {
                         nextFrag.setExitTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
                         nextFrag.setReturnTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
 
+                        LimitNumberOfFragments();
                         getActivity().getSupportFragmentManager().beginTransaction()
                                 .setReorderingAllowed(true)
                                 .replace(R.id.fragment, nextFrag, "LearnTrick")
@@ -428,6 +430,10 @@ public class LearnHome extends Fragment {
             mediumTrickAdapter.startListening();
         }
 
+        if(hardTrickAdapter != null){
+            hardTrickAdapter.startListening();
+        }
+
         final CardView recentTrickCard = (CardView) getView().findViewById(R.id.recentCard);
         recentTrickCard.setVisibility(View.GONE);
         final FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -442,50 +448,62 @@ public class LearnHome extends Fragment {
                         if (document.exists()) {
                             if (document.getData().get("recent_trick") != null) {
                                 recentTrick = document.getData().get("recent_trick").toString();
-                                DocumentReference trickRef = db.collection("users").document(user.getUid()).collection("tricks").document(recentTrick);
-                                trickRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                                    @Override
-                                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-                                        recentTrickObj = documentSnapshot.toObject(TrickToDisplay.class);
-                                        if(getView() != null) {
-                                            final DonutProgress progress = (DonutProgress) getView().findViewById(R.id.trickProgress);
-                                            Double ratio = (Double) recentTrickObj.getAvgRatio();
-                                            ratio *= 100;
-                                            TextView recentTrickView = (TextView) getView().findViewById(R.id.recentTrickName);
-                                            recentTrickView.setText(recentTrickObj.getName());
-                                            if(ratio > 100){
-                                                ratio = 100.0;
-                                                progress.setTextColor(getResources().getColor(R.color.skatesetcolorAccent));
-                                                progress.setFinishedStrokeColor(getResources().getColor(R.color.skatesetcolorAccent));
-                                            }
-                                            else if (ratio < 100) {
-                                                progress.setTextColor(getResources().getColor(R.color.colorAccent));
-                                                progress.setFinishedStrokeColor(getResources().getColor(R.color.colorAccent));
-                                            }
-                                            progress.setDonut_progress(Integer.toString(ratio.intValue()));
-                                            recentTrickCard.setVisibility(View.VISIBLE);
-                                            ProgressBar loading = (ProgressBar) getView().findViewById(R.id.progressBar);
-                                            loading.setVisibility(View.GONE);
-                                            Button progressBtn = getView().findViewById(R.id.progressBtn);
-                                            progressBtn.setOnClickListener(new View.OnClickListener() {
-                                                @Override
-                                                public void onClick(View v) {
-                                                    TrickDetailFragment nextFrag = new TrickDetailFragment(recentTrickObj.getName().toUpperCase().toString(), recentTrickObj.getAvgRatio(), recentTrickObj.getDbID(), recentTrickObj.getSessions());
-                                                    nextFrag.setSharedElementEnterTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
-                                                    nextFrag.setEnterTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
-                                                    nextFrag.setExitTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
-                                                    nextFrag.setReturnTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
-
-                                                    getActivity().getSupportFragmentManager().beginTransaction()
-                                                            .setReorderingAllowed(true)
-                                                            .replace(R.id.fragment, nextFrag,"TrickDetailFragment")
-                                                            .addToBackStack(recentTrickObj.getName())
-                                                            .commit();
+                                if(recentTrick != "" && recentTrick.length() > 0) {
+                                    DocumentReference trickRef = db.collection("users").document(user.getUid()).collection("tricks").document(recentTrick);
+                                    trickRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                        @Override
+                                        public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                            recentTrickObj = documentSnapshot.toObject(TrickToDisplay.class);
+                                            if (getView() != null && recentTrickObj != null) {
+                                                final DonutProgress progress = (DonutProgress) getView().findViewById(R.id.trickProgress);
+                                                Double ratio = (Double) recentTrickObj.getAvgRatio();
+                                                ratio *= 100;
+                                                TextView recentTrickView = (TextView) getView().findViewById(R.id.recentTrickName);
+                                                recentTrickView.setText(recentTrickObj.getName());
+                                                if (ratio > 100) {
+                                                    ratio = 100.0;
+                                                    progress.setTextColor(getResources().getColor(R.color.skatesetcolorAccent));
+                                                    progress.setFinishedStrokeColor(getResources().getColor(R.color.skatesetcolorAccent));
+                                                } else if (ratio < 100) {
+                                                    progress.setTextColor(getResources().getColor(R.color.colorAccent));
+                                                    progress.setFinishedStrokeColor(getResources().getColor(R.color.colorAccent));
                                                 }
-                                            });
+                                                progress.setDonut_progress(Integer.toString(ratio.intValue()));
+                                                recentTrickCard.setVisibility(View.VISIBLE);
+                                                ProgressBar loading = (ProgressBar) getView().findViewById(R.id.progressBar);
+                                                loading.setVisibility(View.GONE);
+                                                Button progressBtn = getView().findViewById(R.id.progressBtn);
+                                                progressBtn.setOnClickListener(new View.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(View v) {
+                                                        TrickDetailFragment nextFrag = new TrickDetailFragment(recentTrickObj.getName().toUpperCase().toString(), recentTrickObj.getAvgRatio(), recentTrickObj.getDbID(), recentTrickObj.getSessions());
+                                                        nextFrag.setSharedElementEnterTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
+                                                        nextFrag.setEnterTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
+                                                        nextFrag.setExitTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
+                                                        nextFrag.setReturnTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
+
+                                                        LimitNumberOfFragments();
+                                                        getActivity().getSupportFragmentManager().beginTransaction()
+                                                                .setReorderingAllowed(true)
+                                                                .replace(R.id.fragment, nextFrag, "TrickDetailFragment")
+                                                                .addToBackStack(recentTrickObj.getName())
+                                                                .commit();
+                                                    }
+                                                });
+                                            }else{
+                                                if(getView() != null) {
+                                                    ProgressBar loading = (ProgressBar) getView().findViewById(R.id.progressBar);
+                                                    loading.setVisibility(View.GONE);
+                                                }
+                                            }
                                         }
+                                    });
+                                }else{
+                                    if(getView() != null) {
+                                        ProgressBar loading = (ProgressBar) getView().findViewById(R.id.progressBar);
+                                        loading.setVisibility(View.GONE);
                                     }
-                                });
+                                }
                             }else{
                                 if(getView() != null) {
                                     ProgressBar loading = (ProgressBar) getView().findViewById(R.id.progressBar);
@@ -504,6 +522,21 @@ public class LearnHome extends Fragment {
     }
 
     @Override
+    public void onPause() {
+        super.onPause();
+        if(easyTrickAdapter != null){
+            easyTrickAdapter.stopListening();
+        }
+        if(mediumTrickAdapter != null){
+            mediumTrickAdapter.stopListening();
+        }
+
+        if(hardTrickAdapter != null){
+            hardTrickAdapter.stopListening();
+        }
+    }
+
+    @Override
     public void onStop() {
         super.onStop();
         if(easyTrickAdapter != null){
@@ -512,11 +545,21 @@ public class LearnHome extends Fragment {
         if(mediumTrickAdapter != null){
             mediumTrickAdapter.stopListening();
         }
+
+        if(hardTrickAdapter != null){
+            hardTrickAdapter.stopListening();
+        }
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
+    }
+
+    private void LimitNumberOfFragments(){
+        if(getActivity().getSupportFragmentManager().getBackStackEntryCount() > 4){
+            getActivity().getSupportFragmentManager().popBackStack();
+        }
     }
 
 }

@@ -8,6 +8,7 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
@@ -40,7 +41,7 @@ public class MainNavigationActivity extends AppCompatActivity {
     private FirebaseAuth.AuthStateListener mAuthStateListener;
     private static final int RC_SIGN_IN = 123;
     private TextView mTextMessage;
-    private Fragment[] fragments = new Fragment[4];
+    private FragmentQueue fragmentQueue;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -56,15 +57,13 @@ public class MainNavigationActivity extends AppCompatActivity {
                     }
                     Bundle sArgs = new Bundle();
                     sArgs.putString("tag", "SESSIONS");
-                    SessionList sessions = (SessionList) getSupportFragmentManager().findFragmentByTag("SESSIONS");
+                    Fragment sessions = fragmentQueue.findTransaction("SESSIONS");
                     if(sessions == null) {
                         sessions = new SessionList();
                         sessions.setArguments(sArgs);
                     }
-                    getSupportFragmentManager()
-                            .beginTransaction()
-                            .replace(R.id.fragment, sessions, "SESSIONS")
-                            .addToBackStack(null)
+                    //LimitNumberOfFragments();
+                    getSupportFragmentManager().beginTransaction().replace(R.id.fragment, sessions, "SESSIONS")
                             .commit();
                     return true;
                 case R.id.navigation_learn:
@@ -73,6 +72,7 @@ public class MainNavigationActivity extends AppCompatActivity {
                         startActivity(new Intent(MainNavigationActivity.this, LoginActivity.class));
                         finish();
                     }
+                    //LimitNumberOfFragments();
                     Bundle lArgs = new Bundle();
                     lArgs.putString("tag", "LEARN");
                     LearnHome learn = (LearnHome) getSupportFragmentManager().findFragmentByTag("LEARN");
@@ -80,8 +80,8 @@ public class MainNavigationActivity extends AppCompatActivity {
                         learn = new LearnHome();
                         learn.setArguments(lArgs);
                     }
-                    getSupportFragmentManager()
-                            .beginTransaction()
+                    //LimitNumberOfFragments();
+                    getSupportFragmentManager().beginTransaction()
                             .replace(R.id.fragment, learn, "LEARN")
                             .addToBackStack(null)
                             .commit();
@@ -99,8 +99,8 @@ public class MainNavigationActivity extends AppCompatActivity {
                         skate = new SkateHome();
                         skate.setArguments(skArgs);
                     }
-                    getSupportFragmentManager()
-                            .beginTransaction()
+                    //LimitNumberOfFragments();
+                    getSupportFragmentManager().beginTransaction()
                             .replace(R.id.fragment, skate, "SKATE")
                             .addToBackStack(null)
                             .commit();
@@ -122,9 +122,10 @@ public class MainNavigationActivity extends AppCompatActivity {
                         profile = new Profile();
                         profile.setArguments(pArgs);
                     }
-                    getSupportFragmentManager()
-                            .beginTransaction()
+                    //LimitNumberOfFragments();
+                    getSupportFragmentManager().beginTransaction()
                             .replace(R.id.fragment, profile, "PROFILE")
+
                             .addToBackStack(null)
                             .commit();
                     return true;
@@ -137,10 +138,14 @@ public class MainNavigationActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.fragment, new SessionList(), "SESSIONS")
-                .commit();
+        fragmentQueue = new FragmentQueue(4);
+
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        Fragment session = new SessionList();
+
+        transaction.replace(R.id.fragment, session, "SESSIONS");
+        fragmentQueue.addToQueue(session);
+        transaction.commit();
 
 
         setContentView(R.layout.activity_main_navigation);
@@ -166,8 +171,12 @@ public class MainNavigationActivity extends AppCompatActivity {
     @Override
     public boolean onSupportNavigateUp() {
         //This method is called when the up button is pressed. Just the pop back stack.
-        getSupportFragmentManager().popBackStack();
-        return true;
+        Fragment lastFrag = fragmentQueue.popBack();
+        if(lastFrag != null){
+            getSupportFragmentManager().beginTransaction().replace(R.id.fragment, lastFrag, lastFrag.getTag()).commit();
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -225,7 +234,55 @@ public class MainNavigationActivity extends AppCompatActivity {
             }
         }
     }
+}
 
+class FragmentQueue{
 
+    ArrayList<Fragment> data;
+    int maxSize;
+
+    public FragmentQueue(int maxSize){
+        data = new ArrayList<Fragment>();
+        this.maxSize = maxSize;
+    }
+
+    public Fragment popBack(){
+        if(data.size() > 0){
+            Fragment ret = data.get(data.size()-1);
+            data.remove(data.get(data.size()-1));
+            return ret;
+        }
+        return null;
+    }
+
+    public Fragment findTransaction(String tag){
+        if (tag != null) {
+            // First look through added fragments.
+            for (int i=data.size()-1; i>=0; i--) {
+                Fragment f = data.get(i);
+                if (f != null && tag.equals(f.getTag())) {
+                    return f;
+                }
+            }
+        }
+        return null;
+    }
+
+    public void addToQueue(Fragment object){
+
+        if(data.size() < maxSize){
+            data.add(object);
+        }else{
+            removeFromQueue();
+            data.add(object);
+        }
+
+    }
+
+    public void removeFromQueue(){
+        if(data.size() > 0){
+            data.remove(data.get(0));
+        }
+    }
 
 }

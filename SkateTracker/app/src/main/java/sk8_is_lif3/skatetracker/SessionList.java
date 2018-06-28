@@ -123,16 +123,6 @@ public class SessionList extends Fragment {
 
 
     }
-    @Override
-    public void onPause(){
-        super.onPause();
-        if (adapter != null) {
-            adapter.stopListening();
-        }
-        if (trickAdapter != null) {
-            trickAdapter.stopListening();
-        }
-    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -140,6 +130,8 @@ public class SessionList extends Fragment {
 
         sessionList = new ArrayList<String>();
         final FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        System.out.println("NEW SESSIONS");
 
         user = FirebaseAuth.getInstance().getCurrentUser();
         if(user != null) {
@@ -320,7 +312,7 @@ public class SessionList extends Fragment {
                                     .setReorderingAllowed(true)
                                     .addSharedElement(holder.sessionNameView, holder.sessionNameView.getTransitionName())
                                     .replace(R.id.fragment, nextFrag,"SessionDetailFragment")
-                                    .addToBackStack(model.getId())
+                                    .addToBackStack(null)
                                     .commit();
                         }
                     });
@@ -349,6 +341,17 @@ public class SessionList extends Fragment {
             adapter.onDataChanged();
         }
 
+    }
+
+    @Override
+    public void onPause(){
+        super.onPause();
+        if (adapter != null) {
+            adapter.stopListening();
+        }
+        if (trickAdapter != null) {
+            trickAdapter.stopListening();
+        }
     }
 
     private class SessionViewHolder extends RecyclerView.ViewHolder {
@@ -415,6 +418,12 @@ public class SessionList extends Fragment {
         else
         {
             return ResourceID;
+        }
+    }
+
+    private void LimitNumberOfFragments(){
+        if(getActivity().getSupportFragmentManager().getBackStackEntryCount() > 4){
+            getActivity().getSupportFragmentManager().popBackStack();
         }
     }
 

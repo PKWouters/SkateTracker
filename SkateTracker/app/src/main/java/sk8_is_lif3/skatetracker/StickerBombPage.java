@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.ClipData;
 import android.content.ClipDescription;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
@@ -300,6 +301,7 @@ public class StickerBombPage extends AppCompatActivity {
                         @Override
                         public void onSuccess(Void aVoid) {
                             progressDialog.dismiss();
+                            startActivity(new Intent(StickerBombPage.this, MainNavigationActivity.class));
                             finish();
                         }
                     });

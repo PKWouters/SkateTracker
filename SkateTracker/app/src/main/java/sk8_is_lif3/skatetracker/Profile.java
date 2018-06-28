@@ -103,48 +103,33 @@ public class Profile extends Fragment {
             tv.setTextColor(getResources().getColor(R.color.textDark));
         }
         bg = (ImageView) getActivity().findViewById(R.id.stickerBombImage);
-        bg.setAlpha(0.5f);
-        bg.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                int action = event.getAction();
-                TransitionManager.beginDelayedTransition((ViewGroup) view);
-                switch (action) {
-                    case (MotionEvent.ACTION_DOWN):
-                        bg.setAlpha(1f);
-                        cardView.setAlpha(0.25f);
-                        tv.setTextColor(getResources().getColor(R.color.textDarkTranslucent));
-                        return true;
-                    case (MotionEvent.ACTION_UP):
-                        bg.setAlpha(0.5f);
-                        cardView.setAlpha(1f);
-                        tv.setTextColor(getResources().getColor(R.color.textDark));
-                        return true;
-                    default:
-                        return false;
-                }
-            }
-        });
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        if(user != null && bg != null) {
-            db.collection("users").document(user.getUid()).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+        if(bg != null) {
+            bg.setAlpha(0.25f);
+            bg.setOnTouchListener(new View.OnTouchListener() {
                 @Override
-                public void onSuccess(DocumentSnapshot documentSnapshot) {
-                    Map<String, Object> data = documentSnapshot.getData();
-                    try{
-                        String image = data.get("stickerBombUrl").toString();
-                        Picasso.get().load(image).into(bg);
-                    }catch (Exception e){
-
+                public boolean onTouch(View v, MotionEvent event) {
+                    int action = event.getAction();
+                    TransitionManager.beginDelayedTransition((ViewGroup) view);
+                    switch (action) {
+                        case (MotionEvent.ACTION_DOWN):
+                            bg.setAlpha(1f);
+                            cardView.setAlpha(0.25f);
+                            tv.setTextColor(getResources().getColor(R.color.textDarkTranslucent));
+                            return true;
+                        case (MotionEvent.ACTION_UP):
+                            bg.setAlpha(0.25f);
+                            cardView.setAlpha(1f);
+                            tv.setTextColor(getResources().getColor(R.color.textDark));
+                            return true;
+                        default:
+                            return false;
                     }
                 }
             });
         }
     }
+
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -194,6 +179,36 @@ public class Profile extends Fragment {
         super.onAttach(context);
 
     }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if(user != null && bg != null) {
+            db.collection("users").document(user.getUid()).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                @Override
+                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                    Map<String, Object> data = documentSnapshot.getData();
+                    try{
+                        String image = data.get("stickerBombUrl").toString();
+                        Picasso.get().load(image).into(bg);
+                    }catch (Exception e){
+
+                    }
+                }
+            });
+        }
+        if(trickAdapter != null){
+            trickAdapter.startListening();
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if(trickAdapter != null)
+            trickAdapter.stopListening();
+    }
+
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
