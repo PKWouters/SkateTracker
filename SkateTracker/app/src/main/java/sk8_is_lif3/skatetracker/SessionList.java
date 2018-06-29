@@ -225,7 +225,7 @@ public class SessionList extends Fragment {
                                     .setReorderingAllowed(true)
                                     .addSharedElement(holder.trickNameView, holder.trickNameView.getTransitionName())
                                     .replace(R.id.fragment, nextFrag,"TrickDetailFragment")
-                                    .addToBackStack(model.getName())
+                                    .addToBackStack(null)
                                     .commit();
                         }
                     });

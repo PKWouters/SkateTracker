@@ -8,6 +8,7 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -41,7 +42,7 @@ public class MainNavigationActivity extends AppCompatActivity {
     private FirebaseAuth.AuthStateListener mAuthStateListener;
     private static final int RC_SIGN_IN = 123;
     private TextView mTextMessage;
-    private FragmentQueue fragmentQueue;
+    private Fragment sessions, learn, skate, profile;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -57,14 +58,11 @@ public class MainNavigationActivity extends AppCompatActivity {
                     }
                     Bundle sArgs = new Bundle();
                     sArgs.putString("tag", "SESSIONS");
-                    Fragment sessions = fragmentQueue.findTransaction("SESSIONS");
-                    if(sessions == null) {
-                        sessions = new SessionList();
-                        sessions.setArguments(sArgs);
+
+                    if(getSupportFragmentManager().findFragmentByTag(sessions.getClass().getName()) != null){
+                        System.out.println("FOUND SESSIONS");
                     }
-                    //LimitNumberOfFragments();
-                    getSupportFragmentManager().beginTransaction().replace(R.id.fragment, sessions, "SESSIONS")
-                            .commit();
+                    replaceFragment(sessions);
                     return true;
                 case R.id.navigation_learn:
                     setTitle("Learn");
@@ -75,16 +73,7 @@ public class MainNavigationActivity extends AppCompatActivity {
                     //LimitNumberOfFragments();
                     Bundle lArgs = new Bundle();
                     lArgs.putString("tag", "LEARN");
-                    LearnHome learn = (LearnHome) getSupportFragmentManager().findFragmentByTag("LEARN");
-                    if(learn == null) {
-                        learn = new LearnHome();
-                        learn.setArguments(lArgs);
-                    }
-                    //LimitNumberOfFragments();
-                    getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.fragment, learn, "LEARN")
-                            .addToBackStack(null)
-                            .commit();
+                    replaceFragment(learn);
                     return true;
                 case R.id.navigation_skate:
                     setTitle("S.K.A.T.E");
@@ -94,16 +83,8 @@ public class MainNavigationActivity extends AppCompatActivity {
                     }
                     Bundle skArgs = new Bundle();
                     skArgs.putString("tag", "SKATE");
-                    SkateHome skate = (SkateHome) getSupportFragmentManager().findFragmentByTag("SKATE");
-                    if(skate == null) {
-                        skate = new SkateHome();
-                        skate.setArguments(skArgs);
-                    }
-                    //LimitNumberOfFragments();
-                    getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.fragment, skate, "SKATE")
-                            .addToBackStack(null)
-                            .commit();
+
+                    replaceFragment(skate);
                     return true;
                     /*
                 case R.id.navigation_spots:
@@ -117,17 +98,7 @@ public class MainNavigationActivity extends AppCompatActivity {
                     }
                     Bundle pArgs = new Bundle();
                     pArgs.putString("tag", "PROFILE");
-                    Profile profile = (Profile) getSupportFragmentManager().findFragmentByTag("PROFILE");
-                    if(profile == null) {
-                        profile = new Profile();
-                        profile.setArguments(pArgs);
-                    }
-                    //LimitNumberOfFragments();
-                    getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.fragment, profile, "PROFILE")
-
-                            .addToBackStack(null)
-                            .commit();
+                    replaceFragment(profile);
                     return true;
             }
             return false;
@@ -138,13 +109,10 @@ public class MainNavigationActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        fragmentQueue = new FragmentQueue(4);
-
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         Fragment session = new SessionList();
 
         transaction.replace(R.id.fragment, session, "SESSIONS");
-        fragmentQueue.addToQueue(session);
         transaction.commit();
 
 
@@ -154,6 +122,11 @@ public class MainNavigationActivity extends AppCompatActivity {
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
         navigation.getMenu().getItem(2).setChecked(true);
         navigation.enableShiftingMode(false);
+
+        sessions = new SessionList();
+        skate = new SkateHome();
+        profile = new Profile();
+        learn = new LearnHome();
 
 
 
@@ -171,12 +144,8 @@ public class MainNavigationActivity extends AppCompatActivity {
     @Override
     public boolean onSupportNavigateUp() {
         //This method is called when the up button is pressed. Just the pop back stack.
-        Fragment lastFrag = fragmentQueue.popBack();
-        if(lastFrag != null){
-            getSupportFragmentManager().beginTransaction().replace(R.id.fragment, lastFrag, lastFrag.getTag()).commit();
-            return true;
-        }
-        return false;
+        getSupportFragmentManager().popBackStack();
+        return true;
     }
 
     @Override
@@ -234,55 +203,18 @@ public class MainNavigationActivity extends AppCompatActivity {
             }
         }
     }
-}
 
-class FragmentQueue{
+    private void replaceFragment(Fragment fragment){
+        String backStateName = fragment.getClass().getName();
+        FragmentManager manager = getSupportFragmentManager();
 
-    ArrayList<Fragment> data;
-    int maxSize;
-
-    public FragmentQueue(int maxSize){
-        data = new ArrayList<Fragment>();
-        this.maxSize = maxSize;
-    }
-
-    public Fragment popBack(){
-        if(data.size() > 0){
-            Fragment ret = data.get(data.size()-1);
-            data.remove(data.get(data.size()-1));
-            return ret;
-        }
-        return null;
-    }
-
-    public Fragment findTransaction(String tag){
-        if (tag != null) {
-            // First look through added fragments.
-            for (int i=data.size()-1; i>=0; i--) {
-                Fragment f = data.get(i);
-                if (f != null && tag.equals(f.getTag())) {
-                    return f;
-                }
-            }
-        }
-        return null;
-    }
-
-    public void addToQueue(Fragment object){
-
-        if(data.size() < maxSize){
-            data.add(object);
-        }else{
-            removeFromQueue();
-            data.add(object);
-        }
-
-    }
-
-    public void removeFromQueue(){
-        if(data.size() > 0){
-            data.remove(data.get(0));
+        boolean fragmentPopped = manager.popBackStackImmediate(backStateName, 0);
+        FragmentTransaction ft = manager.beginTransaction();
+        if (!fragmentPopped && manager.findFragmentByTag(backStateName) == null) { //fragment not in back stack, create it.
+            ft.replace(R.id.fragment, fragment, backStateName);
+            ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+            ft.addToBackStack(backStateName);
+            ft.commit();
         }
     }
-
 }
