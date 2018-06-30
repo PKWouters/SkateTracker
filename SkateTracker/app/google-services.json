@@ -15,16 +15,12 @@
       },
       "oauth_client": [
         {
-          "client_id": "110513143140-s02jnqg12qvat2ganm9nrc7oi9sj6bb3.apps.googleusercontent.com",
+          "client_id": "110513143140-i4n26c90dbvfqadk7m93njl013h908ue.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.sk8_is_lif3.skatetracker",
             "certificate_hash": "7126e91d2ce9580e6242868787e8555edd347757"
           }
-        },
-        {
-          "client_id": "110513143140-l885r0ba3e122t4pa2uikeq10lgtiadg.apps.googleusercontent.com",
-          "client_type": 3
         },
         {
           "client_id": "110513143140-l885r0ba3e122t4pa2uikeq10lgtiadg.apps.googleusercontent.com",
@@ -71,8 +67,12 @@
           }
         },
         {
-          "client_id": "110513143140-l885r0ba3e122t4pa2uikeq10lgtiadg.apps.googleusercontent.com",
-          "client_type": 3
+          "client_id": "110513143140-jn2um297i6nm571lcfoj4gqkgjmi7if9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "sk8_is_lif3.skatetracker",
+            "certificate_hash": "a50e95117be7cae0b0d7458faafd8ee72d0ae6cb"
+          }
         },
         {
           "client_id": "110513143140-l885r0ba3e122t4pa2uikeq10lgtiadg.apps.googleusercontent.com",
