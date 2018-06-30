@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.support.design.internal.BottomNavigationItemView;
 import android.support.design.internal.BottomNavigationMenuView;
 import android.support.design.widget.BottomNavigationView;
+import android.util.Log;
 import java.lang.reflect.Field;
 
 public class BottomNavigationViewHelper {
@@ -24,7 +25,9 @@ public class BottomNavigationViewHelper {
             }
 
         } catch (NoSuchFieldException e) {
+            Log.e("ERROR NO SUCH FIELD", "Unable to get shift mode field");
         } catch (IllegalAccessException e) {
+            Log.e("ERROR ILLEGAL ALG", "Unable to change value of shift mode");
         }
     }
 }

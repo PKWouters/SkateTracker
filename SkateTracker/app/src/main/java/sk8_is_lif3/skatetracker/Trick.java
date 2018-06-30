@@ -13,7 +13,7 @@ import com.google.gson.annotations.SerializedName;
 
 import java.util.Locale;
 import java.util.Random;
-
+import java.util.logging.LogRecord;
 
 public class Trick extends Trackable {
     public String _static_id;

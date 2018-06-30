@@ -66,133 +66,134 @@ public class LearnTrick extends Fragment {
 
     @Override
     public void onViewCreated(final View view, @Nullable Bundle savedInstanceState) {
-        final AppCompatActivity activity = (AppCompatActivity) getActivity();
-        TextView trickName = (TextView) getView().findViewById(R.id.trickName);
+        if(view != null && getView() != null) {
+            final AppCompatActivity activity = (AppCompatActivity) getActivity();
+            TextView trickName = (TextView) getView().findViewById(R.id.trickName);
 
-        youTubePlayerView = getView().findViewById(R.id.youtube_player_view);
-        trickName.setText(mName);
-        Toolbar toolbar = (Toolbar) getView().findViewById(R.id.toolbar);
+            youTubePlayerView = getView().findViewById(R.id.youtube_player_view);
+            trickName.setText(mName);
+            Toolbar toolbar = (Toolbar) getView().findViewById(R.id.toolbar);
 
-        final ImageView thumbnail = view.findViewById(R.id.thumbnail);
-        final String thumb = "http://img.youtube.com/vi/" + mUrl + "/mqdefault.jpg";
-        Picasso.get().load(thumb).into(thumbnail);
+            activity.setSupportActionBar(toolbar);
+            activity.getSupportActionBar().setDisplayShowTitleEnabled(false);
+            activity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            activity.getSupportActionBar().setDisplayShowHomeEnabled(true);
+            activity.getSupportActionBar().setHomeButtonEnabled(true);
+            setHasOptionsMenu(true);
 
-        thumbnail.setTransitionName("sessionNameTransition" + mDBID);
-
-        activity.setSupportActionBar(toolbar);
-        activity.getSupportActionBar().setDisplayShowTitleEnabled(false);
-        activity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        activity.getSupportActionBar().setDisplayShowHomeEnabled(true);
-        activity.getSupportActionBar().setHomeButtonEnabled(true);
-        setHasOptionsMenu(true);
-
-        final FirebaseFirestore db = FirebaseFirestore.getInstance();
-        final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        if(user != null) {
-            DocumentReference docRef = db.collection("users").document(user.getUid()).collection("tricks").document(mDBID);
-            docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                    if (task.isSuccessful()) {
-                        DocumentSnapshot document = task.getResult();
-                        if (document.exists()) {
-                            TextView progress = (TextView) view.findViewById(R.id.progressNum);
-                            Double ratio = (Double)document.getData().get("avgRatio") * 100;
-                            progress.setText(ratio.intValue() + ".0%");
-                        } else {
-                            TextView progress = (TextView) getView().findViewById(R.id.progressNum);
-                            progress.setText("0.0%");
-                        }
-                    } else {
-
-                    }
-                }
-            });
-        }
-
-        TableLayout tbl = (TableLayout)getView().findViewById(R.id.prevTricksTable);
-        youTubePlayerView.initialize(new YouTubePlayerInitListener() {
-            @Override
-            public void onInitSuccess(final YouTubePlayer initializedYouTubePlayer) {
-                initializedYouTubePlayer.addListener(new AbstractYouTubePlayerListener() {
+            final FirebaseFirestore db = FirebaseFirestore.getInstance();
+            final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+            if (user != null) {
+                DocumentReference docRef = db.collection("users").document(user.getUid()).collection("tricks").document(mDBID);
+                docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
-                    public void onReady() {
-                        youTubePlayer = initializedYouTubePlayer;
-                        String videoId = mUrl;
-                        thumbnail.setMinimumHeight(youTubePlayerView.getHeight());
-                        youTubePlayer.cueVideo(videoId, 0);
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot document = task.getResult();
+                            if (document.exists()) {
+                                TextView progress = (TextView) view.findViewById(R.id.progressNum);
+                                Double ratio = (Double) document.getData().get("avgRatio") * 100;
+                                progress.setText(ratio.intValue() + ".0%");
+                            } else {
+                                if(getView() != null) {
+                                    TextView progress = (TextView) getView().findViewById(R.id.progressNum);
+                                    progress.setText("0.0%");
+                                }
+                            }
+                        } else {
 
+                        }
                     }
                 });
             }
-        }, true);
-        youTubePlayerView.addFullScreenListener(new YouTubePlayerFullScreenListener() {
-            @Override
-            public void onYouTubePlayerEnterFullScreen() {
-                //getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
-            }
 
-            @Override
-            public void onYouTubePlayerExitFullScreen() {
-                getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-            }
-        });
+            TableLayout tbl = (TableLayout) getView().findViewById(R.id.prevTricksTable);
+            youTubePlayerView.initialize(new YouTubePlayerInitListener() {
+                @Override
+                public void onInitSuccess(final YouTubePlayer initializedYouTubePlayer) {
+                    initializedYouTubePlayer.addListener(new AbstractYouTubePlayerListener() {
+                        @Override
+                        public void onReady() {
+                            youTubePlayer = initializedYouTubePlayer;
+                            String videoId = mUrl;
+                            youTubePlayer.cueVideo(videoId, 0);
 
-        if(mPrevTricks != null && mPrevTricks.size() > 0) {
-            for(int i = 0; i < mPrevTricks.size(); i++) {
-                final TableRow tblRow = new TableRow(getContext());
-                tblRow.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT));
+                        }
+                    });
+                }
+            }, true);
+            youTubePlayerView.addFullScreenListener(new YouTubePlayerFullScreenListener() {
+                @Override
+                public void onYouTubePlayerEnterFullScreen() {
+                    //getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
+                }
 
-                if(user != null) {
-                    try {
-                        DocumentReference docRef = db.collection("users").document(user.getUid()).collection("tricks").document(mPrevTricks.get(i));
-                        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                            @Override
-                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                if (task.isSuccessful()) {
-                                    DocumentSnapshot document = task.getResult();
-                                    if (document.exists()) {
-                                        if(document.getData().get("avgRatio") != null) {
-                                            if ((Double) (document.getData().get("avgRatio")) >= 1.0) {
-                                                if(getContext() != null){
-                                                    ImageView checkMark = new ImageView(getContext());
-                                                    checkMark.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT, 0.5f));
-                                                    checkMark.setImageResource(R.drawable.fui_done_check_mark);
-                                                    tblRow.addView(checkMark);
+                @Override
+                public void onYouTubePlayerExitFullScreen() {
+                    getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+                }
+            });
+
+            if (mPrevTricks != null && mPrevTricks.size() > 0) {
+                for (int i = 0; i < mPrevTricks.size(); i++) {
+                    final TableRow tblRow = new TableRow(getContext());
+                    tblRow.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT));
+
+                    if (user != null) {
+                        try {
+                            DocumentReference docRef = db.collection("users").document(user.getUid()).collection("tricks").document(mPrevTricks.get(i));
+                            docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                    if (task.isSuccessful()) {
+                                        DocumentSnapshot document = task.getResult();
+                                        if (document.exists()) {
+                                            if (document.getData().get("avgRatio") != null) {
+                                                if ((Double) (document.getData().get("avgRatio")) >= 1.0) {
+                                                    if (getContext() != null) {
+                                                        ImageView checkMark = new ImageView(getContext());
+                                                        checkMark.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT, 0.5f));
+                                                        checkMark.setImageResource(R.drawable.fui_done_check_mark);
+                                                        tblRow.addView(checkMark);
+                                                    }
                                                 }
                                             }
+                                        } else {
+
                                         }
                                     } else {
 
                                     }
-                                } else {
-
                                 }
-                            }
-                        });
-                    }catch (Exception e){
+                            });
+                        } catch (Exception e) {
+
+                        }
 
                     }
 
+                    TextView roundNumView = new TextView(getContext());
+                    roundNumView.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT, 1.0f));
+
+                    if (mPrevTricks.get(i).length() > 6)
+                        roundNumView.setText(mPrevTricks.get(i).substring(6).replaceAll("_", " ").toUpperCase());
+
+                    tblRow.addView(roundNumView);
+                    tbl.addView(tblRow, new TableLayout.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT, TableLayout.LayoutParams.WRAP_CONTENT));
                 }
-
-                TextView roundNumView = new TextView(getContext());
-                roundNumView.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT, 1.0f));
-
-                if(mPrevTricks.get(i).length() > 6)
-                    roundNumView.setText(mPrevTricks.get(i).substring(6).replaceAll("_", " ").toUpperCase());
-
-                tblRow.addView(roundNumView);
-                tbl.addView(tblRow, new TableLayout.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT, TableLayout.LayoutParams.WRAP_CONTENT));
+            } else {
+                tbl.setVisibility(View.GONE);
             }
-        }else{
-            tbl.setVisibility(View.GONE);
-        }
-        TextView article = (TextView) getView().findViewById(R.id.article);
-        article.setText(mArticle);
+            TextView article = (TextView) getView().findViewById(R.id.article);
+            if(mArticle == null || mArticle == ""){
+                article.setText("An article has not been written yet for this trick. Feel free to watch the above video on how to master this trick.");
+            }else {
+                article.setText(mArticle);
+            }
 
-        TextView credits = (TextView) getView().findViewById(R.id.credit);
-        credits.setText(mCredits);
+            TextView credits = (TextView) getView().findViewById(R.id.credit);
+            credits.setText(mCredits);
+        }
     }
 
     @Override
