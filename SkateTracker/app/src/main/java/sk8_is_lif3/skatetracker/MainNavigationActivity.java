@@ -41,7 +41,7 @@ public class MainNavigationActivity extends AppCompatActivity {
     private FirebaseAuth.AuthStateListener mAuthStateListener;
     private static final int RC_SIGN_IN = 123;
     private TextView mTextMessage;
-    private Fragment sessions = new SessionList(), learn = new LearnHome(), skate = new SkateHome(), profile = new Profile();
+    private Fragment sessions, learn, skate, profile;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -55,6 +55,8 @@ public class MainNavigationActivity extends AppCompatActivity {
                         startActivity(new Intent(MainNavigationActivity.this, LoginActivity.class));
                         finish();
                     }
+                    Bundle sArgs = new Bundle();
+                    sArgs.putString("tag", "SESSIONS");
 
                     if(getSupportFragmentManager().findFragmentByTag(sessions.getClass().getName()) != null){
                         System.out.println("FOUND SESSIONS");
@@ -67,6 +69,9 @@ public class MainNavigationActivity extends AppCompatActivity {
                         startActivity(new Intent(MainNavigationActivity.this, LoginActivity.class));
                         finish();
                     }
+                    //LimitNumberOfFragments();
+                    Bundle lArgs = new Bundle();
+                    lArgs.putString("tag", "LEARN");
                     replaceFragment(learn);
                     return true;
                 case R.id.navigation_skate:
@@ -75,6 +80,9 @@ public class MainNavigationActivity extends AppCompatActivity {
                         startActivity(new Intent(MainNavigationActivity.this, LoginActivity.class));
                         finish();
                     }
+                    Bundle skArgs = new Bundle();
+                    skArgs.putString("tag", "SKATE");
+
                     replaceFragment(skate);
                     return true;
                     /*
@@ -87,6 +95,8 @@ public class MainNavigationActivity extends AppCompatActivity {
                         startActivity(new Intent(MainNavigationActivity.this, LoginActivity.class));
                         finish();
                     }
+                    Bundle pArgs = new Bundle();
+                    pArgs.putString("tag", "PROFILE");
                     replaceFragment(profile);
                     return true;
             }
@@ -97,14 +107,27 @@ public class MainNavigationActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main_navigation);
 
-        replaceFragment(sessions);
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        Fragment session = new SessionList();
+
+        transaction.replace(R.id.fragment, session, "SESSIONS");
+        transaction.commit();
+
+
+        setContentView(R.layout.activity_main_navigation);
 
         BottomNavigationViewEx navigation = (BottomNavigationViewEx) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
         navigation.getMenu().getItem(2).setChecked(true);
         navigation.enableShiftingMode(false);
+
+        sessions = new SessionList();
+        skate = new SkateHome();
+        profile = new Profile();
+        learn = new LearnHome();
+
+
 
     }
     @Override
@@ -118,20 +141,9 @@ public class MainNavigationActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onBackPressed(){
-        if (getSupportFragmentManager().getBackStackEntryCount() == 1){
-            finish();
-        }
-        else {
-            super.onBackPressed();
-        }
-    }
-
-    @Override
     public boolean onSupportNavigateUp() {
-        if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
-            getSupportFragmentManager().popBackStack();
-        }
+        //This method is called when the up button is pressed. Just the pop back stack.
+        getSupportFragmentManager().popBackStack();
         return true;
     }
 
@@ -202,12 +214,6 @@ public class MainNavigationActivity extends AppCompatActivity {
             ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
             ft.addToBackStack(backStateName);
             ft.commit();
-        }
-        System.out.println("   ");
-        System.out.println(manager.getBackStackEntryCount());
-        System.out.println("   ");
-        for(int i = 0; i < manager.getBackStackEntryCount(); i++){
-            System.out.println(manager.getBackStackEntryAt(i).getName());
         }
     }
 }

@@ -135,12 +135,58 @@ public class LearnHome extends Fragment {
                     public void onClick(View v) {
 
                         LearnTrick nextFrag = new LearnTrick(model.getName(), videoID, model.getId(), model.getArticle(), model.getCredits(), model.getPrevTricks());
-                        getActivity().getSupportFragmentManager().beginTransaction()
-                                .setReorderingAllowed(true)
-                                .setCustomAnimations(R.anim.slide_in_up, R.anim.slide_out_down)
-                                .replace(R.id.fragment, nextFrag, "LearnTrick")
-                                .addToBackStack(null)
-                                .commit();
+                        holder.background.setTransitionName("sessionNameTransition" + model.getId());
+
+                        Transition mainTransition = TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade);
+                        mainTransition.setDuration(250);
+
+                        Transition textTransMove = new ChangeTransform();
+                        textTransMove.setInterpolator(new FastOutSlowInInterpolator());
+
+                        Transition textTransBounds = new ChangeBounds();
+                        textTransBounds.setInterpolator(new FastOutSlowInInterpolator());
+
+                        Transition fadeOutTrans = TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade);
+                        fadeOutTrans.setDuration(250);
+
+                        long duration = 375;
+
+                        int screenSize = getView().getResources().getConfiguration().screenLayout &
+                                Configuration.SCREENLAYOUT_SIZE_MASK;
+
+                        switch (screenSize) {
+                            case Configuration.SCREENLAYOUT_SIZE_LARGE:
+                                duration = 390;
+                                break;
+                            case Configuration.SCREENLAYOUT_SIZE_NORMAL:
+                                duration = 300;
+                                break;
+                            case Configuration.SCREENLAYOUT_SIZE_SMALL:
+                                duration = 210;
+                                break;
+                            default:
+                        }
+                        mainTransition.setStartDelay(duration);
+                        fadeOutTrans.setStartDelay(duration);
+                        textTransMove.setDuration(duration);
+                        textTransBounds.setDuration(duration);
+
+                        TransitionSet tSet = new TransitionSet().addTransition(textTransMove).addTransition(fadeOutTrans).addTransition(textTransBounds);
+
+                        setSharedElementReturnTransition(tSet);
+                        //setExitTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
+
+                        nextFrag.setSharedElementEnterTransition(tSet);
+                        nextFrag.setEnterTransition(mainTransition);
+                        nextFrag.setExitTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
+                        nextFrag.setReturnTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
+
+                            getActivity().getSupportFragmentManager().beginTransaction()
+                                    .setReorderingAllowed(true)
+                                    .replace(R.id.fragment, nextFrag, "LearnTrick")
+                                    .addToBackStack(null)
+                                    .addSharedElement(holder.background, holder.background.getTransitionName())
+                                    .commit();
                     }
                 });
             }
@@ -186,13 +232,59 @@ public class LearnHome extends Fragment {
                     public void onClick(View v) {
 
                         LearnTrick nextFrag = new LearnTrick(model.getName(), videoID, model.getId(), model.getArticle(),model.getCredits(), model.getPrevTricks());
+                        holder.background.setTransitionName("sessionNameTransition" + model.getId());
+
+                        Transition mainTransition = TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade);
+                        mainTransition.setDuration(250);
+
+                        Transition textTransMove = new ChangeTransform();
+                        textTransMove.setInterpolator(new FastOutSlowInInterpolator());
+
+                        Transition textTransBounds = new ChangeBounds();
+                        textTransBounds.setInterpolator(new FastOutSlowInInterpolator());
+
+                        Transition fadeOutTrans = TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade);
+                        fadeOutTrans.setDuration(250);
+
+                        long duration = 375;
+
+                        int screenSize = getView().getResources().getConfiguration().screenLayout &
+                                Configuration.SCREENLAYOUT_SIZE_MASK;
+
+                        switch (screenSize) {
+                            case Configuration.SCREENLAYOUT_SIZE_LARGE:
+                                duration = 390;
+                                break;
+                            case Configuration.SCREENLAYOUT_SIZE_NORMAL:
+                                duration = 300;
+                                break;
+                            case Configuration.SCREENLAYOUT_SIZE_SMALL:
+                                duration = 210;
+                                break;
+                            default:
+                        }
+                        mainTransition.setStartDelay(duration);
+                        fadeOutTrans.setStartDelay(duration);
+                        textTransMove.setDuration(duration);
+                        textTransBounds.setDuration(duration);
+
+                        TransitionSet tSet = new TransitionSet().addTransition(textTransMove).addTransition(fadeOutTrans).addTransition(textTransBounds);
+
+                        setSharedElementReturnTransition(tSet);
+                        //setExitTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
+
+                        nextFrag.setSharedElementEnterTransition(tSet);
+                        nextFrag.setEnterTransition(mainTransition);
+                        nextFrag.setExitTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
+                        nextFrag.setReturnTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
+
+                        LimitNumberOfFragments();
                         getActivity().getSupportFragmentManager().beginTransaction()
                                 .setReorderingAllowed(true)
-                                .setCustomAnimations(R.anim.slide_in_up, R.anim.slide_out_down)
                                 .replace(R.id.fragment, nextFrag, "LearnTrick")
                                 .addToBackStack(null)
+                                .addSharedElement(holder.background, holder.background.getTransitionName())
                                 .commit();
-
                     }
                 });
             }
@@ -238,12 +330,58 @@ public class LearnHome extends Fragment {
                     public void onClick(View v) {
 
                         LearnTrick nextFrag = new LearnTrick(model.getName(), videoID, model.getId(), model.getArticle(),model.getCredits(), model.getPrevTricks());
+                        holder.background.setTransitionName("sessionNameTransition" + model.getId());
 
+                        Transition mainTransition = TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade);
+                        mainTransition.setDuration(250);
+
+                        Transition textTransMove = new ChangeTransform();
+                        textTransMove.setInterpolator(new FastOutSlowInInterpolator());
+
+                        Transition textTransBounds = new ChangeBounds();
+                        textTransBounds.setInterpolator(new FastOutSlowInInterpolator());
+
+                        Transition fadeOutTrans = TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade);
+                        fadeOutTrans.setDuration(250);
+
+                        long duration = 375;
+
+                        int screenSize = getView().getResources().getConfiguration().screenLayout &
+                                Configuration.SCREENLAYOUT_SIZE_MASK;
+
+                        switch (screenSize) {
+                            case Configuration.SCREENLAYOUT_SIZE_LARGE:
+                                duration = 390;
+                                break;
+                            case Configuration.SCREENLAYOUT_SIZE_NORMAL:
+                                duration = 300;
+                                break;
+                            case Configuration.SCREENLAYOUT_SIZE_SMALL:
+                                duration = 210;
+                                break;
+                            default:
+                        }
+                        mainTransition.setStartDelay(duration);
+                        fadeOutTrans.setStartDelay(duration);
+                        textTransMove.setDuration(duration);
+                        textTransBounds.setDuration(duration);
+
+                        TransitionSet tSet = new TransitionSet().addTransition(textTransMove).addTransition(fadeOutTrans).addTransition(textTransBounds);
+
+                        setSharedElementReturnTransition(tSet);
+                        //setExitTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
+
+                        nextFrag.setSharedElementEnterTransition(tSet);
+                        nextFrag.setEnterTransition(mainTransition);
+                        nextFrag.setExitTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
+                        nextFrag.setReturnTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.fade));
+
+                        LimitNumberOfFragments();
                         getActivity().getSupportFragmentManager().beginTransaction()
                                 .setReorderingAllowed(true)
-                                .setCustomAnimations(R.anim.slide_in_up, R.anim.slide_out_down)
                                 .replace(R.id.fragment, nextFrag, "LearnTrick")
                                 .addToBackStack(null)
+                                .addSharedElement(holder.background, holder.background.getTransitionName())
                                 .commit();
                     }
                 });
@@ -332,6 +470,8 @@ public class LearnHome extends Fragment {
                                                 }
                                                 progress.setDonut_progress(Integer.toString(ratio.intValue()));
                                                 recentTrickCard.setVisibility(View.VISIBLE);
+                                                ProgressBar loading = (ProgressBar) getView().findViewById(R.id.progressBar);
+                                                loading.setVisibility(View.GONE);
                                                 Button progressBtn = getView().findViewById(R.id.progressBtn);
                                                 progressBtn.setOnClickListener(new View.OnClickListener() {
                                                     @Override
@@ -351,17 +491,23 @@ public class LearnHome extends Fragment {
                                                     }
                                                 });
                                             }else{
+                                                if(getView() != null) {
+                                                    ProgressBar loading = (ProgressBar) getView().findViewById(R.id.progressBar);
+                                                    loading.setVisibility(View.GONE);
+                                                }
                                             }
                                         }
                                     });
                                 }else{
                                     if(getView() != null) {
-
+                                        ProgressBar loading = (ProgressBar) getView().findViewById(R.id.progressBar);
+                                        loading.setVisibility(View.GONE);
                                     }
                                 }
                             }else{
                                 if(getView() != null) {
-
+                                    ProgressBar loading = (ProgressBar) getView().findViewById(R.id.progressBar);
+                                    loading.setVisibility(View.GONE);
                                 }
                             }
                         } else {
