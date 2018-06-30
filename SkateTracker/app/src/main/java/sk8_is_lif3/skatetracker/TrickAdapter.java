@@ -195,6 +195,7 @@ public class TrickAdapter extends RecyclerView.Adapter<TrickAdapter.ViewHolder> 
 
                     Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
                     mBuilder.setSound(alarmSound);
+                    mBuilder.setOngoing(true);
 
                     NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
                     NotificationManager mNotificationManager = (NotificationManager) recyclerView.getContext().getSystemService(Context.NOTIFICATION_SERVICE);

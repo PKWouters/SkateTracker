@@ -1,5 +1,6 @@
 package sk8_is_lif3.skatetracker;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
@@ -53,6 +54,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -384,6 +386,7 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
                                         if (sessionNameField.getText() != "") {
                                             name = sessionNameField.getText().toString();
                                         }
+                                        hideKeyboardFrom(getApplicationContext(), dlgView);
                                         SaveSession(name);
                                     }
                                 });
@@ -392,6 +395,7 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
                         //---------------------------------//
                         sessionNameBuilder.setNegativeButton("No", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
+                                hideKeyboardFrom(getApplicationContext(), dlgView);
                                 SaveSession("My Session");
                             }
                         });
@@ -453,6 +457,11 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
             currentTrick.IncrementTimesLanded();
     }
 
+    public static void hideKeyboardFrom(Context context, View view) {
+        InputMethodManager imm = (InputMethodManager) context.getSystemService(Activity.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+    }
+
     private void CheckAchievements(final List<String> challenges, final List<String> userAchievements, final int checkTime){
             if(checkTime >= tempTrickList.size()){
                 finishedTricks = true;
@@ -465,6 +474,7 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
                 return;
             }
             if(finishedTricks) {
+                if(progressDialog != null) progressDialog.dismiss();
                 //--FIREBASE STUFF--//
                 final FirebaseFirestore db = FirebaseFirestore.getInstance();
                 final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
@@ -510,8 +520,7 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
                                         @Override
                                         public void onClick(DialogInterface dialog, int which) {
                                             progressDialog.dismiss();
-                                            NotificationManager mNotificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
-                                            mNotificationManager.cancelAll();
+
                                             startActivity(new Intent(CurrentSession.this, StickerBombPage.class));
                                             finish();
                                         }
@@ -520,8 +529,7 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
                                         @Override
                                         public void onClick(DialogInterface dialog, int which) {
                                             progressDialog.dismiss();
-                                            NotificationManager mNotificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
-                                            mNotificationManager.cancelAll();
+
                                             finish();
                                         }
                                     });
@@ -529,8 +537,7 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
                                     builder.show();
                                 } else {
                                     progressDialog.dismiss();
-                                    NotificationManager mNotificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
-                                    mNotificationManager.cancelAll();
+
                                     finish();
                                     return;
                                 }
@@ -541,8 +548,7 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
                             public void onFailure(@NonNull Exception e) {
                                 Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
                                 progressDialog.dismiss();
-                                NotificationManager mNotificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
-                                mNotificationManager.cancelAll();
+
                                 finish();
                                 return;
                             }
@@ -554,6 +560,10 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
 
 
     private void SaveSession(String name) {
+
+        NotificationManager mNotificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+        mNotificationManager.cancelAll();
+
         final String sessionName = name;
         ArrayList<String> trickIDs = new ArrayList<String>();
 
@@ -589,6 +599,10 @@ public class CurrentSession extends AppCompatActivity /*implements SensorEventLi
         if (tempTrickList.size() > 0) {
             int randIndex = Math.abs(rand.nextInt() % (tempTrickList.size()));
             Trick randTrick = tempTrickList.get(randIndex);
+            while(randTrick.GetTotalSecondsTracked() <= 0){
+                randIndex = Math.abs(rand.nextInt() % (tempTrickList.size()));
+                randTrick = tempTrickList.get(randIndex);
+            }
             //Add Session to Document
 
             db.collection("users")
