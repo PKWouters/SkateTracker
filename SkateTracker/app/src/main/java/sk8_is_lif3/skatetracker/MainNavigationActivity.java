@@ -109,13 +109,6 @@ public class MainNavigationActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        Fragment session = new SessionList();
-
-        transaction.replace(R.id.fragment, session, "SESSIONS");
-        transaction.commit();
-
-
         setContentView(R.layout.activity_main_navigation);
 
         BottomNavigationViewEx navigation = (BottomNavigationViewEx) findViewById(R.id.navigation);
@@ -128,7 +121,7 @@ public class MainNavigationActivity extends AppCompatActivity {
         profile = new Profile();
         learn = new LearnHome();
 
-
+        replaceFragment(sessions);
 
     }
     @Override
@@ -138,6 +131,15 @@ public class MainNavigationActivity extends AppCompatActivity {
         if(FirebaseAuth.getInstance().getCurrentUser() == null) {
             startActivity(new Intent(MainNavigationActivity.this, LoginActivity.class));
             finish();
+        }
+    }
+
+    @Override
+    public void onBackPressed(){
+        if(getSupportFragmentManager().getBackStackEntryCount() == 1){
+            finish();
+        }else {
+            super.onBackPressed();
         }
     }
 
@@ -215,6 +217,8 @@ public class MainNavigationActivity extends AppCompatActivity {
             ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
             ft.addToBackStack(backStateName);
             ft.commit();
+        }else{
+            ft.show(fragment);
         }
     }
 }
